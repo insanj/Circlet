@@ -2,12 +2,12 @@ CellCircle
 =======================
 
 A more playful cellular indicator. Watch as your signal fills up, and drains out.
-[x] Seaching... or airplane means null set
-[x] No service means empty
-[x] One bars means a bit full
-[x] Two bar means half full
-[x] Three or four bars means mostly full
-[x] Five bars means full
+- Seaching... or airplane means null set
+- No service means empty
+- One bar means a bit full
+- Two bars means half full
+- Three or four bars means mostly full
+- Five bars means full
 
 Commercial, closed-source tweak.
 

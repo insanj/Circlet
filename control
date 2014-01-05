@@ -1,0 +1,17 @@
+Package: com.insanj.cellcircle
+Name: CellCircle
+Pre-Depends: firmware (>= 7.0)
+Depends: firmware (>= 7.0)
+Version: 0.1
+Architecture: iphoneos-arm
+Description: A playful cellular indicator.
+ A more playful cellular indicator. Watch as your signal fills up, and drains out.
+ - Seaching... or airplane means null set
+ - No service means empty
+ - One bar means a bit full
+ - Two bars means half full
+ - Three or four bars means mostly full
+ - Five bars means full
+Maintainer: insanj <me@insanj.com>
+Author: Julian (insanj) Weiss
+Section: Tweaks3
