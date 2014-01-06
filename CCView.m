@@ -29,10 +29,10 @@
 		level = YES;
 		
 		self.backgroundColor = [UIColor clearColor];
-		UIButton *fake = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, diameter, diameter)];
+		fake = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, diameter, diameter)];
 		[fake setBackgroundColor:[UIColor clearColor]];
 		fake.layer.borderWidth = CCBorderWidth;
-		fake.layer.borderColor = [UIColor blackColor].CGColor;
+		fake.layer.borderColor = [UIColor whiteColor].CGColor;
 		fake.layer.cornerRadius = 50;
 		fake.layer.masksToBounds = NO;
 		[self addSubview:fake];
@@ -45,18 +45,18 @@
 		[self insertSubview:holder belowSubview:fake];
 
 		inside = [[UIView alloc] initWithFrame:holder.frame];
-		inside.backgroundColor = [UIColor colorWithWhite:0.2f alpha:1.0f];
+		inside.backgroundColor = [UIColor colorWithWhite:0.9f alpha:1.0f];
 		inside.clipsToBounds = YES;
 		[holder addSubview:inside];
 			
-		__weak typeof(self) weakSelf = self;
+		__unsafe_unretained CCView *weakSelf = self;
 		levelHandler = ^void(CMAccelerometerData *accelerometerData, NSError *error){
 			if(!weakSelf.level)
 				return;
 			
 			CGFloat x = accelerometerData.acceleration.x;
 			weakSelf.holder.transform = CGAffineTransformIdentity;
-			weakSelf.holder.transform = CGAffineTransformMakeRotation(x/M_PI);
+			weakSelf.holder.transform = CGAffineTransformMakeRotation(-x);
 		};
 
 		manager = [[CMMotionManager alloc] init];
@@ -77,11 +77,11 @@
 	diameter = radius * 2;
 }
 
--(void)setState:(CCViewState)given{
+-(void)setState:(int)given{
 	state = given;
 	[self removeLine];
 
-	switch(given){
+	switch(state){
 		case CCViewStateNull:
 			[self addLine];
 			[self setInsideHeight:0.f];
@@ -119,6 +119,22 @@
 	}
 }
 
+#pragma mark - foolers (public)
+
+-(id)image{
+	fake.layer.borderColor = [UIColor whiteColor].CGColor;
+	inside.backgroundColor = [UIColor colorWithWhite:0.9f alpha:1.0f];
+
+	return self;
+}
+
+-(id)shadowImage{
+	fake.layer.borderColor = [UIColor blackColor].CGColor;
+	inside.backgroundColor = [UIColor colorWithWhite:0.2f alpha:1.0f];
+
+	return self;
+}
+
 #pragma mark - reactors (private)
 
 -(void)addLine{
@@ -128,7 +144,7 @@
 	
 	line = [CAShapeLayer layer];
 	line.path = [path CGPath];
-	line.strokeColor = [[UIColor blackColor] CGColor];
+	line.strokeColor = fake.layer.borderColor;
 	line.lineWidth = 3.0;
 	line.fillColor = [[UIColor clearColor] CGColor];
 	[self.layer addSublayer:line];

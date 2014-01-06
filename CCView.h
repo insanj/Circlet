@@ -26,6 +26,7 @@ typedef enum CCViewState{
 	CGFloat radius, diameter;
 	CCViewState state;
 	
+	UIButton *fake;
 	CAShapeLayer *line;
 	
 	void(^levelHandler)(CMAccelerometerData *accelerometerData, NSError *error);
@@ -35,12 +36,13 @@ typedef enum CCViewState{
 @property (nonatomic, readwrite) BOOL level;
 @property (nonatomic, retain) UIView *holder, *inside;
 
-
 -(instancetype)initWithRadius:(CGFloat)given;
 
 -(void)setRadius:(CGFloat)given;
--(void)setState:(CCViewState)given;
+-(void)setState:(int)given;
 -(void)setShouldLevel:(BOOL)given;
 
+-(id)image;			//formatted for white view
+-(id)shadowImage;	//formatted for black view
 
 @end
