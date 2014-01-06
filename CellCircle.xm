@@ -1,18 +1,8 @@
 #import "CellCircleHeaders.h"
 #import "CCView.h"
-
-
-@interface UIStatusBarSignalStrengthItemView (CellCircle)
-+(int)bars;
-@end
+//idea -- set nsdistibuted for the circle view, every time update returns TRUE ping it and set the state (+1)
 
 %hook UIStatusBarSignalStrengthItemView
-static int bars;
-
-%new +(int)bars{
-	return bars;
-}
-
 -(_UILegibilityImageSet *)contentsImage{
 	UIGraphicsBeginImageContextWithOptions([%orig image].size, NO, 0.0);
 	UIImage *blank = UIGraphicsGetImageFromCurrentImageContext();
@@ -22,56 +12,53 @@ static int bars;
 }
 
 -(BOOL)updateForNewData:(id)arg1 actions:(int)arg2{
-	bars = MSHookIvar<int>(self, "_signalStrengthBars");
-	NSLog(@"&&&& update bars: %i", bars);
+	if(%orig)
+		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CCStateNotification" object:self];
+
 	return %orig;
 }
 %end
 
 
-//UIStatusBarSignalStrengthItemView: 0x12de1fa90; frame = (6 0; 35 20); alpha = 0; autoresize = RM+BM; userInteractionEnabled = NO; layer = <CALayer: 0x17822f520>> [Item = <UIStatusBarItem: 0x17822f4e0> [SignalStrength (Left)]]
 %hook UIStatusBarLayoutManager
-static CCView *circle;
 
 -(CGRect)_frameForItemView:(id)arg1 startPosition:(float)arg2{
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)])
-		return CGRectMake(6, 0, 18, 20);
+		return CGRectMake(6.0f, 0.f, 18.0f, 20.0f);
 
 	return %orig;
 }
-//-(UIStatusBarItemView *)_viewForItem:(UIStatusBarItem *)arg1;
-/*-(id)_viewForItem:(id)arg1{
-	NSLog(@"----- view %@, orig:%@", arg1, %orig);
-	/*if([%orig isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
-		NSLog(@"----- if!");
-		if(circle){
-			[circle removeFromSuperview];
-			circle = nil;
-		}
-
-		UIStatusBarSignalStrengthItemView *bubbles = %orig;
-		int bars = MSHookIvar<int>(bubbles, "_signalStrengthBars");
-		circle = [[CCView alloc] initWithRadius:(bubbles.frame.size.height / 2.0f)];
-		circle.center = bubbles.center;
-		[circle setState:bars];
-		[bubbles addSubview:circle];
-	}
-
-	return %orig;
-}*/
 %end
 
-%hook UIStatusBarForegroundView
--(id)initWithFrame:(CGRect)arg1 foregroundStyle:(id)arg2{
-	UIStatusBarForegroundView *view = %orig;
-	circle = [[CCView alloc] initWithRadius:(ceilf(arg1.size.height / 2.0f))];
-	circle.center = view.center;
+%hook UIStatusBarViewController
+static CCView *circle;
 
-	int bars = [%c(UIStatusBarSignalStrengthItemView) bars];
-	[circle setState:bars];
 
-	[view addSubview:circle];
-	return view;
+-(id)init{
+
+	//[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(changeState:) name:@"CCStateNotification" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CCStateNotification" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+			UIStatusBarSignalStrengthItemView *sender = notification.object;
+			int bars = MSHookIvar<int>(sender, "_signalStrengthBars");
+			[circle setState:bars];
+	}];
+
+	UIStatusBarViewController *vc = %orig;
+	circle = [[CCView alloc] initWithRadius:(5.0f)];
+	circle.tag = 48;
+	circle.center = CGPointMake(10.f, 10.0f);
+	[circle setWhite:YES];
+	[vc.view addSubview:circle];
+
+
+	return vc;
 }
 
+-(void)setStatusBarStyle:(int)arg1 animationParameters:(id)arg2{
+	%orig;
+	if(arg1 == 0)
+		[circle setWhite:YES];
+	else
+		[circle setWhite:NO];
+}
 %end

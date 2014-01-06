@@ -116,20 +116,16 @@
 	}
 }
 
-#pragma mark - foolers (public)
+-(void)setWhite:(BOOL)given;{
+	if(given){
+		fake.layer.borderColor = [UIColor whiteColor].CGColor;
+		inside.backgroundColor = [UIColor colorWithWhite:0.9f alpha:1.0f];
+	}
 
--(id)image{
-	fake.layer.borderColor = [UIColor whiteColor].CGColor;
-	inside.backgroundColor = [UIColor colorWithWhite:0.9f alpha:1.0f];
-
-	return self;
-}
-
--(id)shadowImage{
-	fake.layer.borderColor = [UIColor blackColor].CGColor;
-	inside.backgroundColor = [UIColor colorWithWhite:0.2f alpha:1.0f];
-
-	return self;
+	else{
+		fake.layer.borderColor = [UIColor blackColor].CGColor;
+		inside.backgroundColor = [UIColor colorWithWhite:0.2f alpha:1.0f];
+	}
 }
 
 #pragma mark - reactors (private)

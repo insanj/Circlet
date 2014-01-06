@@ -41,8 +41,6 @@ typedef enum CCViewState{
 -(void)setRadius:(CGFloat)given;
 -(void)setState:(int)given;
 -(void)setShouldLevel:(BOOL)given;
-
--(id)image;			//formatted for white view
--(id)shadowImage;	//formatted for black view
+-(void)setWhite:(BOOL)given;
 
 @end
