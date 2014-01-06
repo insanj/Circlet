@@ -1,6 +1,18 @@
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
 
+@interface _UILegibilityImageSet : NSObject
+@property(retain) UIImage *image;
+@property(retain) UIImage *shadowImage;
+
++(id)imageFromImage:(UIImage *)arg1 withShadowImage:(UIImage *)arg2;
+
+-(void)setImage:(UIImage *)arg1;
+-(UIImage *)image;
+-(id)initWithImage:(UIImage *)arg1 shadowImage:(UIImage *)arg2;
+-(void)setShadowImage:(UIImage *)arg1;
+-(UIImage *)shadowImage;
+@end
 
 @interface UIStatusBarItem : NSObject
 @property(readonly) int type;
@@ -31,69 +43,13 @@
 -(int)type;
 @end
 
-@interface UIStatusBarLayoutManager : NSObject
-@property BOOL persistentAnimationsEnabled;
-
--(id)initWithRegion:(int)arg1 foregroundView:(id)arg2;
--(void)itemView:(id)arg1 widthChangedBy:(float)arg2;
--(float)_widthNeededForItemView:(id)arg1;
--(UIStatusBarItemView *)_viewForItem:(UIStatusBarItem *)arg1;
--(BOOL)_processDelta:(float)arg1 forView:(id)arg2;
--(CGRect)_repositionedNewFrame:(CGRect)arg1 widthDelta:(float)arg2;
--(float)_positionAfterPlacingItemView:(id)arg1 startPosition:(float)arg2;
--(CGRect)_frameForItemView:(id)arg1 startPosition:(float)arg2;
--(id)_itemViewsSortedForLayout;
--(id)_createViewForItem:(id)arg1 withData:(id)arg2 actions:(int)arg3;
--(BOOL)_updateItemView:(id)arg1 withData:(id)arg2 actions:(int)arg3 animated:(BOOL)arg4;
--(id)_itemViews;
--(void)_positionNewItemViewsWithEnabledItems:(BOOL*)arg1;
--(void)_prepareEnabledItemType:(int)arg1 withEnabledItems:(BOOL*)arg2 withData:(id)arg3 actions:(int)arg4 itemAppearing:(BOOL*)arg5 itemDisappearing:(BOOL*)arg6;
--(void)setPersistentAnimationsEnabled:(BOOL)arg1;
--(BOOL)itemIsVisible:(id)arg1;
--(float)removeOverlap:(float)arg1 fromItems:(id)arg2;
--(float)widthNeededForItem:(id)arg1;
--(float)distributeOverlap:(float)arg1 amongItems:(id)arg2;
--(float)widthNeededForItems:(id)arg1;
--(void)clearOverlapFromItems:(id)arg1;
--(CGRect)rectForItems:(id)arg1;
--(void)makeVisibleItemsPerformPendedActions;
--(void)removeDisabledItems:(BOOL*)arg1;
--(void)positionInvisibleItems;
--(void)setVisibilityOfItem:(id)arg1 visible:(BOOL)arg2;
--(void)reflowWithVisibleItems:(id)arg1 duration:(double)arg2;
--(void)setVisibilityOfAllItems:(BOOL)arg1;
--(BOOL)updateItemsWithData:(id)arg1 actions:(int)arg2 animated:(BOOL)arg3;
--(BOOL)prepareEnabledItems:(BOOL*)arg1 withData:(id)arg2 actions:(int)arg3;
--(void)setForegroundView:(id)arg1;
--(float)_startPosition;
-@end
-
-@interface _UILegibilityImageSet : NSObject
-
-@property(retain) UIImage *image;
-@property(retain) UIImage *shadowImage;
-
-+(id)imageFromImage:(UIImage *)arg1 withShadowImage:(UIImage *)arg2;
-
--(void)setImage:(UIImage *)arg1;
--(UIImage *)image;
--(id)initWithImage:(UIImage *)arg1 shadowImage:(UIImage *)arg2;
--(void)setShadowImage:(UIImage *)arg1;
--(UIImage *)shadowImage;
-@end
-
 @interface UIStatusBarItemView : UIView
-@property(readonly) UIStatusBarItem *item;
-@property UIStatusBarLayoutManager * ayoutManager;
-@property(getter=isVisible) BOOL visible;
-@property BOOL allowsUpdates;
-
 +(id)createViewForItem:(UIStatusBarItem *)arg1 withData:(id)arg2 actions:(int)arg3 foregroundStyle:(id)arg4;
 
 -(BOOL)isVisible;
 -(int)textStyle;
--(void)setLayoutManager:(UIStatusBarLayoutManager *)arg1;
--(UIStatusBarLayoutManager *)layoutManager;
+-(void)setLayoutManager:(id)arg1; // UIStatusBarLayoutManager *
+-(id)layoutManager;
 -(void)beginDisablingRasterization;
 -(id)imageWithText:(id)arg1;
 -(void)performPendedActions;
@@ -138,7 +94,6 @@
 -(void)setContentMode:(int)arg1;
 @end
 
-
 @interface UIStatusBarSignalStrengthItemView : UIStatusBarItemView{
     int _signalStrengthRaw;
     int _signalStrengthBars;
@@ -153,3 +108,65 @@
 -(void)touchesEnded:(id)arg1 withEvent:(id)arg2;
 @end
 
+@interface UIStatusBarLayoutManager : NSObject
+@property BOOL persistentAnimationsEnabled;
+
+-(id)initWithRegion:(int)arg1 foregroundView:(id)arg2;
+-(void)itemView:(id)arg1 widthChangedBy:(float)arg2;
+-(float)_widthNeededForItemView:(id)arg1;
+-(id)_viewForItem:(id)arg1;
+-(BOOL)_processDelta:(float)arg1 forView:(id)arg2;
+-(CGRect)_repositionedNewFrame:(CGRect)arg1 widthDelta:(float)arg2;
+-(float)_positionAfterPlacingItemView:(id)arg1 startPosition:(float)arg2;
+-(CGRect)_frameForItemView:(id)arg1 startPosition:(float)arg2;
+-(id)_itemViewsSortedForLayout;
+-(id)_createViewForItem:(id)arg1 withData:(id)arg2 actions:(int)arg3;
+-(BOOL)_updateItemView:(id)arg1 withData:(id)arg2 actions:(int)arg3 animated:(BOOL)arg4;
+-(id)_itemViews;
+-(void)_positionNewItemViewsWithEnabledItems:(BOOL*)arg1;
+-(void)_prepareEnabledItemType:(int)arg1 withEnabledItems:(BOOL*)arg2 withData:(id)arg3 actions:(int)arg4 itemAppearing:(BOOL*)arg5 itemDisappearing:(BOOL*)arg6;
+-(void)setPersistentAnimationsEnabled:(BOOL)arg1;
+-(BOOL)itemIsVisible:(id)arg1;
+-(float)removeOverlap:(float)arg1 fromItems:(id)arg2;
+-(float)widthNeededForItem:(id)arg1;
+-(float)distributeOverlap:(float)arg1 amongItems:(id)arg2;
+-(float)widthNeededForItems:(id)arg1;
+-(void)clearOverlapFromItems:(id)arg1;
+-(CGRect)rectForItems:(id)arg1;
+-(void)makeVisibleItemsPerformPendedActions;
+-(void)removeDisabledItems:(BOOL*)arg1;
+-(void)positionInvisibleItems;
+-(void)setVisibilityOfItem:(id)arg1 visible:(BOOL)arg2;
+-(void)reflowWithVisibleItems:(id)arg1 duration:(double)arg2;
+-(void)setVisibilityOfAllItems:(BOOL)arg1;
+-(BOOL)updateItemsWithData:(id)arg1 actions:(int)arg2 animated:(BOOL)arg3;
+-(BOOL)prepareEnabledItems:(BOOL*)arg1 withData:(id)arg2 actions:(int)arg3;
+-(void)setForegroundView:(id)arg1;
+-(float)_startPosition;
+@end
+
+@interface UIStatusBarForegroundView : UIView
+-(void)_cleanUpAfterDataChange;
+-(void)_cleanUpAfterSimpleReflow;
+-(id)_computeVisibleItemsPreservingHistory:(BOOL)arg1;
+-(void)_reflowItemViewsCrossfadingCenterWithDuration:(double)arg1;
+-(void)_reflowItemViewsWithDuration:(double)arg1 preserveHistory:(BOOL)arg2;
+-(void)_setStatusBarData:(id)arg1 actions:(int)arg2 animated:(BOOL)arg3;
+-(BOOL)_tryToPlaceItem:(id)arg1 inItemArray:(id)arg2 layoutManager:(id)arg3 roomRemaining:(float*)arg4 allowSwap:(BOOL)arg5 swappedItem:(id*)arg6;
+-(float)edgePadding;
+-(id)foregroundStyle;
+-(int)idiom;
+-(BOOL)ignoringData;
+-(id)initWithFrame:(CGRect)arg1 foregroundStyle:(id)arg2;
+-(BOOL)pointInside:(CGPoint)arg1 withEvent:(id)arg2;
+-(void)reflowItemViews:(BOOL)arg1;
+-(void)reflowItemViewsCrossfadingCenter:(id)arg1 duration:(double)arg2;
+-(void)reflowItemViewsForgettingEitherSideItemHistory;
+-(void)setBounds:(CGRect)arg1;
+-(void)setFrame:(CGRect)arg1;
+-(void)setIdiom:(int)arg1;
+-(void)setPersistentAnimationsEnabled:(BOOL)arg1;
+-(void)setStatusBarData:(id)arg1 actions:(int)arg2 animated:(BOOL)arg3;
+-(void)startIgnoringData;
+-(void)stopIgnoringData:(BOOL)arg1;
+@end

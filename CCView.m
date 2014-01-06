@@ -50,10 +50,7 @@
 		[holder addSubview:inside];
 			
 		__unsafe_unretained CCView *weakSelf = self;
-		levelHandler = ^void(CMAccelerometerData *accelerometerData, NSError *error){
-			if(!weakSelf.level)
-				return;
-			
+		levelHandler = ^void(CMAccelerometerData *accelerometerData, NSError *error){			
 			CGFloat x = accelerometerData.acceleration.x;
 			weakSelf.holder.transform = CGAffineTransformIdentity;
 			weakSelf.holder.transform = CGAffineTransformMakeRotation(-x);
