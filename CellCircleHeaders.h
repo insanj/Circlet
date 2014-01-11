@@ -145,7 +145,13 @@
 -(float)_startPosition;
 @end
 
+@interface UIStatusBarForegroundStyleAttributes : NSObject
+- (int)legibilityStyle;
+- (UIColor *)textColorForStyle:(int)arg1;
+@end
+
 @interface UIStatusBarForegroundView : UIView
+-(UIStatusBarForegroundStyleAttributes *)foregroundStyle;
 -(void)_cleanUpAfterDataChange;
 -(void)_cleanUpAfterSimpleReflow;
 -(id)_computeVisibleItemsPreservingHistory:(BOOL)arg1;
@@ -154,7 +160,6 @@
 -(void)_setStatusBarData:(id)arg1 actions:(int)arg2 animated:(BOOL)arg3;
 -(BOOL)_tryToPlaceItem:(id)arg1 inItemArray:(id)arg2 layoutManager:(id)arg3 roomRemaining:(float*)arg4 allowSwap:(BOOL)arg5 swappedItem:(id*)arg6;
 -(float)edgePadding;
--(id)foregroundStyle;
 -(int)idiom;
 -(BOOL)ignoringData;
 -(id)initWithFrame:(CGRect)arg1 foregroundStyle:(id)arg2;

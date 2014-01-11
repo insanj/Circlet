@@ -14,12 +14,13 @@
 #define CCBorderReactiveWidth CCBorderWidth/2.f
 
 typedef enum CCViewState{
-    CCViewStateNull,		//searching...
-    CCViewStateEmpty,	//no service
-    CCViewStatePartial,	//one bars
-	CCViewStateHalf,		//two - three bars
-	CCViewStateMost,		//four bars
-	CCViewStateFull		//five bars
+    CCViewStateNull,		//searching... | airplane
+    CCViewStateEmpty,		//no service
+    CCViewStateOne,			//one bar
+	CCViewStateTwo,			//two bars
+	CCViewStateThree,		//three bars
+	CCViewStateFour,		//four bars
+	CCViewStateFive			//five bars
 } CCViewState;
 
 @interface CCView : UIView{
@@ -41,6 +42,6 @@ typedef enum CCViewState{
 -(void)setRadius:(CGFloat)given;
 -(void)setState:(int)given;
 -(void)setShouldLevel:(BOOL)given;
--(void)setWhite:(BOOL)given;
+-(void)setTint:(UIColor *)given;
 
 @end

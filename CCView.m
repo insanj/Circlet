@@ -86,16 +86,19 @@
 		case CCViewStateEmpty:
 			[self setInsideHeight:0.f];
 			break;
-		case CCViewStatePartial:
-			[self setInsideHeight:diameter/4];
+		case CCViewStateOne:
+			[self setInsideHeight:diameter/5];
 			break;
-		case CCViewStateHalf:
-			[self setInsideHeight:radius];
+		case CCViewStateTwo:
+			[self setInsideHeight:(2 * diameter)/5];
 			break;
-		case CCViewStateMost:
-			[self setInsideHeight:(3 * diameter)/4];
+		case CCViewStateThree:
+			[self setInsideHeight:(3 * diameter)/5];
 			break;
-		case CCViewStateFull:
+		case CCViewStateFour:
+			[self setInsideHeight:(4 * diameter)/5];
+			break;
+		case CCViewStateFive:
 			[self setInsideHeight:diameter];
 			break;
 	}
@@ -116,16 +119,12 @@
 	}
 }
 
--(void)setWhite:(BOOL)given;{
-	if(given){
-		fake.layer.borderColor = [UIColor whiteColor].CGColor;
-		inside.backgroundColor = [UIColor colorWithWhite:0.9f alpha:1.0f];
-	}
+-(void)setTint:(UIColor *)given{
+	fake.layer.borderColor = given.CGColor;
 
-	else{
-		fake.layer.borderColor = [UIColor blackColor].CGColor;
-		inside.backgroundColor = [UIColor colorWithWhite:0.2f alpha:1.0f];
-	}
+	CGFloat h, s, b, a;
+	[given getHue:&h saturation:&s brightness:&b alpha:&a];
+	inside.backgroundColor = [UIColor colorWithHue:h saturation:s brightness:fmod(0.75, b) alpha:a];
 }
 
 #pragma mark - reactors (private)
