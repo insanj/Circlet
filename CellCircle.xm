@@ -33,39 +33,49 @@
 %end
 
 @interface UIStatusBarForegroundView (CellCircle)
--(CCView *)createCircle;
+-(CCView *)circleWithFrame:(CGRect)frame;
+-(void)setCircleStyle:(UIStatusBarForegroundStyleAttributes *)style;
 @end
 
 %hook UIStatusBarForegroundView
-static CCView *circle;
+CCView *circle;
 
-%new -(CCView *)createCircle{
-	circle = [[CCView alloc] initWithRadius:(5.0f)];
-	circle.center = CGPointMake(10.f, 10.0f);
+%new -(CCView *)circleWithFrame:(CGRect)frame{
+	if(!circle)
+		circle = [[CCView alloc] initWithRadius:(frame.size.height / 2.f)];
+	circle.frame = frame;
+	circle.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
 
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CCStateNotification" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
 		[circle setState:[[notification userInfo][@"bars"] intValue]];
-		
-		UIStatusBarForegroundStyleAttributes *foregroundStyle = [self foregroundStyle];
-		[circle setTint:[foregroundStyle textColorForStyle:[foregroundStyle legibilityStyle]]];
+		[self setCircleStyle:[self foregroundStyle]];
 	}];
 
 	return circle;
 }
 
+// UIDeviceWhiteColorSpace 1 1, equivalent to -colorWithWhite:alpha:
+%new -(void)setCircleStyle:(UIStatusBarForegroundStyleAttributes *)style{
+	[circle setTint:[style textColorForStyle:[style legibilityStyle]]];
+}
 
 -(void)_setStyle:(id)arg1{
-	UIStatusBarForegroundStyleAttributes *foregroundStyle = arg1;
-	[circle setTint:[foregroundStyle textColorForStyle:[foregroundStyle legibilityStyle]]];
 	%orig;
+	[self setCircleStyle:arg1];
 }
 
 // ---- adding <UIStatusBarSignalStrengthItemView: 0x147d11160; frame = (6 0; 18 20); alpha = 0; autoresize = RM+BM; userInteractionEnabled = NO; layer = <CALayer: 0x17003a400>> [Item = <UIStatusBarItem: 0x17003a3e0> [SignalStrength (Left)]]
 -(void)addSubview:(id)arg1{
-	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)])
-		%orig(circle?circle:[self createCircle]);
-	else
+	NSLog(@"----- adding %@", arg1);
+	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
+		NSLog(@"----- if where %@", circle);
+		%orig([self circleWithFrame:[(UIStatusBarSignalStrengthItemView *)arg1 frame]]);
+		[self bringSubviewToFront:circle];
+	}
+	else{
+		NSLog(@"----- else!");
 		%orig;
+	}
 }
 
 %end

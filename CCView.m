@@ -122,9 +122,9 @@
 -(void)setTint:(UIColor *)given{
 	fake.layer.borderColor = given.CGColor;
 
-	CGFloat h, s, b, a;
-	[given getHue:&h saturation:&s brightness:&b alpha:&a];
-	inside.backgroundColor = [UIColor colorWithHue:h saturation:s brightness:fmod(0.75, b) alpha:a];
+	CGFloat w, a;
+	[given getWhite:&w alpha:&a];
+	inside.backgroundColor = [UIColor colorWithWhite:(w/2.f) alpha:a];
 }
 
 #pragma mark - reactors (private)
