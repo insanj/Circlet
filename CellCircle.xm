@@ -44,6 +44,8 @@ CCView *circle;
 		circle = [[CCView alloc] initWithRadius:(frame.size.height / 2.f)];
 
 	circle.frame = frame;
+	circle.alpha = 1.0f;
+	circle.hidden = NO;
 	circle.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
 
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CCStateNotification" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
@@ -64,19 +66,17 @@ CCView *circle;
 	[self setCircleStyle:arg1];
 }
 
-//  ----- adding <UIStatusBarSignalStrengthItemView: 0x137dd5cb0; frame = (0 0; 18 20); alpha = 0; autoresize = RM+BM; userInteractionEnabled = NO; layer = <CALayer: 0x178637f80>> [Item = <UIStatusBarItem: 0x170623120> [SignalStrength (Left)]]
-//	----- if where <CCView: 0x137ded630; frame = (6 0; 18 20); autoresize = RM+BM; layer = <CALayer: 0x178621ea0>>
+//- adding <UIStatusBarSignalStrengthItemView: 0x137dd5cb0; frame = (0 0; 18 20); alpha = 0; autoresize = RM+BM; userInteractionEnabled = NO; layer = <CALayer: 0x178637f80>> [Item = <UIStatusBarItem: 0x170623120> [SignalStrength (Left)]]
+//- if where <CCView: 0x137ded630; frame = (6 0; 18 20); autoresize = RM+BM; layer = <CALayer: 0x178621ea0>>
 
 -(void)addSubview:(id)arg1{
+	%orig;
 
 	// does get accurately and sufficiently called from SpringBoard
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
 		%orig([self circleWithFrame:[(UIStatusBarSignalStrengthItemView *)arg1 frame]]);
 		[self bringSubviewToFront:circle];
 	}
-
-	else
-		%orig;
 }
 
 %end
