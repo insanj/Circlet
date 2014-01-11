@@ -14,7 +14,6 @@
 -(BOOL)updateForNewData:(id)arg1 actions:(int)arg2{
 	if(%orig){
 		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
-		NSLog(@"---- bars:%i", bars);
 		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CCStateNotification" object:nil userInfo:@{@"bars" : @(bars)}];
 	}
 
@@ -26,7 +25,7 @@
 %hook UIStatusBarLayoutManager
 -(CGRect)_frameForItemView:(id)arg1 startPosition:(float)arg2{
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)])
-		return CGRectMake(6.0f, 0.f, 18.0f, 20.0f);
+		return CGRectMake(6.0f, 0.f, 20.0f, 20.0f);
 
 	return %orig;
 }
@@ -43,6 +42,7 @@ CCView *circle;
 %new -(CCView *)circleWithFrame:(CGRect)frame{
 	if(!circle)
 		circle = [[CCView alloc] initWithRadius:(frame.size.height / 2.f)];
+
 	circle.frame = frame;
 	circle.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
 
@@ -64,18 +64,19 @@ CCView *circle;
 	[self setCircleStyle:arg1];
 }
 
-// ---- adding <UIStatusBarSignalStrengthItemView: 0x147d11160; frame = (6 0; 18 20); alpha = 0; autoresize = RM+BM; userInteractionEnabled = NO; layer = <CALayer: 0x17003a400>> [Item = <UIStatusBarItem: 0x17003a3e0> [SignalStrength (Left)]]
+//  ----- adding <UIStatusBarSignalStrengthItemView: 0x137dd5cb0; frame = (0 0; 18 20); alpha = 0; autoresize = RM+BM; userInteractionEnabled = NO; layer = <CALayer: 0x178637f80>> [Item = <UIStatusBarItem: 0x170623120> [SignalStrength (Left)]]
+//	----- if where <CCView: 0x137ded630; frame = (6 0; 18 20); autoresize = RM+BM; layer = <CALayer: 0x178621ea0>>
+
 -(void)addSubview:(id)arg1{
-	NSLog(@"----- adding %@", arg1);
+
+	// does get accurately and sufficiently called from SpringBoard
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
-		NSLog(@"----- if where %@", circle);
 		%orig([self circleWithFrame:[(UIStatusBarSignalStrengthItemView *)arg1 frame]]);
 		[self bringSubviewToFront:circle];
 	}
-	else{
-		NSLog(@"----- else!");
+
+	else
 		%orig;
-	}
 }
 
 %end
