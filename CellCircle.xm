@@ -2,81 +2,71 @@
 #import "CCView.h"
 #import "substrate.h"
 
+@interface UIStatusBarSignalStrengthItemView (CellCircle)
+@property (nonatomic, retain) CCView *circle;
+-(CCView *)circleWithRadius:(CGFloat)arg1 andCenter:(CGPoint)arg2;
+@end
+
 %hook UIStatusBarSignalStrengthItemView
+
+// Below method doesn't appear to be called at any time in Springboard, but I wanted
+// to leave it in here to reassure that this solution isn't viable (even if UIView is return)
+//+(id)createViewForItem:(UIStatusBarItem *)arg1 withData:(id)arg2 actions:(int)arg3 foregroundStyle:(id)arg4
+
+// Initialize and set-up the instance variable (circle), and add it as a subview
+-(id)init{
+	NSLog(@"[CellCircle]: Creating CellCircle and loading into signal view");
+	UIStatusBarSignalStrengthItemView *original = %orig;
+	self.circle = [original circleWithRadius:original.frame.size.height/2.f andCenter:original.center];
+	[original addSubview:self.circle];
+	return original;
+}
+
+// Return a transparent image for the statusbar item's symbol
 -(_UILegibilityImageSet *)contentsImage{
-	UIGraphicsBeginImageContextWithOptions([%orig image].size, NO, 0.0);
+	NSLog(@"[CellCircle]: Dealing with old signal view's symbol management");
+	UIGraphicsBeginImageContextWithOptions([%orig image].size, NO, 0.f);
 	UIImage *blank = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
 
 	return [%c(_UILegibilityImageSet) imageFromImage:blank withShadowImage:blank];
 }
 
+// When updating statusitem, make sure circle style and bars are up-to-date
 -(BOOL)updateForNewData:(id)arg1 actions:(int)arg2{
+	NSLog(@"[CellCircle]: Checking for signal update information (looks like there %@ an update)", %orig?@"is":@"isn't");
 	if(%orig){
 		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
-		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CCStateNotification" object:nil userInfo:@{@"bars" : @(bars)}];
+		[self.circle setState:bars];
+
+		UIStatusBarForegroundStyleAttributes *foregroundStyle = [self foregroundStyle];
+		[self.circle setTint:[foregroundStyle textColorForStyle:[foregroundStyle legibilityStyle]]];
 	}
 
 	return %orig;
 }
+
+// Create new CCView with the given radius and center-point
+%new -(CCView *)circleWithRadius:(CGFloat)arg1 andCenter:(CGPoint)arg2{
+	NSLog(@"[CellCircle]: Creating a new circle (CCView) to load into statusbar");
+	CCView *newCircle = [[CCView alloc] initWithRadius:arg1];
+	newCircle.center = arg2;
+	newCircle.alpha = 1.f;
+	newCircle.hidden = NO;
+	newCircle.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
+
+	return newCircle;
+}
 %end
 
-
+// Make sure the spacing in the layoutmanager is the circle's preferred, not original
 %hook UIStatusBarLayoutManager
 -(CGRect)_frameForItemView:(id)arg1 startPosition:(float)arg2{
-	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)])
+	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
+		NSLog(@"[CellCircle]: Changing the spacing for statusbaritem (%@)", arg1);
 		return CGRectMake(6.0f, 0.f, 20.0f, 20.0f);
+	}
 
 	return %orig;
 }
-%end
-
-@interface UIStatusBarForegroundView (CellCircle)
--(CCView *)circleWithFrame:(CGRect)frame;
--(void)setCircleStyle:(UIStatusBarForegroundStyleAttributes *)style;
-@end
-
-%hook UIStatusBarForegroundView
-CCView *circle;
-
-%new -(CCView *)circleWithFrame:(CGRect)frame{
-	if(!circle)
-		circle = [[CCView alloc] initWithRadius:(frame.size.height / 2.f)];
-
-	circle.frame = frame;
-	circle.alpha = 1.0f;
-	circle.hidden = NO;
-	circle.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
-
-	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CCStateNotification" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-		[circle setState:[[notification userInfo][@"bars"] intValue]];
-		[self setCircleStyle:[self foregroundStyle]];
-	}];
-
-	return circle;
-}
-
-// UIDeviceWhiteColorSpace 1 1, equivalent to -colorWithWhite:alpha:
-%new -(void)setCircleStyle:(UIStatusBarForegroundStyleAttributes *)style{
-	[circle setTint:[style textColorForStyle:[style legibilityStyle]]];
-}
-
--(void)_setStyle:(id)arg1{
-	%orig;
-	[self setCircleStyle:arg1];
-}
-
-//- adding <UIStatusBarSignalStrengthItemView: 0x137dd5cb0; frame = (0 0; 18 20); alpha = 0; autoresize = RM+BM; userInteractionEnabled = NO; layer = <CALayer: 0x178637f80>> [Item = <UIStatusBarItem: 0x170623120> [SignalStrength (Left)]]
-//- if where <CCView: 0x137ded630; frame = (6 0; 18 20); autoresize = RM+BM; layer = <CALayer: 0x178621ea0>>
-
--(void)addSubview:(id)arg1{
-	%orig;
-
-	// does get accurately and sufficiently called from SpringBoard
-	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
-		%orig([self circleWithFrame:[(UIStatusBarSignalStrengthItemView *)arg1 frame]]);
-		[self bringSubviewToFront:circle];
-	}
-}
-
 %end

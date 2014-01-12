@@ -20,8 +20,8 @@
 
 #pragma mark - initialization
 -(instancetype)initWithRadius:(CGFloat)given{
-	float pending = given * 2;
-	if((self = [super initWithFrame:CGRectMake(0, 0, pending, pending)])){
+	CGFloat pending = given * 2.f;
+	if((self = [super initWithFrame:CGRectMake(0.f, 0.f, pending, pending)])){
 		self.layer.cornerRadius = 50;
 		radius = given;
 		diameter = pending;
@@ -29,23 +29,23 @@
 		level = YES;
 		
 		self.backgroundColor = [UIColor clearColor];
-		fake = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, diameter, diameter)];
+		fake = [[UIButton alloc] initWithFrame:CGRectMake(0.f, 0.f, diameter, diameter)];
 		[fake setBackgroundColor:[UIColor clearColor]];
 		fake.layer.borderWidth = CCBorderWidth;
 		fake.layer.borderColor = [UIColor whiteColor].CGColor;
-		fake.layer.cornerRadius = 50;
+		fake.layer.cornerRadius = 50.f;
 		fake.layer.masksToBounds = NO;
 		[self addSubview:fake];
 		
-		holder = [[UIView alloc] initWithFrame:CGRectMake(0, 0, diameter, diameter)];
+		holder = [[UIView alloc] initWithFrame:CGRectMake(0.f, 0.f, diameter, diameter)];
 		holder.center = fake.center;
 		holder.backgroundColor = [UIColor clearColor];
 		holder.clipsToBounds = YES;
-		holder.layer.cornerRadius = 50;
+		holder.layer.cornerRadius = 50.f;
 		[self insertSubview:holder belowSubview:fake];
 
 		inside = [[UIView alloc] initWithFrame:holder.frame];
-		inside.backgroundColor = [UIColor colorWithWhite:0.9f alpha:1.0f];
+		inside.backgroundColor = [UIColor colorWithWhite:0.9f alpha:1.f];
 		inside.clipsToBounds = YES;
 		[holder addSubview:inside];
 			
@@ -53,7 +53,7 @@
 		levelHandler = ^void(CMAccelerometerData *accelerometerData, NSError *error){			
 			CGFloat x = accelerometerData.acceleration.x;
 			weakSelf.holder.transform = CGAffineTransformIdentity;
-			weakSelf.holder.transform = CGAffineTransformMakeRotation(-x);
+			weakSelf.holder.transform = CGAffineTransformMakeRotation(-x * 0.5f);
 		};
 
 		manager = [[CMMotionManager alloc] init];
@@ -63,18 +63,15 @@
 	return self;
 }
 
--(void)dealloc{
-}
-
 # pragma mark - setters (public)
 
 -(void)setRadius:(CGFloat)given{
 	self.layer.cornerRadius = given;
 	radius = given;
-	diameter = radius * 2;
+	diameter = radius * 2.f;
 }
 
--(void)setState:(int)given{
+-(void)setState:(NSInteger)given{
 	state = given;
 	[self removeLine];
 
@@ -87,16 +84,16 @@
 			[self setInsideHeight:0.f];
 			break;
 		case CCViewStateOne:
-			[self setInsideHeight:diameter/5];
+			[self setInsideHeight:diameter/5.f];
 			break;
 		case CCViewStateTwo:
-			[self setInsideHeight:(2 * diameter)/5];
+			[self setInsideHeight:(2.f * diameter)/5.f];
 			break;
 		case CCViewStateThree:
-			[self setInsideHeight:(3 * diameter)/5];
+			[self setInsideHeight:(3.f * diameter)/5.f];
 			break;
 		case CCViewStateFour:
-			[self setInsideHeight:(4 * diameter)/5];
+			[self setInsideHeight:(4.f * diameter)/5.f];
 			break;
 		case CCViewStateFive:
 			[self setInsideHeight:diameter];
@@ -137,7 +134,7 @@
 	line = [CAShapeLayer layer];
 	line.path = [path CGPath];
 	line.strokeColor = fake.layer.borderColor;
-	line.lineWidth = 3.0;
+	line.lineWidth = 3.f;
 	line.fillColor = [[UIColor clearColor] CGColor];
 	[self.layer addSublayer:line];
 }

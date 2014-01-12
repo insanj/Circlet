@@ -40,7 +40,7 @@ typedef enum CCViewState{
 -(instancetype)initWithRadius:(CGFloat)given;
 
 -(void)setRadius:(CGFloat)given;
--(void)setState:(int)given;
+-(void)setState:(NSInteger)given;
 -(void)setShouldLevel:(BOOL)given;
 -(void)setTint:(UIColor *)given;
 
