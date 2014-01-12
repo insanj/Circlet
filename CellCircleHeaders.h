@@ -1,5 +1,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
+#import "substrate.h"
 
 @interface _UILegibilityImageSet : NSObject
 @property(retain) UIImage *image;
