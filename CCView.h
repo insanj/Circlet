@@ -35,12 +35,11 @@ typedef enum CCViewState{
 	CMMotionManager *manager;
 }
 
-@property (nonatomic, readwrite) BOOL level;
+@property (nonatomic, readwrite) BOOL shouldUpdateManager;
 @property (nonatomic, retain) UIView *holder, *inside;
 @property (nonatomic, retain) UIStatusBarSignalStrengthItemView *original;
 
 -(instancetype)initWithRadius:(CGFloat)given;
--(void)dealloc;
 
 -(void)hijackOriginal:(UIStatusBarSignalStrengthItemView *)arg1;
 

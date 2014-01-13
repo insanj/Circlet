@@ -6,6 +6,7 @@ include theos/makefiles/common.mk
 TWEAK_NAME = CellCircle
 CellCircle_FILES = $(wildcard *.xm)
 CellCircle_FRAMEWORKS = Foundation UIKit QuartzCore CoreMotion CoreGraphics
+CellCircle_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 

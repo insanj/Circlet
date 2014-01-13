@@ -16,7 +16,7 @@
 @end
 
 @implementation CCView
-@synthesize level, holder, inside, original;
+@synthesize shouldUpdateManager, holder, inside, original;
 
 #pragma mark - lifecycle
 -(instancetype)initWithRadius:(CGFloat)given{
@@ -26,7 +26,6 @@
 		radius = given;
 		diameter = pending;
 		state = CCViewStateNull;
-		level = YES;
 		
 		self.backgroundColor = [UIColor clearColor];
 		fake = [[UIButton alloc] initWithFrame:CGRectMake(0.f, 0.f, diameter, diameter)];
@@ -48,40 +47,21 @@
 		inside.backgroundColor = [UIColor colorWithWhite:0.9f alpha:1.f];
 		inside.clipsToBounds = YES;
 		[holder addSubview:inside];
-			
+
 		__unsafe_unretained CCView *weakSelf = self;
 		levelHandler = ^void(CMAccelerometerData *accelerometerData, NSError *error){			
 			CGFloat x = accelerometerData.acceleration.x;
 			weakSelf.holder.transform = CGAffineTransformIdentity;
 			weakSelf.holder.transform = CGAffineTransformMakeRotation(-x * 0.5f);
-		};
+		};	
 
 		manager = [[CMMotionManager alloc] init];
+		shouldUpdateManager = YES;
 		[manager startAccelerometerUpdatesToQueue:[NSOperationQueue mainQueue] withHandler:levelHandler];
 	}
 	
 	return self;
 }
--(void)dealloc{
-	fake = nil;
-	line = nil;
-	levelHandler = nil;
-	manager = nil;
-	holder = nil;
-	inside = nil;
-	original = nil;
-
-	[fake release];
-	[line release];
-	[levelHandler release];
-	[manager release];
-	[holder release];
-	[inside release];
-	[original release];
-
-	[super dealloc];
-}
-
 
 -(void)hijackOriginal:(UIStatusBarSignalStrengthItemView *)arg1{
 	original = arg1;
@@ -126,16 +106,16 @@
 }
 
 -(void)setShouldLevel:(BOOL)given{
-	if(level && given)			//if both, ignore
+	if(shouldUpdateManager && given)
 		return;
 	
-	if(level && !given){
-		level = NO;
+	if(shouldUpdateManager && !given){
+		shouldUpdateManager = NO;
 		[self resetLevel];
 	}
 	
 	else{
-		level = YES;
+		shouldUpdateManager = YES;
 		[manager startAccelerometerUpdatesToQueue:[NSOperationQueue mainQueue] withHandler:levelHandler];
 	}
 }
