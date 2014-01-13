@@ -16,23 +16,26 @@
 @end
 
 @implementation CCView
-@synthesize shouldUpdateManager, holder, inside, original;
+@synthesize shouldUpdateManager, holder, inside, state;
 
 #pragma mark - lifecycle
 -(instancetype)initWithRadius:(CGFloat)given{
 	CGFloat pending = given * 2.f;
+	CCBorderWidth = 1.f;
+	CCReactiveBorderWidth = CCBorderWidth/2.f;
+	
 	if((self = [super initWithFrame:CGRectMake(0.f, 0.f, pending, pending)])){
-		self.layer.cornerRadius = 50;
+		self.layer.cornerRadius = given;
 		radius = given;
 		diameter = pending;
-		state = CCViewStateNull;
+		state = -1;
 		
 		self.backgroundColor = [UIColor clearColor];
 		fake = [[UIButton alloc] initWithFrame:CGRectMake(0.f, 0.f, diameter, diameter)];
 		[fake setBackgroundColor:[UIColor clearColor]];
 		fake.layer.borderWidth = CCBorderWidth;
 		fake.layer.borderColor = [UIColor whiteColor].CGColor;
-		fake.layer.cornerRadius = 50.f;
+		fake.layer.cornerRadius = given;
 		fake.layer.masksToBounds = NO;
 		[self addSubview:fake];
 		
@@ -40,31 +43,26 @@
 		holder.center = fake.center;
 		holder.backgroundColor = [UIColor clearColor];
 		holder.clipsToBounds = YES;
-		holder.layer.cornerRadius = 50.f;
+		holder.layer.cornerRadius = given;
 		[self insertSubview:holder belowSubview:fake];
-
+		
 		inside = [[UIView alloc] initWithFrame:holder.frame];
 		inside.backgroundColor = [UIColor colorWithWhite:0.9f alpha:1.f];
 		inside.clipsToBounds = YES;
 		[holder addSubview:inside];
-
+		
 		__unsafe_unretained CCView *weakSelf = self;
-		levelHandler = ^void(CMAccelerometerData *accelerometerData, NSError *error){			
+		levelHandler = ^void(CMAccelerometerData *accelerometerData, NSError *error){
 			CGFloat x = accelerometerData.acceleration.x;
 			weakSelf.holder.transform = CGAffineTransformIdentity;
 			weakSelf.holder.transform = CGAffineTransformMakeRotation(-x * 0.5f);
-		};	
-
+		};
+		
+		shouldUpdateManager = NO;
 		manager = [[CMMotionManager alloc] init];
-		shouldUpdateManager = YES;
-		[manager startAccelerometerUpdatesToQueue:[NSOperationQueue mainQueue] withHandler:levelHandler];
 	}
 	
 	return self;
-}
-
--(void)hijackOriginal:(UIStatusBarSignalStrengthItemView *)arg1{
-	original = arg1;
 }
 
 # pragma mark - setters (public)
@@ -75,31 +73,31 @@
 	diameter = radius * 2.f;
 }
 
--(void)setState:(NSInteger)given{
-	state = (CCViewState) given;
+-(void)setState:(int)given{
+	state = given;
 	[self removeLine];
-
+	
 	switch(state){
-		case CCViewStateNull:
+		case -1:
 			[self addLine];
 			[self setInsideHeight:0.f];
 			break;
-		case CCViewStateEmpty:
+		case 0:
 			[self setInsideHeight:0.f];
 			break;
-		case CCViewStateOne:
+		case 1:
 			[self setInsideHeight:diameter/5.f];
 			break;
-		case CCViewStateTwo:
+		case 2:
 			[self setInsideHeight:(2.f * diameter)/5.f];
 			break;
-		case CCViewStateThree:
+		case 3:
 			[self setInsideHeight:(3.f * diameter)/5.f];
 			break;
-		case CCViewStateFour:
+		case 4:
 			[self setInsideHeight:(4.f * diameter)/5.f];
 			break;
-		case CCViewStateFive:
+		case 5:
 			[self setInsideHeight:diameter];
 			break;
 	}
@@ -122,10 +120,30 @@
 
 -(void)setTint:(UIColor *)given{
 	fake.layer.borderColor = given.CGColor;
+	
+	//CGFloat w, a;
+	//[given getWhite:&w alpha:&a];
+	inside.backgroundColor = given; //[UIColor colorWithWhite:(w>=0.5f)?0.75f:0.25f alpha:a];
+}
 
-	CGFloat w, a;
-	[given getWhite:&w alpha:&a];
-	inside.backgroundColor = [UIColor colorWithWhite:(w/2.f) alpha:a];
+#pragma mark - converter getters
+
+-(CCView *)whiteVersion{
+	CCView *white = [[CCView alloc] initWithRadius:radius];
+	white.center = self.center;
+
+	[white setState:state];
+	[white setTint:[UIColor whiteColor]];
+	return white;
+}
+
+-(CCView *)blackVersion{
+	CCView *black = [[CCView alloc] initWithRadius:radius];
+	black.center = self.center;
+
+	[black setState:state];
+	[black setTint:[UIColor blackColor]];
+	return black;
 }
 
 #pragma mark - reactors (private)
@@ -138,7 +156,7 @@
 	line = [CAShapeLayer layer];
 	line.path = [path CGPath];
 	line.strokeColor = fake.layer.borderColor;
-	line.lineWidth = 3.f;
+	line.lineWidth = CCBorderWidth;
 	line.fillColor = [[UIColor clearColor] CGColor];
 	[self.layer addSublayer:line];
 }
@@ -150,7 +168,7 @@
 
 -(void)setInsideHeight:(CGFloat)height{
 	[manager stopAccelerometerUpdates];
-
+	
 	CGRect insideFrame = holder.frame;
 	insideFrame.size.height = height;
 	insideFrame.origin.y = (diameter - height);
@@ -164,208 +182,8 @@
 
 -(void)resetLevel{
 	[manager stopAccelerometerUpdates];
-
+	
 	holder.transform = CGAffineTransformIdentity;
 	holder.transform = CGAffineTransformMakeRotation(0.f);
-}
-
-# pragma mark - hijack'd methods
-
-// higher level
-+(id)createViewForItem:(UIStatusBarItem *)arg1 withData:(id)arg2 actions:(int)arg3 foregroundStyle:(id)arg4{
-	return [[%c(UIStatusBarSignalStrengthItemView) class] createViewForItem:arg1 withData:arg2 actions:arg3 foregroundStyle:arg4];
-}
-
--(BOOL)isVisible{
-	return [original isVisible];
-}
-
--(int)textStyle{
-	return [original textStyle];
-}
-
--(void)setLayoutManager:(id)arg1{
-	[original setLayoutManager:arg1];
-}
-
--(id)layoutManager{
-	return [original layoutManager];
-}
-
--(void)beginDisablingRasterization{
-	[original beginDisablingRasterization];
-}
-
--(id)imageWithText:(id)arg1{
-	return [original imageWithText:arg1];
-}
-
--(void)performPendedActions{
-	[original performPendedActions];
-}
-
--(BOOL)animatesDataChange{
-	return [original animatesDataChange];
-}
-
--(float)maximumOverlap{
-	return [original maximumOverlap];
-}
-
--(float)addContentOverlap:(float)arg1{
-	return [original addContentOverlap:arg1];
-}
-
--(float)resetContentOverlap{
-	return [original resetContentOverlap];
-}
-
--(float)extraRightPadding{
-	return [original extraRightPadding];
-}
-
--(float)extraLeftPadding{
-	return [original extraLeftPadding];
-}
-
--(id)textFont{
-	return [original textFont];
-}
-
--(void)drawText:(id)arg1 forWidth:(float)arg2 lineBreakMode:(int)arg3 letterSpacing:(float)arg4 textSize:(CGSize)arg5{
-	[original drawText:arg1 forWidth:arg2 lineBreakMode:arg3 letterSpacing:arg4 textSize:arg5];
-}
-
--(float)setStatusBarData:(id)arg1 actions:(int)arg2{
-	return [original setStatusBarData:arg1 actions:arg2];
-}
-
--(float)currentRightOverlap{
-	return [original currentRightOverlap];
-}
-
--(float)currentLeftOverlap{
-	return [original currentLeftOverlap];
-}
-
--(float)currentOverlap{
-	return [original currentOverlap];
-}
-
--(void)setCurrentOverlap:(float)arg1{
-	[original setCurrentOverlap:arg1];
-}
-
--(void)setVisible:(BOOL)arg1 frame:(CGRect)arg2 duration:(double)arg3{
-	[original setVisible:arg1 frame:arg2 duration:arg3];
-}
-
--(void)endDisablingRasterization{
-	[original endDisablingRasterization];
-}
-
--(BOOL)cachesImage{
-	return [original cachesImage];
-}
-
--(float)shadowPadding{
-	return [original shadowPadding];
-}
-
--(float)standardPadding{
-	return [original standardPadding];
-}
-
--(void)setLayerContentsImage:(id)arg1{
-	[original setLayerContentsImage:arg1];
-}
-
--(float)legibilityStrength{
-	return [original legibilityStrength];
-}
-
--(BOOL)allowsUpdates{
-	return [original allowsUpdates];
-}
-
--(float)updateContentsAndWidth{
-	return [original updateContentsAndWidth];
-}
-
--(void)setAllowsUpdates:(BOOL)arg1{
-	[original setAllowsUpdates:arg1];
-}
-
--(id)initWithItem:(UIStatusBarItem *)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4{
-	return (CCView*)[original initWithItem:arg1 data:arg2 actions:arg3 style:arg4];
-}
-
--(void)setPersistentAnimationsEnabled:(BOOL)arg1{
-	[original setPersistentAnimationsEnabled:arg1];
-}
-
--(int)legibilityStyle{
-	return [original legibilityStyle];
-}
-
--(_UILegibilityImageSet *)contentsImage{
-	return [original contentsImage];
-}
-
--(BOOL)updateForNewData:(id)arg1 actions:(int)arg2{
-	return [original updateForNewData:arg1 actions:arg2];
-}
-
--(void)endImageContext{
-	[original endImageContext];
-}
-
--(id)imageFromImageContextClippedToWidth:(float)arg1{
-	return [original imageFromImageContextClippedToWidth:arg1];
-}
-
--(void)beginImageContextWithMinimumWidth:(float)arg1{
-	[original beginImageContextWithMinimumWidth:arg1];
-}
-
--(id)foregroundStyle{
-	return [original foregroundStyle];
-}
-
--(id)imageWithShadowNamed:(id)arg1{
-	return [original imageWithShadowNamed:arg1];
-}
-
--(UIStatusBarItem *)item{
-	return [original item];
-}
-
--(int)textAlignment{
-	return [original textAlignment];
-}
-
--(void)setVisible:(BOOL)arg1{
-	[original setVisible:arg1];
-}
-
--(void)willMoveToWindow:(id)arg1{
-	[original willMoveToWindow:arg1];
-}
-
--(BOOL)_shouldAnimatePropertyWithKey:(id)arg1{
-	return [original _shouldAnimatePropertyWithKey:arg1];
-}
-
--(void)setContentMode:(int)arg1{
-	[original setContentMode:arg1];
-}
-
-// lower level
--(NSString *)_stringForRSSI{
-	return [original _stringForRSSI];
-}
-
--(void)touchesEnded:(id)arg1 withEvent:(id)arg2{
-	[original touchesEnded:arg1 withEvent:arg2];
 }
 @end

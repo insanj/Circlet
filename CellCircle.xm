@@ -10,38 +10,22 @@
 	#define debugLog(string, ...)
 #endif
 
-// Global frame variable, as to be accessed in layoutmanager and itemview (and also for prefs)
-static CGRect circleFrame = CGRectMake(5.f, 1.f, 18.f, 18.f);
+#define PADDING 7.5f
+static CGFloat lastDiameter;
 
 @interface UIStatusBarSignalStrengthItemView (CellCircle)
--(CCView *)circleWithFrame:(CGRect)frame;
 -(UIImage *)imageFromCircle:(CCView *)circle;
 @end
 
 %hook UIStatusBarSignalStrengthItemView
-static CCView *currentCircle;
-
-// If needed, create new CCView with given frame (derive radius and set frame to be near-perfect)
-%new -(CCView *)circleWithFrame:(CGRect)frame{
-	if(!currentCircle || (currentCircle && !CGRectEqualToRect(currentCircle.frame, frame))){
-		currentCircle = [[CCView alloc] initWithRadius:frame.size.height/2.f];
-		currentCircle.frame = frame;
-	}
-
-	return currentCircle;
-}
+static int lastState;
 
 // Generate a UIImage from given CCView using GraphicsImageContext (should be quite accurate)
 %new -(UIImage *)imageFromCircle:(CCView *)circle{
-	BOOL isLeveling = circle.shouldUpdateManager;
-	[circle setShouldLevel:NO];
-
-	UIGraphicsBeginImageContextWithOptions(circle.bounds.size, circle.opaque, 0.f);
+	UIGraphicsBeginImageContextWithOptions(circle.bounds.size, NO, 0.f);
     [circle.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-
-	[circle setShouldLevel:isLeveling];
     return image;
 }
 
@@ -49,40 +33,41 @@ static CCView *currentCircle;
 -(_UILegibilityImageSet *)contentsImage{
 	debugLog(@"Dealing with old signal view's symbol management");
 
-	CCView *circle = [self circleWithFrame:circleFrame];
+	lastDiameter = [%orig image].size.height - PADDING;
+	CGFloat radius = (lastDiameter / 2.f);
 
-	[circle setTint:[UIColor whiteColor]];
-	UIImage *white = [self imageFromCircle:circle];
+	CCView *circle = [[CCView alloc] initWithRadius:radius];
+	lastState = MSHookIvar<int>(self, "_signalStrengthBars");
+	[circle setState:lastState];
 
-	[circle setTint:[UIColor blackColor]];
-	UIImage *black = [self imageFromCircle:circle];
+	UIImage *white = [self imageFromCircle:[circle whiteVersion]];
+	UIImage *black = [self imageFromCircle:[circle blackVersion]];
 
-	return [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black];
+	NSLog(@"---- leg:%i", [self legibilityStyle]);
+	if([self legibilityStyle] != 0)
+		return [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black];
+	return [%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
 }
 
 // When updating statusitem, make sure circle style and bars are up-to-date
 -(BOOL)updateForNewData:(id)arg1 actions:(int)arg2{
-	debugLog(@"Checking for signal update information: %@", %orig?@"YES":@"NO");
-
-	if(%orig){
-		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
-		[[self circleWithFrame:circleFrame] setState:bars];
-
-	//	UIStatusBarForegroundStyleAttributes *foregroundStyle = [self foregroundStyle];
-	//	[circle setTint:[foregroundStyle textColorForStyle:[foregroundStyle legibilityStyle]]];
+	int state =  MSHookIvar<int>(self, "_signalStrengthBars");
+	if(%orig || (state != lastState)){
+		debugLog(@"Recognized signal information change for state: %i", state);
+		return YES;
 	}
-
-	return %orig;
+	
+	return NO;
 }
 %end
 
 %hook UIStatusBarLayoutManager
 
 // Make sure the spacing in the layoutmanager is the circle's preferred, not original
--(CGRect)_frameForItemView:(id)arg1 startPosition:(float)arg2{
+-(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
 		debugLog(@"Changing the spacing for statusbaritem: %@", arg1);
-		return circleFrame;
+		return CGRectMake(%orig.origin.x, PADDING / 2.f, lastDiameter, lastDiameter);
 	}
 
 	return %orig;
