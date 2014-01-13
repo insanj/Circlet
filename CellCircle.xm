@@ -10,7 +10,7 @@
 	#define debugLog(string, ...)
 #endif
 
-#define PADDING 7.5f
+#define PADDING 8.f
 static CGFloat lastDiameter;
 
 @interface UIStatusBarSignalStrengthItemView (CellCircle)
@@ -40,13 +40,11 @@ static int lastState;
 	lastState = MSHookIvar<int>(self, "_signalStrengthBars");
 	[circle setState:lastState];
 
-	UIImage *white = [self imageFromCircle:[circle whiteVersion]];
-	UIImage *black = [self imageFromCircle:[circle blackVersion]];
+	UIColor *textColor = [[self foregroundStyle] textColorForStyle:[self legibilityStyle]];
+	UIImage *image = [self imageFromCircle:[circle versionWithColor:textColor]];
+	UIImage *shadow = [self imageFromCircle:[circle versionWithInverse:textColor]];
 
-	NSLog(@"---- leg:%i", [self legibilityStyle]);
-	if([self legibilityStyle] != 0)
-		return [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black];
-	return [%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
 }
 
 // When updating statusitem, make sure circle style and bars are up-to-date

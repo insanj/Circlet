@@ -120,30 +120,31 @@
 
 -(void)setTint:(UIColor *)given{
 	fake.layer.borderColor = given.CGColor;
-	
-	//CGFloat w, a;
-	//[given getWhite:&w alpha:&a];
-	inside.backgroundColor = given; //[UIColor colorWithWhite:(w>=0.5f)?0.75f:0.25f alpha:a];
+	inside.backgroundColor = given;
 }
 
 #pragma mark - converter getters
 
--(CCView *)whiteVersion{
-	CCView *white = [[CCView alloc] initWithRadius:radius];
-	white.center = self.center;
+-(CCView *)versionWithColor:(UIColor *)given{
+	CCView *version = [[CCView alloc] initWithRadius:radius];
+	version.center = self.center;
 
-	[white setState:state];
-	[white setTint:[UIColor whiteColor]];
-	return white;
+	[version setState:state];
+	[version setTint:given];
+	return version;
 }
 
--(CCView *)blackVersion{
-	CCView *black = [[CCView alloc] initWithRadius:radius];
-	black.center = self.center;
+-(CCView *)versionWithInverse:(UIColor *)given{
+	CCView *inverse = [[CCView alloc] initWithRadius:radius];
+	inverse.center = self.center;
 
-	[black setState:state];
-	[black setTint:[UIColor blackColor]];
-	return black;
+	[inverse setState:state];
+
+	CGFloat w, a;
+	[given getWhite:&w alpha:&a];
+	[inverse setTint:[UIColor colorWithWhite:1.f-w alpha:a]];
+
+	return inverse;
 }
 
 #pragma mark - reactors (private)

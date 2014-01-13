@@ -32,7 +32,7 @@
 -(void)setShouldLevel:(BOOL)given;
 -(void)setTint:(UIColor *)given;
 
--(CCView *)whiteVersion;
--(CCView *)blackVersion;
+-(CCView *)versionWithColor:(UIColor *)given;
+-(CCView *)versionWithInverse:(UIColor *)given;
 
 @end

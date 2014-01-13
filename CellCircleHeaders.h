@@ -85,7 +85,7 @@
 -(void)endImageContext;
 -(id)imageFromImageContextClippedToWidth:(float)arg1;
 -(void)beginImageContextWithMinimumWidth:(float)arg1;
--(id)foregroundStyle;
+-(id)foregroundStyle; //UIStatusBarForegroundStyleAttributes *
 -(id)imageWithShadowNamed:(id)arg1;
 -(UIStatusBarItem *)item;
 -(int)textAlignment;
