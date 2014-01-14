@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #import "substrate.h"
 
+@interface SpringBoard
+-(void)_relaunchSpringBoardNow;
+@end
+
 struct _rawData{
 	BOOL itemIsEnabled[25]; 
 	BOOL timeString[64]; 

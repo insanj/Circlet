@@ -1,3 +1,4 @@
+#import "../CRHeaders.h"
 #import <UIKit/UIActivityViewController.h>
 #import <Twitter/Twitter.h>
 #import <Preferences/PSSpecifier.h>
@@ -22,7 +23,7 @@
 	return _specifiers;
 }
 
--(void)shareTapped:(UIBarButtonItem *)sender {
+-(void)shareTapped:(UIBarButtonItem *)sender{
 	NSString *text = @"Life has never been simpler than with #Circular by @insanj.";
 	NSURL *url = [NSURL URLWithString:@"http://insanj.com/circular"];
 
@@ -37,5 +38,9 @@
 	} else {
 		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://twitter.com/intent/tweet?text=%@%%20%@", URL_ENCODE(text), URL_ENCODE(url.absoluteString)]]];
 	}
+}
+
+-(void)apply:(PSSpecifier *)specifier{
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPrefsChanged" object:nil];
 }
 @end

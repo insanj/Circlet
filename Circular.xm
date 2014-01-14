@@ -7,53 +7,20 @@
 //
 
 #import "CRHeaders.h"
+#import "CRNotificationListener.h"
 #import "CRView.h"
 
 // Global variables and functions for preference usage
-
-static BOOL debug, signalEnabled;
-static CGFloat signalDiameter, signalPadding = 12.f;
+static CRNotificationListener *listener;
 static CRView *signalCircle;
+static CGFloat signalDiameter;
 
-#ifdef debug
-	#define debugLog(string, ...) NSLog(@"[Circular] \e[1;31m%@\e[m ",[NSString stringWithFormat:string, ## __VA_ARGS__])
-#else
-	#define debugLog(string, ...)
-#endif
-
-void setupAllPrefs(){
-	debugLog(@"----- setup!");
-	NSDictionary *settings =  [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circular.plist"]];
-	signalEnabled = settings[@"signalEnabled"] == nil || [settings[@"signalEnabled"] boolValue];
-	debug = settings[@"debugEnabled"] == nil || [settings[@"debugEnabled"] boolValue];
+%ctor{
+	@autoreleasepool{
+		listener = [[CRNotificationListener alloc] init];		
+		signalCircle = [[CRView alloc] initWithRadius:listener.signalPadding];
+	}
 }
-
-//CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object,CFDictionaryRef userInfo
-void CRSignalEnabled(){
-	debugLog(@"Detected change of signal switch in preferences");
-	//NSLog(@"---- userinfo:%@", userInfo);
-	NSDictionary *settings =  [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circular.plist"]];
-	signalEnabled = settings[@"signalEnabled"] == nil || [settings[@"signalEnabled"] boolValue];
-}
-
-void CRDebugEnabled(){
-	debugLog(@"Detected change of debug logs in preferences");
-	NSDictionary *settings =  [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circular.plist"]];
-	debug = settings[@"debugEnabled"] == nil || [settings[@"debugEnabled"] boolValue];
-}
-
-
-%ctor {
-	signalCircle = [[CRView alloc] initWithRadius:8.f];
-
-	setupAllPrefs();
-
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)CRSignalEnabled, CFSTR("com.insanj.circular/signalEnabled"), NULL, 0);
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)CRDebugEnabled, CFSTR("com.insanj.circular/debugEnabled"), NULL, 0);
-}
-
-
-// Signal circle
 
 @interface UIStatusBarSignalStrengthItemView (Circular)
 -(void)setCircle:(CRView *)arg1;
@@ -62,10 +29,6 @@ void CRDebugEnabled(){
 
 %hook UIStatusBarSignalStrengthItemView
 static int signalState;
-
-%new -(void)setCircle:(CRView *)arg1{
-	signalCircle = arg1;
-}
 
 // Generate a UIImage from given CRView using GraphicsImageContext (should be quite accurate)
 %new -(UIImage *)imageFromCircle:(CRView *)arg1{
@@ -78,10 +41,10 @@ static int signalState;
 
 // Return a converted CRView (to UIImage) in both black and white, to replace the contentsImage 
 -(_UILegibilityImageSet *)contentsImage{
-	if(signalEnabled){
-		debugLog(@"Dealing with old signal view's symbol management");
+	if(listener.signalEnabled){
+		[listener debugLog:@"Dealing with old signal view's symbol management"];
 
-		signalDiameter = [%orig image].size.height - signalPadding;
+		signalDiameter = [%orig image].size.height - listener.signalPadding;
 		CGFloat radius = (signalDiameter / 2.f);
 		if(signalCircle.radius != radius)
 			[signalCircle setRadius:radius];
@@ -105,9 +68,9 @@ static int signalState;
 
 // Make sure the spacing in the layoutmanager is the circle's preferred, not original
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
-	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && signalEnabled){
-		debugLog(@"Changing the spacing for statusbaritem: %@", arg1);
-		return CGRectMake(%orig().origin.x, signalPadding / 2.f, signalDiameter, signalDiameter);
+	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && listener.signalEnabled){
+		[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbaritem: %@", arg1]];
+		return CGRectMake(%orig().origin.x, listener.signalPadding / 2.f, signalDiameter, signalDiameter);
 	}
 
 	return %orig();

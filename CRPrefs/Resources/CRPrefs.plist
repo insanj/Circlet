@@ -18,7 +18,6 @@
 			<key>key</key> 				<string>signalEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<true/>
-			<key>PostNotification</key> <string>com.insanj.circular/signalEnabled</string>
 		</dict>
 		
 		<dict>
@@ -28,17 +27,17 @@
  			<key>label</key> 		<string>Size</string>
  			<key>default</key> 		<string>Small</string>
  			<key>validTitles</key> <array>
- 				<string>Miniscule</string>
+ 				<string>Tiny</string>
  				<string>Small</string>
  				<string>Medium</string>
  				<string>Large</string>
  			</array>
  			<key>validValues</key>
  			<array>
-				<real>0.5</real>
- 				<real>1</real>
- 				<real>1.5</real>
- 				<real>2</real>
+				<real>14.0</real>
+ 				<real>12.0</real>
+ 				<real>10.0</real>
+ 				<real>8.0</real>
  			</array>
 		</dict>
 
@@ -141,7 +140,17 @@
 			<key>key</key> 				<string>debugEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
-			<key>PostNotification</key> <string>com.insanj.circular/debugEnabled</string>
+		</dict>
+
+
+		<dict>
+			<key>cell</key>			<string>PSGroupCell</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>			<string>PSButtonCell</string>
+			<key>label</key>		<string>Apply and Respring Now</string>
+			<key>action</key>  		<string>apply:</string>
 		</dict>
 
 		<dict>
