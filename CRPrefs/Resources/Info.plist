@@ -5,9 +5,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>ORPreferences</string>
+	<string>CRPrefs</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.insanj.orangered</string>
+	<string>com.insanj.circular</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -21,8 +21,8 @@
 	<key>DTPlatformName</key>
 	<string>iphoneos</string>
 	<key>MinimumOSVersion</key>
-	<string>3.0</string>
+	<string>7.0</string>
 	<key>NSPrincipalClass</key>
-	<string>ORPreferencesListController</string>
+	<string>CRPrefsListController</string>
 </dict>
 </plist>

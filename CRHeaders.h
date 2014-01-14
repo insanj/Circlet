@@ -1,5 +1,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
+#import <objc/runtime.h>
+#include <stdlib.h>
 #import "substrate.h"
 
 struct _rawData{

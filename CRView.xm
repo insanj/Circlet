@@ -1,21 +1,21 @@
 //
-//  CCView.m
+//  CRView.m
 //  CellCircle
 //
 //  Created by Julian Weiss on 1/5/14.
 //  Copyright (c) 2014 insanj. All rights reserved.
 //
 
-#import "CCView.h"
+#import "CRView.h"
 
-@interface CCView (Private)
+@interface CRView (Private)
 -(void)addLine;
 -(void)removeLine;
 -(void)setInsideHeight:(CGFloat)height;
 -(void)resetLevel;
 @end
 
-@implementation CCView
+@implementation CRView
 @synthesize radius, shouldUpdateManager, holder, inside, state;
 
 #pragma mark - lifecycle
@@ -51,7 +51,7 @@
 		inside.clipsToBounds = YES;
 		[holder addSubview:inside];
 		
-		__unsafe_unretained CCView *weakSelf = self;
+		__unsafe_unretained CRView *weakSelf = self;
 		levelHandler = ^void(CMAccelerometerData *accelerometerData, NSError *error){
 			CGFloat x = accelerometerData.acceleration.x;
 			weakSelf.holder.transform = CGAffineTransformIdentity;
@@ -72,10 +72,10 @@
 
 	self.layer.cornerRadius = radius;
 
-	[fake setFrame:CGRectMake(0.f, 0.f, diameter, diameter];
+	[fake setFrame:CGRectMake(0.f, 0.f, diameter, diameter)];
 	fake.layer.cornerRadius = radius;
 
-	[holder setFrame:CGRectMake(0.f, 0.f, diameter, diameter];
+	[holder setFrame:CGRectMake(0.f, 0.f, diameter, diameter)];
 	holder.center = fake.center;
 	holder.layer.cornerRadius = radius;
 
@@ -137,8 +137,8 @@
 
 #pragma mark - converter getters
 
--(CCView *)versionWithColor:(UIColor *)given{
-	CCView *version = [[CCView alloc] initWithRadius:radius];
+-(CRView *)versionWithColor:(UIColor *)given{
+	CRView *version = [[CRView alloc] initWithRadius:radius];
 	version.center = self.center;
 
 	[version setState:state];
@@ -146,8 +146,8 @@
 	return version;
 }
 
--(CCView *)versionWithInverse:(UIColor *)given{
-	CCView *inverse = [[CCView alloc] initWithRadius:radius];
+-(CRView *)versionWithInverse:(UIColor *)given{
+	CRView *inverse = [[CRView alloc] initWithRadius:radius];
 	inverse.center = self.center;
 
 	[inverse setState:state];

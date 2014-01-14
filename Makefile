@@ -3,13 +3,13 @@ TARGET =: clang
 ARCHS = armv7 arm64
 include theos/makefiles/common.mk
 
-TWEAK_NAME = CellCircle
-CellCircle_FILES = $(wildcard *.xm)
-CellCircle_FRAMEWORKS = Foundation UIKit QuartzCore CoreMotion CoreGraphics
-CellCircle_CFLAGS = -fobjc-arc
+TWEAK_NAME = Circular
+Circular_FILES = $(wildcard *.xm)
+Circular_FRAMEWORKS = Foundation UIKit QuartzCore CoreMotion CoreGraphics
+Circular_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
-SUBPROJECTS += CCPrefs
+SUBPROJECTS += CRPrefs
 include $(THEOS_MAKE_PATH)/aggregate.mk
 
 internal-after-install::

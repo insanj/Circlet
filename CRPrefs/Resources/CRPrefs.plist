@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>items</key>
+	<array>
+
+		<dict>
+			<key>cell</key>			<string>PSGroupCell</string>
+			<key>label</key>		<string>Signal</string>
+			<key>footerText</key> 	<string>Simplify your signal strength indicator.</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>				<string>PSSwitchCell</string>
+			<key>defaults</key>			<string>com.insanj.circular</string>
+			<key>label</key>			<string>Enabled</string>
+			<key>key</key> 				<string>signalDisabled</string>
+			<key>enabled</key> 			<true/>
+			<key>default</key> 			<true/>
+			<key>negate</key> 			<true/>
+			<key>PostNotification</key> <string>com.insanj.circular.signalDisabled</string>
+		</dict>
+		
+		<dict>
+			<key>cell</key>  		<string>PSSegmentCell</string>
+			<key>defaults</key> 	<string>com.insanj.circular</string>
+ 			<key>key</key> 			<string>signalSize</string>
+ 			<key>label</key> 		<string>Size</string>
+ 			<key>validTitles</key> <array>
+ 				<string>Miniscule</string>
+ 				<string>Small (Default)</string>
+ 				<string>Medium</string>
+ 				<string>Large</string>
+ 			</array>
+ 			<key>validValues</key>
+ 			<array>
+				<real>0.5</real>
+ 				<real>1</real>
+ 				<real>1.5</real>
+ 				<real>2</real>
+ 			</array>
+		</dict>
+
+		<dict>
+			<key>cell</key>  		<string>PSLinkListCell</string>
+			<key>defaults</key> 	<string>com.insanj.circular</string>
+ 			<key>detail</key> 		<string>PSListItemsController</string>
+ 			<key>key</key> 			<string>signalLightColor</string>
+ 			<key>label</key> 		<string>Light Color</string>
+ 			<key>validTitles</key> <array>
+ 				<string>Aqua</string>
+ 				<string>Black</string>
+ 			 	<string>Blue</string>
+ 			  	<string>Clear (default)</string>
+ 			  	<string>Fuchsia</string>
+ 			  	<string>Grey</string>
+ 			 	<string>Green</string>
+ 			 	<string>Lime</string>
+ 			 	<string>Maroon</string>
+ 			 	<string>Navy</string>
+ 			 	<string>Olive</string>
+ 			 	<string>Orange</string>
+ 			 	<string>Purple</string>
+ 			 	<string>Red</string>
+ 			 	<string>Teal</string>
+ 				<string>Yellow</string>
+ 			</array>
+ 			<key>validValues</key> <array>
+				<integer>1</integer>
+ 				<integer>2</integer>
+ 			 	<integer>3</integer>
+ 			  	<integer>4</integer>
+ 			  	<integer>5</integer>
+ 			  	<integer>6</integer>
+ 			 	<integer>7</integer>
+ 			 	<integer>8</integer>
+ 			 	<integer>9</integer>
+ 			 	<integer>10</integer>
+ 			 	<integer>11</integer>
+ 			 	<integer>12</integer>
+ 			 	<integer>13</integer>
+ 			 	<integer>14</integer>
+ 			 	<integer>15</integer>
+ 				<integer>16</integer>
+ 			</array>
+		</dict>
+
+		<dict>
+			<key>cell</key>  		<string>PSLinkListCell</string>
+			<key>defaults</key> 	<string>com.insanj.circular</string>
+ 			<key>detail</key> 		<string>PSListItemsController</string>
+ 			<key>key</key> 			<string>signalDarkColor</string>
+ 			<key>label</key> 		<string>Dark Color</string>
+ 			<key>validTitles</key> <array>
+ 				<string>Aqua</string>
+ 				<string>Black</string>
+ 			 	<string>Blue</string>
+ 			  	<string>Clear (default)</string>
+ 			  	<string>Fuchsia</string>
+ 			  	<string>Grey</string>
+ 			 	<string>Green</string>
+ 			 	<string>Lime</string>
+ 			 	<string>Maroon</string>
+ 			 	<string>Navy</string>
+ 			 	<string>Olive</string>
+ 			 	<string>Orange</string>
+ 			 	<string>Purple</string>
+ 			 	<string>Red</string>
+ 			 	<string>Teal</string>
+ 				<string>Yellow</string>
+ 			</array>
+ 			<key>validValues</key> <array>
+				<integer>1</integer>
+ 				<integer>2</integer>
+ 			 	<integer>3</integer>
+ 			  	<integer>4</integer>
+ 			  	<integer>5</integer>
+ 			  	<integer>6</integer>
+ 			 	<integer>7</integer>
+ 			 	<integer>8</integer>
+ 			 	<integer>9</integer>
+ 			 	<integer>10</integer>
+ 			 	<integer>11</integer>
+ 			 	<integer>12</integer>
+ 			 	<integer>13</integer>
+ 			 	<integer>14</integer>
+ 			 	<integer>15</integer>
+ 				<integer>16</integer>
+ 			</array>
+		</dict>
+
+		<dict>
+			<key>cell</key>			<string>PSGroupCell</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>				<string>PSSwitchCell</string>
+			<key>defaults</key>			<string>com.insanj.circular</string>
+			<key>label</key>			<string>Debug Logs</string>
+			<key>key</key> 				<string>debugEnabled</string>
+			<key>enabled</key> 			<true/>
+			<key>default</key> 			<false/>
+			<key>PostNotification</key> <string>com.insanj.circular.debugEnabled</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>				<string>PSGroupCell</string>
+			<key>label</key> 			<string>Contact</string>
+			<key>footerAlignment</key> 	<integer>1</integer>
+			<key>footerText</key>		<string>Thanks for purchasing Circular (1.0)!&#10;&#10;(CC) 2014 Julian Weiss</string>
+		</dict>
+
+		<dict>
+			<key>cell</key> 		<string>PSButtonCell</string>
+			<key>label</key> 		<string>Support &amp; Feedback</string>
+			<key>action</key> 		<string>mail</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>			<string>PSButtonCell</string>
+			<key>label</key>		<string>@insanj</string>
+			<key>action</key>  		<string>twitter</string>
+		</dict>
+
+	</array>
+	<key>title</key>	<string>Circular</string>
+</dict>
+
+</plist>

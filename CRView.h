@@ -1,5 +1,5 @@
 //
-//  CCView.h
+//  CRView.h
 //  CellCircle
 //
 //  Created by Julian Weiss on 1/5/14.
@@ -10,7 +10,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import <CoreMotion/CoreMotion.h>
 
-@interface CCView : UIView {
+@interface CRView : UIView {
 	CGFloat diameter;
 	CGFloat CCBorderWidth, CCReactiveBorderWidth;
 	
@@ -33,7 +33,7 @@
 -(void)setShouldLevel:(BOOL)given;
 -(void)setTint:(UIColor *)given;
 
--(CCView *)versionWithColor:(UIColor *)given;
--(CCView *)versionWithInverse:(UIColor *)given;
+-(CRView *)versionWithColor:(UIColor *)given;
+-(CRView *)versionWithInverse:(UIColor *)given;
 
 @end
