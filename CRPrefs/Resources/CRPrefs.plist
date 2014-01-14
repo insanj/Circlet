@@ -15,11 +15,10 @@
 			<key>cell</key>				<string>PSSwitchCell</string>
 			<key>defaults</key>			<string>com.insanj.circular</string>
 			<key>label</key>			<string>Enabled</string>
-			<key>key</key> 				<string>signalDisabled</string>
+			<key>key</key> 				<string>signalEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<true/>
-			<key>negate</key> 			<true/>
-			<key>PostNotification</key> <string>com.insanj.circular.signalDisabled</string>
+			<key>PostNotification</key> <string>com.insanj.circular/signalEnabled</string>
 		</dict>
 		
 		<dict>
@@ -27,9 +26,10 @@
 			<key>defaults</key> 	<string>com.insanj.circular</string>
  			<key>key</key> 			<string>signalSize</string>
  			<key>label</key> 		<string>Size</string>
+ 			<key>default</key> 		<string>Small</string>
  			<key>validTitles</key> <array>
  				<string>Miniscule</string>
- 				<string>Small (Default)</string>
+ 				<string>Small</string>
  				<string>Medium</string>
  				<string>Large</string>
  			</array>
@@ -141,7 +141,7 @@
 			<key>key</key> 				<string>debugEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
-			<key>PostNotification</key> <string>com.insanj.circular.debugEnabled</string>
+			<key>PostNotification</key> <string>com.insanj.circular/debugEnabled</string>
 		</dict>
 
 		<dict>

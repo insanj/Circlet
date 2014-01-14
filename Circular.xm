@@ -11,7 +11,7 @@
 
 // Global variables and functions for preference usage
 
-static BOOL debug = YES, signalDisabled;
+static BOOL debug, signalEnabled;
 static CGFloat signalDiameter, signalPadding = 12.f;
 
 #ifdef debug
@@ -20,13 +20,23 @@ static CGFloat signalDiameter, signalPadding = 12.f;
 	#define debugLog(string, ...)
 #endif
 
-static void toggleSignal(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object,CFDictionaryRef userInfo){
-	NSLog(@"---- userinfo:%@", userInfo);
+void setupAllPrefs(){
+	debugLog(@"----- setup!");
 	NSDictionary *settings =  [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circular.plist"]];
-	signalDisabled = [settings[@"signalDisabled"] boolValue];
+	signalEnabled = settings[@"signalEnabled"] == nil || [settings[@"signalEnabled"] boolValue];
+	debug = settings[@"debugEnabled"] == nil || [settings[@"debugEnabled"] boolValue];
 }
 
-static void toggleDebug(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object,CFDictionaryRef userInfo){
+//CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object,CFDictionaryRef userInfo
+void CRSignalEnabled(){
+	debugLog(@"Detected change of signal switch in preferences");
+	//NSLog(@"---- userinfo:%@", userInfo);
+	NSDictionary *settings =  [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circular.plist"]];
+	signalEnabled = settings[@"signalEnabled"] == nil || [settings[@"signalEnabled"] boolValue];
+}
+
+void CRDebugEnabled(){
+	debugLog(@"Detected change of debug logs in preferences");
 	NSDictionary *settings =  [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circular.plist"]];
 	debug = settings[@"debugEnabled"] == nil || [settings[@"debugEnabled"] boolValue];
 }
@@ -43,11 +53,13 @@ static int signalState;
 static CRView *signalCircle;
 
 -(id)init{
+	setupAllPrefs();
+
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)CRSignalEnabled, CFSTR("com.insanj.circular/signalEnabled"), NULL, 0);
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)CRDebugEnabled, CFSTR("com.insanj.circular/debugEnabled"), NULL, 0);
+
 	UIStatusBarSignalStrengthItemView *original = %orig;
 	[original setCircle:[[CRView alloc] initWithRadius:8.f]];
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &toggleSignal, CFSTR("com.insanj.circular.signalDisabled"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &toggleDebug, CFSTR("com.insanj.circular.debugEnabled"), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
-
 
 	return %orig();
 }
@@ -68,7 +80,7 @@ static CRView *signalCircle;
 
 // Return a converted CRView (to UIImage) in both black and white, to replace the contentsImage 
 -(_UILegibilityImageSet *)contentsImage{
-	if(!signalDisabled){
+	if(signalEnabled){
 		debugLog(@"Dealing with old signal view's symbol management");
 
 		signalDiameter = [%orig image].size.height - signalPadding;
@@ -95,11 +107,11 @@ static CRView *signalCircle;
 
 // Make sure the spacing in the layoutmanager is the circle's preferred, not original
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
-	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && !signalDisabled){
+	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && signalEnabled){
 		debugLog(@"Changing the spacing for statusbaritem: %@", arg1);
 		return CGRectMake(%orig().origin.x, signalPadding / 2.f, signalDiameter, signalDiameter);
 	}
 
-	return %orig;
+	return %orig();
 }
 %end
