@@ -9,6 +9,8 @@ CellCircle_FRAMEWORKS = Foundation UIKit QuartzCore CoreMotion CoreGraphics
 CellCircle_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
+SUBPROJECTS += CCPrefs
+include $(THEOS_MAKE_PATH)/aggregate.mk
 
 internal-after-install::
 	install.exec "killall -9 backboardd"

@@ -16,7 +16,7 @@
 @end
 
 @implementation CCView
-@synthesize shouldUpdateManager, holder, inside, state;
+@synthesize radius, shouldUpdateManager, holder, inside, state;
 
 #pragma mark - lifecycle
 -(instancetype)initWithRadius:(CGFloat)given{
@@ -59,7 +59,6 @@
 		};
 		
 		shouldUpdateManager = NO;
-		manager = [[CMMotionManager alloc] init];
 	}
 	
 	return self;
@@ -68,9 +67,19 @@
 # pragma mark - setters (public)
 
 -(void)setRadius:(CGFloat)given{
-	self.layer.cornerRadius = given;
 	radius = given;
 	diameter = radius * 2.f;
+
+	self.layer.cornerRadius = radius;
+
+	[fake setFrame:CGRectMake(0.f, 0.f, diameter, diameter];
+	fake.layer.cornerRadius = radius;
+
+	[holder setFrame:CGRectMake(0.f, 0.f, diameter, diameter];
+	holder.center = fake.center;
+	holder.layer.cornerRadius = radius;
+
+	[inside setFrame:holder.frame];
 }
 
 -(void)setState:(int)given{
@@ -104,6 +113,9 @@
 }
 
 -(void)setShouldLevel:(BOOL)given{
+	if(!manager)
+		manager = [[CMMotionManager alloc] init];
+
 	if(shouldUpdateManager && given)
 		return;
 	

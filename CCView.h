@@ -11,7 +11,7 @@
 #import <CoreMotion/CoreMotion.h>
 
 @interface CCView : UIView {
-	CGFloat radius, diameter;
+	CGFloat diameter;
 	CGFloat CCBorderWidth, CCReactiveBorderWidth;
 	
 	UIButton *fake;
@@ -21,6 +21,7 @@
 	CMMotionManager *manager;
 }
 
+@property (nonatomic, readwrite) CGFloat radius;
 @property (nonatomic, readwrite) BOOL shouldUpdateManager;	// NO by default
 @property (nonatomic, retain) UIView *holder, *inside;
 @property (nonatomic, readwrite) int state;

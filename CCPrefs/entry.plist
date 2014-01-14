@@ -1,0 +1,10 @@
+{
+    entry = {
+		bundle = CCPrefs;
+		cell = PSLinkCell;
+		detail = CCPrefsListController;
+		icon = icon.png;
+		isController = 1;
+		label = "CellCircle";
+    };
+}

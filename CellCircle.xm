@@ -1,29 +1,44 @@
 #import "CellCircleHeaders.h"
 #import "CCView.h"
 
-// Some nice optional debugging (in case we add preferences later)
-#define DEBUG TRUE
+// Global variables for preference usage
+static BOOL debug = TRUE;
+static CGFloat padding = 12.f;
 
-#ifdef DEBUG
+#ifdef debug
 	#define debugLog(string, ...) NSLog(@"[CellCircle] \e[1;31m%@\e[m ",[NSString stringWithFormat:string, ## __VA_ARGS__])
 #else
 	#define debugLog(string, ...)
 #endif
 
-#define PADDING 12.f
 static CGFloat lastDiameter;
 
 @interface UIStatusBarSignalStrengthItemView (CellCircle)
--(UIImage *)imageFromCircle:(CCView *)circle;
+-(void)setCircle:(CCView *)arg1;
+-(UIImage *)imageFromCircle:(CCView *)arg1;
 @end
 
 %hook UIStatusBarSignalStrengthItemView
 static int lastState;
+static CCView *circle;
+
+//- (void)addObserver:(id)notificationObserver selector:(SEL)notificationSelector name:(NSString *)notificationName object:(NSString *)notificationSender
+
+-(id)init{
+	UIStatusBarSignalStrengthItemView *original = %orig;
+	[original setCircle:[[CCView alloc] initWithRadius:8.f]];
+	[[NSDistributedNotificationCenter defaultCenter] addObserver:original selector:@selector(prefsChanged:) name:@"CCPrefsChanged" object:nil];
+	return %orig();
+}
+
+%new -(void)setCircle:(CCView *)arg1{
+	circle = arg1;
+}
 
 // Generate a UIImage from given CCView using GraphicsImageContext (should be quite accurate)
-%new -(UIImage *)imageFromCircle:(CCView *)circle{
-	UIGraphicsBeginImageContextWithOptions(circle.bounds.size, NO, 0.f);
-    [circle.layer renderInContext:UIGraphicsGetCurrentContext()];
+%new -(UIImage *)imageFromCircle:(CCView *)arg1{
+	UIGraphicsBeginImageContextWithOptions(arg1.bounds.size, NO, 0.f);
+    [arg1.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return image;
@@ -33,10 +48,11 @@ static int lastState;
 -(_UILegibilityImageSet *)contentsImage{
 	debugLog(@"Dealing with old signal view's symbol management");
 
-	lastDiameter = [%orig image].size.height - PADDING;
+	lastDiameter = [%orig image].size.height - padding;
 	CGFloat radius = (lastDiameter / 2.f);
+	if(circle.radius != radius)
+		[circle setRadius:radius];
 
-	CCView *circle = [[CCView alloc] initWithRadius:radius];
 	lastState = MSHookIvar<int>(self, "_signalStrengthBars");
 	[circle setState:lastState];
 
@@ -47,6 +63,11 @@ static int lastState;
 	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
 }
 
+-(void)dealloc{
+	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
+	%orig();
+}
+
 %end
 
 %hook UIStatusBarLayoutManager
@@ -55,7 +76,7 @@ static int lastState;
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
 		debugLog(@"Changing the spacing for statusbaritem: %@", arg1);
-		return CGRectMake(%orig().origin.x, PADDING / 2.f, lastDiameter, lastDiameter);
+		return CGRectMake(%orig().origin.x, padding / 2.f, lastDiameter, lastDiameter);
 	}
 
 	return %orig;
