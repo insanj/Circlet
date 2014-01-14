@@ -13,6 +13,7 @@
 
 static BOOL debug, signalEnabled;
 static CGFloat signalDiameter, signalPadding = 12.f;
+static CRView *signalCircle;
 
 #ifdef debug
 	#define debugLog(string, ...) NSLog(@"[Circular] \e[1;31m%@\e[m ",[NSString stringWithFormat:string, ## __VA_ARGS__])
@@ -41,6 +42,17 @@ void CRDebugEnabled(){
 	debug = settings[@"debugEnabled"] == nil || [settings[@"debugEnabled"] boolValue];
 }
 
+
+%ctor {
+	signalCircle = [[CRView alloc] initWithRadius:8.f];
+
+	setupAllPrefs();
+
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)CRSignalEnabled, CFSTR("com.insanj.circular/signalEnabled"), NULL, 0);
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)CRDebugEnabled, CFSTR("com.insanj.circular/debugEnabled"), NULL, 0);
+}
+
+
 // Signal circle
 
 @interface UIStatusBarSignalStrengthItemView (Circular)
@@ -50,20 +62,6 @@ void CRDebugEnabled(){
 
 %hook UIStatusBarSignalStrengthItemView
 static int signalState;
-static CRView *signalCircle;
-
--(id)init{
-	setupAllPrefs();
-
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)CRSignalEnabled, CFSTR("com.insanj.circular/signalEnabled"), NULL, 0);
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)CRDebugEnabled, CFSTR("com.insanj.circular/debugEnabled"), NULL, 0);
-
-	UIStatusBarSignalStrengthItemView *original = %orig;
-	[original setCircle:[[CRView alloc] initWithRadius:8.f]];
-
-	return %orig();
-}
-
 
 %new -(void)setCircle:(CRView *)arg1{
 	signalCircle = arg1;
