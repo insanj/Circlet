@@ -10,7 +10,7 @@
 	#define debugLog(string, ...)
 #endif
 
-#define PADDING 8.f
+#define PADDING 12.f
 static CGFloat lastDiameter;
 
 @interface UIStatusBarSignalStrengthItemView (CellCircle)
@@ -47,16 +47,6 @@ static int lastState;
 	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
 }
 
-// When updating statusitem, make sure circle style and bars are up-to-date
--(BOOL)updateForNewData:(id)arg1 actions:(int)arg2{
-	int state =  MSHookIvar<int>(self, "_signalStrengthBars");
-	if(%orig || (state != lastState)){
-		debugLog(@"Recognized signal information change for state: %i", state);
-		return YES;
-	}
-	
-	return NO;
-}
 %end
 
 %hook UIStatusBarLayoutManager
@@ -65,7 +55,7 @@ static int lastState;
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
 		debugLog(@"Changing the spacing for statusbaritem: %@", arg1);
-		return CGRectMake(%orig.origin.x, PADDING / 2.f, lastDiameter, lastDiameter);
+		return CGRectMake(%orig().origin.x, PADDING / 2.f, lastDiameter, lastDiameter);
 	}
 
 	return %orig;
