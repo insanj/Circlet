@@ -13,7 +13,7 @@
 
 		<dict>
 			<key>cell</key>				<string>PSSwitchCell</string>
-			<key>defaults</key>			<string>com.insanj.circular</string>
+			<key>defaults</key>			<string>com.insanj.circlet</string>
 			<key>label</key>			<string>Enabled</string>
 			<key>key</key> 				<string>signalEnabled</string>
 			<key>enabled</key> 			<true/>
@@ -22,19 +22,16 @@
 		
 		<dict>
 			<key>cell</key>  		<string>PSSegmentCell</string>
-			<key>defaults</key> 	<string>com.insanj.circular</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
  			<key>key</key> 			<string>signalSize</string>
  			<key>label</key> 		<string>Size</string>
- 			<key>default</key> 		<string>Small</string>
  			<key>validTitles</key> <array>
- 				<string>Tiny</string>
- 				<string>Small</string>
+ 				<string>Small (Default)</string>
  				<string>Medium</string>
  				<string>Large</string>
  			</array>
  			<key>validValues</key>
  			<array>
-				<real>14.0</real>
  				<real>12.0</real>
  				<real>10.0</real>
  				<real>8.0</real>
@@ -43,28 +40,31 @@
 
 		<dict>
 			<key>cell</key>  		<string>PSLinkListCell</string>
-			<key>defaults</key> 	<string>com.insanj.circular</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
  			<key>detail</key> 		<string>PSListItemsController</string>
  			<key>key</key> 			<string>signalLightColor</string>
  			<key>label</key> 		<string>Light Color</string>
  			<key>validTitles</key> <array>
- 				<string>Aqua</string>
- 				<string>Black</string>
- 			 	<string>Blue</string>
- 			  	<string>Clear (default)</string>
- 			  	<string>Fuchsia</string>
- 			  	<string>Grey</string>
- 			 	<string>Green</string>
- 			 	<string>Lime</string>
- 			 	<string>Maroon</string>
- 			 	<string>Navy</string>
- 			 	<string>Olive</string>
- 			 	<string>Orange</string>
- 			 	<string>Purple</string>
- 			 	<string>Red</string>
- 			 	<string>Teal</string>
- 				<string>Yellow</string>
+ 				<string>Aqua</string> 				<!-- 1 -->
+ 				<string>Black</string> 				<!-- 2 -->
+ 			 	<string>Blue</string> 				<!-- 3 -->
+ 			  	<string>Clear</string> 				<!-- 4 -->
+ 			  	<string>Fuchsia</string> 			<!-- 5 -->
+ 			  	<string>Grey</string> 				<!-- 6 -->
+ 			 	<string>Green</string> 				<!-- 7 -->
+ 			 	<string>Lime</string> 				<!-- 8 -->
+ 			 	<string>Maroon</string> 			<!-- 9 -->
+ 			 	<string>Navy</string>   			<!-- 10 -->
+ 			 	<string>Olive</string>  			<!-- 11 -->
+ 			 	<string>Orange</string>  			<!-- 12 -->
+ 			 	<string>Purple</string> 			<!-- 13 -->
+ 			 	<string>Red</string>  				<!-- 14 -->
+ 			 	<string>Silver</string> 			<!-- 15 -->
+ 			 	<string>Teal</string>  				<!-- 16 -->
+ 			 	<string>White (Default)</string> 	<!-- 17 -->
+ 				<string>Yellow</string> 			<!-- 18 -->
  			</array>
+
  			<key>validValues</key> <array>
 				<integer>1</integer>
  				<integer>2</integer>
@@ -82,20 +82,22 @@
  			 	<integer>14</integer>
  			 	<integer>15</integer>
  				<integer>16</integer>
+ 				<integer>17</integer>
+ 				<integer>18</integer>
  			</array>
 		</dict>
 
 		<dict>
 			<key>cell</key>  		<string>PSLinkListCell</string>
-			<key>defaults</key> 	<string>com.insanj.circular</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
  			<key>detail</key> 		<string>PSListItemsController</string>
  			<key>key</key> 			<string>signalDarkColor</string>
  			<key>label</key> 		<string>Dark Color</string>
  			<key>validTitles</key> <array>
  				<string>Aqua</string>
- 				<string>Black</string>
+ 				<string>Black (Default)</string>
  			 	<string>Blue</string>
- 			  	<string>Clear (default)</string>
+ 			  	<string>Clear</string>
  			  	<string>Fuchsia</string>
  			  	<string>Grey</string>
  			 	<string>Green</string>
@@ -106,9 +108,12 @@
  			 	<string>Orange</string>
  			 	<string>Purple</string>
  			 	<string>Red</string>
+ 			 	<string>Silver</string>
  			 	<string>Teal</string>
+ 			 	<string>White</string>
  				<string>Yellow</string>
  			</array>
+
  			<key>validValues</key> <array>
 				<integer>1</integer>
  				<integer>2</integer>
@@ -126,6 +131,239 @@
  			 	<integer>14</integer>
  			 	<integer>15</integer>
  				<integer>16</integer>
+ 				<integer>17</integer>
+ 				<integer>18</integer>
+ 			</array>
+		</dict>
+
+		<dict>
+			<key>cell</key>			<string>PSGroupCell</string>
+			<key>label</key>		<string>Data</string>
+			<key>footerText</key> 	<string>Simplify your data strength indicator.</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>				<string>PSSwitchCell</string>
+			<key>defaults</key>			<string>com.insanj.circlet</string>
+			<key>label</key>			<string>Enabled</string>
+			<key>key</key> 				<string>wifiEnabled</string>
+			<key>enabled</key> 			<true/>
+			<key>default</key> 			<true/>
+		</dict>
+		
+		<dict>
+			<key>cell</key>  		<string>PSSegmentCell</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
+ 			<key>key</key> 			<string>wifiSize</string>
+ 			<key>label</key> 		<string>Size</string>
+ 			<key>validTitles</key> <array>
+ 				<string>Small (Default)</string>
+ 				<string>Medium</string>
+ 				<string>Large</string>
+ 			</array>
+ 			<key>validValues</key>
+ 			<array>
+ 				<real>12.0</real>
+ 				<real>10.0</real>
+ 				<real>8.0</real>
+ 			</array>
+		</dict>
+
+		<dict>
+			<key>cell</key>  		<string>PSLinkListCell</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
+ 			<key>detail</key> 		<string>PSListItemsController</string>
+ 			<key>key</key> 			<string>wifiLightColor</string>
+ 			<key>label</key> 		<string>Wifi Light Color</string>
+ 			<key>validTitles</key> <array>
+ 				<string>Aqua</string>
+ 				<string>Black</string>
+ 			 	<string>Blue</string>
+ 			  	<string>Clear</string>
+ 			  	<string>Fuchsia</string>
+ 			  	<string>Grey</string>
+ 			 	<string>Green</string>
+ 			 	<string>Lime</string>
+ 			 	<string>Maroon</string>
+ 			 	<string>Navy</string>
+ 			 	<string>Olive</string>
+ 			 	<string>Orange</string>
+ 			 	<string>Purple</string>
+ 			 	<string>Red</string>
+ 			 	<string>Silver</string>
+ 			 	<string>Teal</string>
+ 			 	<string>White (Default)</string>
+ 				<string>Yellow</string>
+ 			</array>
+
+ 			<key>validValues</key> <array>
+				<integer>1</integer>
+ 				<integer>2</integer>
+ 			 	<integer>3</integer>
+ 			  	<integer>4</integer>
+ 			  	<integer>5</integer>
+ 			  	<integer>6</integer>
+ 			 	<integer>7</integer>
+ 			 	<integer>8</integer>
+ 			 	<integer>9</integer>
+ 			 	<integer>10</integer>
+ 			 	<integer>11</integer>
+ 			 	<integer>12</integer>
+ 			 	<integer>13</integer>
+ 			 	<integer>14</integer>
+ 			 	<integer>15</integer>
+ 				<integer>16</integer>
+ 				<integer>17</integer>
+ 				<integer>18</integer>
+ 			</array>
+		</dict>
+
+		<dict>
+			<key>cell</key>  		<string>PSLinkListCell</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
+ 			<key>detail</key> 		<string>PSListItemsController</string>
+ 			<key>key</key> 			<string>wifiDarkColor</string>
+ 			<key>label</key> 		<string>Wifi Dark Color</string>
+ 			<key>validTitles</key> <array>
+ 				<string>Aqua</string>
+ 				<string>Black (Default)</string>
+ 			 	<string>Blue</string>
+ 			  	<string>Clear</string>
+ 			  	<string>Fuchsia</string>
+ 			  	<string>Grey</string>
+ 			 	<string>Green</string>
+ 			 	<string>Lime</string>
+ 			 	<string>Maroon</string>
+ 			 	<string>Navy</string>
+ 			 	<string>Olive</string>
+ 			 	<string>Orange</string>
+ 			 	<string>Purple</string>
+ 			 	<string>Red</string>
+ 			 	<string>Silver</string>
+ 			 	<string>Teal</string>
+ 			 	<string>White</string>
+ 				<string>Yellow</string>
+ 			</array>
+
+ 			<key>validValues</key> <array>
+				<integer>1</integer>
+ 				<integer>2</integer>
+ 			 	<integer>3</integer>
+ 			  	<integer>4</integer>
+ 			  	<integer>5</integer>
+ 			  	<integer>6</integer>
+ 			 	<integer>7</integer>
+ 			 	<integer>8</integer>
+ 			 	<integer>9</integer>
+ 			 	<integer>10</integer>
+ 			 	<integer>11</integer>
+ 			 	<integer>12</integer>
+ 			 	<integer>13</integer>
+ 			 	<integer>14</integer>
+ 			 	<integer>15</integer>
+ 				<integer>16</integer>
+ 				<integer>17</integer>
+ 				<integer>18</integer>
+ 			</array>
+		</dict>
+
+
+		<dict>
+			<key>cell</key>  		<string>PSLinkListCell</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
+ 			<key>detail</key> 		<string>PSListItemsController</string>
+ 			<key>key</key> 			<string>dataLightColor</string>
+ 			<key>label</key> 		<string>Data Light Color</string>
+ 			<key>validTitles</key> <array>
+ 				<string>Aqua</string>
+ 				<string>Black</string>
+ 			 	<string>Blue</string>
+ 			  	<string>Clear</string>
+ 			  	<string>Fuchsia</string>
+ 			  	<string>Grey</string>
+ 			 	<string>Green</string>
+ 			 	<string>Lime</string>
+ 			 	<string>Maroon</string>
+ 			 	<string>Navy</string>
+ 			 	<string>Olive</string>
+ 			 	<string>Orange</string>
+ 			 	<string>Purple</string>
+			 	<string>Red</string>
+ 			 	<string>Silver</string>
+ 			 	<string>Teal</string>
+ 			 	<string>White (Default)</string>
+ 				<string>Yellow</string>
+ 			</array>
+
+ 			<key>validValues</key> <array>
+				<integer>1</integer>
+ 				<integer>2</integer>
+ 			 	<integer>3</integer>
+ 			  	<integer>4</integer>
+ 			  	<integer>5</integer>
+ 			  	<integer>6</integer>
+ 			 	<integer>7</integer>
+ 			 	<integer>8</integer>
+ 			 	<integer>9</integer>
+ 			 	<integer>10</integer>
+ 			 	<integer>11</integer>
+ 			 	<integer>12</integer>
+ 			 	<integer>13</integer>
+ 			 	<integer>14</integer>
+ 			 	<integer>15</integer>
+ 				<integer>16</integer>
+				<integer>17</integer>
+ 				<integer>18</integer>
+ 			</array>
+		</dict>
+
+
+		<dict>
+			<key>cell</key>  		<string>PSLinkListCell</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
+ 			<key>detail</key> 		<string>PSListItemsController</string>
+ 			<key>key</key> 			<string>dataDarkColor</string>
+ 			<key>label</key> 		<string>Data Dark Color</string>
+ 			<key>validTitles</key> <array>
+ 				<string>Aqua</string>
+ 				<string>Black (Default)</string>
+ 			 	<string>Blue</string>
+ 			  	<string>Clear</string>
+ 			  	<string>Fuchsia</string>
+ 			  	<string>Grey</string>
+ 			 	<string>Green</string>
+ 			 	<string>Lime</string>
+ 			 	<string>Maroon</string>
+ 			 	<string>Navy</string>
+ 			 	<string>Olive</string>
+ 			 	<string>Orange</string>
+ 			 	<string>Purple</string>
+ 			 	<string>Red</string>
+ 			 	<string>Silver</string>
+ 			 	<string>Teal</string>
+ 			 	<string>White</string>
+ 				<string>Yellow</string>
+ 			</array>
+
+ 			<key>validValues</key> <array>
+				<integer>1</integer>
+ 				<integer>2</integer>
+ 			 	<integer>3</integer>
+ 			  	<integer>4</integer>
+ 			  	<integer>5</integer>
+ 			  	<integer>6</integer>
+ 			 	<integer>7</integer>
+ 			 	<integer>8</integer>
+ 			 	<integer>9</integer>
+ 			 	<integer>10</integer>
+ 			 	<integer>11</integer>
+ 			 	<integer>12</integer>
+ 			 	<integer>13</integer>
+ 			 	<integer>14</integer>
+ 			 	<integer>15</integer>
+ 				<integer>16</integer>
+				<integer>17</integer>
+ 				<integer>18</integer>
  			</array>
 		</dict>
 
@@ -135,13 +373,12 @@
 
 		<dict>
 			<key>cell</key>				<string>PSSwitchCell</string>
-			<key>defaults</key>			<string>com.insanj.circular</string>
+			<key>defaults</key>			<string>com.insanj.circlet</string>
 			<key>label</key>			<string>Debug Logs</string>
 			<key>key</key> 				<string>debugEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
 		</dict>
-
 
 		<dict>
 			<key>cell</key>			<string>PSGroupCell</string>
@@ -157,7 +394,7 @@
 			<key>cell</key>				<string>PSGroupCell</string>
 			<key>label</key> 			<string>Contact</string>
 			<key>footerAlignment</key> 	<integer>1</integer>
-			<key>footerText</key>		<string>Thanks for purchasing Circular (1.0)!&#10;&#10;(CC) 2014 Julian Weiss</string>
+			<key>footerText</key>		<string>Thanks for purchasing Circlet (1.0)!&#10;&#10;(CC) 2014 Julian Weiss</string>
 		</dict>
 
 		<dict>
@@ -173,7 +410,7 @@
 		</dict>
 
 	</array>
-	<key>title</key>	<string>Circular</string>
+	<key>title</key>	<string>Circlet</string>
 </dict>
 
 </plist>

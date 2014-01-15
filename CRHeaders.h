@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #import "substrate.h"
 
+#define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
+
 @interface SpringBoard
 -(void)_relaunchSpringBoardNow;
 @end
@@ -146,6 +148,24 @@ struct _rawData{
 -(NSString *)_stringForRSSI;
 -(float)extraRightPadding;
 -(_UILegibilityImageSet *)contentsImage;
+-(BOOL)updateForNewData:(id)arg1 actions:(int)arg2;
+-(void)touchesEnded:(id)arg1 withEvent:(id)arg2;
+@end
+
+@interface UIStatusBarDataNetworkItemView : UIStatusBarItemView  {
+    int _dataNetworkType;
+    int _wifiStrengthRaw;
+    int _wifiStrengthBars;
+    BOOL _enableRSSI;
+    BOOL _showRSSI;
+}
+
+
+-(id)_dataNetworkImage;
+-(id)_stringForRSSI;
+-(float)maximumOverlap;
+-(float)extraLeftPadding;
+-(id)contentsImage;
 -(BOOL)updateForNewData:(id)arg1 actions:(int)arg2;
 -(void)touchesEnded:(id)arg1 withEvent:(id)arg2;
 @end

@@ -3,10 +3,10 @@ TARGET =: clang
 ARCHS = armv7 arm64
 include theos/makefiles/common.mk
 
-TWEAK_NAME = Circular
-Circular_FILES = $(wildcard *.xm)
-Circular_FRAMEWORKS = Foundation UIKit QuartzCore CoreMotion CoreGraphics
-Circular_CFLAGS = -fobjc-arc
+TWEAK_NAME = Circlet
+Circlet_FILES = $(wildcard *.xm)
+Circlet_FRAMEWORKS = Foundation UIKit QuartzCore CoreMotion CoreGraphics
+Circlet_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 SUBPROJECTS += CRPrefs

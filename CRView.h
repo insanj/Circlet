@@ -24,12 +24,12 @@
 @property (nonatomic, readwrite) CGFloat radius;
 @property (nonatomic, readwrite) BOOL shouldUpdateManager;	// NO by default
 @property (nonatomic, retain) UIView *holder, *inside;
-@property (nonatomic, readwrite) int state;
+@property (nonatomic, readwrite) int state, max;
 
 -(instancetype)initWithRadius:(CGFloat)given;
 
 -(void)setRadius:(CGFloat)given;
--(void)setState:(int)given;
+-(void)setState:(int)arg1 withMax:(int)arg2;
 -(void)setShouldLevel:(BOOL)given;
 -(void)setTint:(UIColor *)given;
 

@@ -5,6 +5,6 @@
 		detail = CRPrefsListController;
 		icon = icon.png;
 		isController = 1;
-		label = "Circular";
+		label = "Circlet";
     };
 }

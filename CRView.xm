@@ -16,7 +16,7 @@
 @end
 
 @implementation CRView
-@synthesize radius, shouldUpdateManager, holder, inside, state;
+@synthesize radius, shouldUpdateManager, holder, inside, state, max;
 
 #pragma mark - lifecycle
 -(instancetype)initWithRadius:(CGFloat)given{
@@ -82,34 +82,17 @@
 	[inside setFrame:holder.frame];
 }
 
--(void)setState:(int)given{
-	state = given;
+-(void)setState:(int)arg1 withMax:(int)arg2{
+	state = arg1;
+	max = arg2;
 	[self removeLine];
 	
-	switch(state){
-		case -1:
-			[self addLine];
-			[self setInsideHeight:0.f];
-			break;
-		case 0:
-			[self setInsideHeight:0.f];
-			break;
-		case 1:
-			[self setInsideHeight:diameter/5.f];
-			break;
-		case 2:
-			[self setInsideHeight:(2.f * diameter)/5.f];
-			break;
-		case 3:
-			[self setInsideHeight:(3.f * diameter)/5.f];
-			break;
-		case 4:
-			[self setInsideHeight:(4.f * diameter)/5.f];
-			break;
-		case 5:
-			[self setInsideHeight:diameter];
-			break;
+	if(state == -1){
+		[self addLine];
+		[self setInsideHeight:0.f];
 	}
+	else
+		[self setInsideHeight:(diameter * (state/max))];
 }
 
 -(void)setShouldLevel:(BOOL)given{
@@ -141,7 +124,7 @@
 	CRView *version = [[CRView alloc] initWithRadius:radius];
 	version.center = self.center;
 
-	[version setState:state];
+	[version setState:state withMax:max];
 	[version setTint:given];
 	return version;
 }
@@ -150,7 +133,7 @@
 	CRView *inverse = [[CRView alloc] initWithRadius:radius];
 	inverse.center = self.center;
 
-	[inverse setState:state];
+	[inverse setState:state withMax:max];
 
 	CGFloat w, a;
 	[given getWhite:&w alpha:&a];

@@ -1,5 +1,5 @@
-Package: com.insanj.circular
-Name: Circular
+Package: com.insanj.circlet
+Name: Circlet
 Pre-Depends: firmware (>= 7.0)
 Depends: firmware (>= 7.0)
 Version: 0.1

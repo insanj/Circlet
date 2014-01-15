@@ -1,6 +1,6 @@
 //
 //  CRNotificationListener.xm
-//  CellCircle
+//  Circlet
 //
 //  Created by Julian Weiss on 1/14/14.
 //  Copyright (c) 2014 insanj. All rights reserved.
@@ -9,15 +9,16 @@
 #import "CRHeaders.h"
 
 @interface CRNotificationListener : NSObject {
-	NSDictionary *settings;
 	BOOL debug;
 }
 
-@property (nonatomic, readwrite) BOOL signalEnabled;
-@property (nonatomic, readwrite) CGFloat signalPadding;
+@property (nonatomic, retain) NSDictionary *settings;
+@property (nonatomic, readwrite) BOOL signalEnabled, wifiEnabled;
+@property (nonatomic, readwrite) CGFloat signalPadding, wifiPadding;
+@property (nonatomic, retain) UIColor *signalWhiteColor, *signalBlackColor, *wifiWhiteColor, *wifiBlackColor, *dataWhiteColor, *dataBlackColor;
 
 -(CRNotificationListener *)init;
--(void)reloadPrefs;
+-(BOOL)reloadPrefs;
 -(void)debugLog:(NSString *)str;
 @end
 

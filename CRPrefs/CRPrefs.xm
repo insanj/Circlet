@@ -24,8 +24,8 @@
 }
 
 -(void)shareTapped:(UIBarButtonItem *)sender{
-	NSString *text = @"Life has never been simpler than with #Circular by @insanj.";
-	NSURL *url = [NSURL URLWithString:@"http://insanj.com/circular"];
+	NSString *text = @"Life has never been simpler than with #Circlet by @insanj.";
+	NSURL *url = [NSURL URLWithString:@"http://insanj.com/circlet"];
 
 	if(%c(UIActivityViewController)){
 		UIActivityViewController *viewController = [[[%c(UIActivityViewController) alloc] initWithActivityItems:[NSArray arrayWithObjects:text, url, nil] applicationActivities:nil] autorelease];
@@ -42,5 +42,27 @@
 
 -(void)apply:(PSSpecifier *)specifier{
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPrefsChanged" object:nil];
+}
+
+
+-(void)twitter:(PSSpecifier *)specifier{
+	if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetbot:"]])
+		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tweetbot:///user_profile/insanj"]];
+
+	else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitterrific:"]]) 
+		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"twitterrific:///profile?screen_name=insanj"]];
+
+	else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetings:"]]) 
+		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tweetings:///user?screen_name=insanj"]];
+
+	else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitter:"]]) 
+		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"twitter://user?screen_name=insanj"]];
+
+	else 
+		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://mobile.twitter.com/insanj"]];
+}//end twitter
+
+-(void)mail{
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"mailto:me%40insanj.com?subject=Circlet%20(1.0)%20Support"]];//
 }
 @end
