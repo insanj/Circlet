@@ -137,7 +137,7 @@ static UIImage * imageFromCircle(CRView * arg1){
 		if(listener.signalEnabled){
 			signalWidth = signalDiameter;
 			[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ (from %@)", arg1, NSStringFromCGRect(%orig())]];
-			return CGRectMake(%orig().origin.x, ceilf(listener.signalPadding / 2.45f), signalDiameter, signalDiameter);
+			return CGRectMake(%orig().origin.x, ceilf(listener.signalPadding / 2.25f), signalDiameter, signalDiameter);
 		}
 		
 		signalWidth = %orig().size.width;
@@ -148,7 +148,7 @@ static UIImage * imageFromCircle(CRView * arg1){
 
 	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && listener.wifiEnabled){
 		[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ from (%@)", arg1, NSStringFromCGRect(%orig())]];
-		return CGRectMake(ceilf(signalWidth + wifiDiameter + 1.f), ceilf(listener.wifiPadding / 2.45f), wifiDiameter, wifiDiameter);
+		return CGRectMake(ceilf(signalWidth + wifiDiameter + 1.f), ceilf(listener.wifiPadding / 2.25f), wifiDiameter, wifiDiameter);
 	}
 
 	return %orig();
