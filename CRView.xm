@@ -82,15 +82,17 @@
 	[inside setFrame:holder.frame];
 }
 
--(void)setState:(int)arg1 withMax:(int)arg2{
+-(void)setState:(CGFloat)arg1 withMax:(CGFloat)arg2{
 	state = arg1;
 	max = arg2;
 	[self removeLine];
-	
+
+	//NSLog(@"----- state, arg1:%i, arg2:%i, ")
 	if(state == -1){
 		[self addLine];
 		[self setInsideHeight:0.f];
 	}
+
 	else
 		[self setInsideHeight:(diameter * (state/max))];
 }
