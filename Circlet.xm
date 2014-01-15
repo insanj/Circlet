@@ -81,42 +81,49 @@ static UIImage * imageFromCircle(CRView * arg1){
 }
 %end
 
+@interface UIStatusBarDataNetworkItemView (Circlet)
+-(_UILegibilityImageSet *)replacementImageFor:(_UILegibilityImageSet *)orig;
+@end
+
 %hook UIStatusBarDataNetworkItemView
 
--(_UILegibilityImageSet *)contentsImage{
-	if(listener.wifiEnabled){
-		[listener debugLog:@"Dealing with old signal view's symbol management"];
+%new -(_UILegibilityImageSet *)replacementImageFor:(_UILegibilityImageSet *)orig{
+	[listener debugLog:@"Dealing with old signal view's symbol management"];
 
-		wifiDiameter = [%orig image].size.height - listener.wifiPadding;
-		CGFloat radius = (wifiDiameter / 2.f);
-		if(wifiCircle.radius != radius)
-			[wifiCircle setRadius:radius];
+	wifiDiameter = [orig image].size.height - listener.wifiPadding;
+	CGFloat radius = (wifiDiameter / 2.f);
+	if(wifiCircle.radius != radius)
+		[wifiCircle setRadius:radius];
 
-		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
-		[listener debugLog:[NSString stringWithFormat:@"WifiStrength Bars:%i", wifiState]];
-		[wifiCircle setState:wifiState withMax:3];
+	int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
+	[listener debugLog:[NSString stringWithFormat:@"WifiStrength Bars:%i", wifiState]];
+	[wifiCircle setState:wifiState withMax:3];
 
-		UIColor *textColor = [[self foregroundStyle] textColorForStyle:[self legibilityStyle]];
+	UIColor *textColor = [[self foregroundStyle] textColorForStyle:[self legibilityStyle]];
 
-		CGFloat w, a;
-		[textColor getWhite:&w alpha:&a];
+	CGFloat w, a;
+	[textColor getWhite:&w alpha:&a];
 
-		UIImage *image, *shadow;
-		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
-		[listener debugLog:[NSString stringWithFormat:@"Network type: %i", networkType]];
+	UIImage *image, *shadow;
+	int networkType = MSHookIvar<int>(self, "_dataNetworkType");
+	[listener debugLog:[NSString stringWithFormat:@"Network type: %i", networkType]];
 
-		if(w > 0.5f){ // white color
-			image = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiWhiteColor : listener.dataWhiteColor)]);
-			shadow = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiBlackColor : listener.dataBlackColor)]);
-		}
-
-		else{
-			image = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiBlackColor : listener.dataBlackColor)]);
-			shadow = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiWhiteColor : listener.dataWhiteColor)]);
-		}
-
-		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
+	if(w > 0.5f){ // white color
+		image = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiWhiteColor : listener.dataWhiteColor)]);
+		shadow = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiBlackColor : listener.dataBlackColor)]);
 	}
+
+	else{
+		image = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiBlackColor : listener.dataBlackColor)]);
+		shadow = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiWhiteColor : listener.dataWhiteColor)]);
+	}
+
+	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
+}
+
+-(_UILegibilityImageSet *)contentsImage{
+	if(listener.wifiEnabled)
+		return [self replacementImageFor:%orig()];
 
 	return %orig();
 }
@@ -130,15 +137,18 @@ static UIImage * imageFromCircle(CRView * arg1){
 		if(listener.signalEnabled){
 			signalWidth = signalDiameter;
 			[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ (from %@)", arg1, NSStringFromCGRect(%orig())]];
-			return CGRectMake(%orig().origin.x, listener.signalPadding / 2.25f, signalDiameter, signalDiameter);
+			return CGRectMake(%orig().origin.x, ceilf(listener.signalPadding / 2.45f), signalDiameter, signalDiameter);
 		}
 		
 		signalWidth = %orig().size.width;
 	}
 
+	else if([arg1 isKindOfClass:%c(UIStatusBarServiceItemView)])
+		signalWidth += %orig().size.width + 5.f;
+
 	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && listener.wifiEnabled){
 		[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ from (%@)", arg1, NSStringFromCGRect(%orig())]];
-		return CGRectMake(signalWidth + wifiDiameter + 1.f, listener.wifiPadding / 2.25f, wifiDiameter, wifiDiameter);
+		return CGRectMake(ceilf(signalWidth + wifiDiameter + 1.f), ceilf(listener.wifiPadding / 2.45f), wifiDiameter, wifiDiameter);
 	}
 
 	return %orig();

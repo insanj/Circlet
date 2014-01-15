@@ -170,6 +170,9 @@ struct _rawData{
 -(void)touchesEnded:(id)arg1 withEvent:(id)arg2;
 @end
 
+@interface UIStatusBarServiceItemView : UIStatusBarItemView
+@end
+
 @interface UIStatusBarLayoutManager : NSObject
 @property BOOL persistentAnimationsEnabled;
 
