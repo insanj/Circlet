@@ -56,6 +56,10 @@ NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColo
 
 	_batteryWhiteColor = [self colorWithCaseNumber:[_settings[@"batteryLightColor"] intValue] andDefault:16];
 	_batteryBlackColor = [self colorWithCaseNumber:[_settings[@"batteryDarkColor"] intValue] andDefault:1];
+	_chargingWhiteColor = [self colorWithCaseNumber:[_settings[@"chargingLightColor"] intValue] andDefault:16];
+	_chargingBlackColor = [self colorWithCaseNumber:[_settings[@"chargingDarkColor"] intValue] andDefault:1];
+
+
 
 	return _settings != nil;
 }

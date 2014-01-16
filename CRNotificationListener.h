@@ -15,7 +15,7 @@
 @property (nonatomic, retain) NSDictionary *settings;
 @property (nonatomic, readwrite) BOOL signalEnabled, wifiEnabled, batteryEnabled;
 @property (nonatomic, readwrite) CGFloat signalPadding, wifiPadding, batteryPadding;
-@property (nonatomic, retain) UIColor *signalWhiteColor, *signalBlackColor, *wifiWhiteColor, *wifiBlackColor, *dataWhiteColor, *dataBlackColor, *batteryWhiteColor, *batteryBlackColor;
+@property (nonatomic, retain) UIColor *signalWhiteColor, *signalBlackColor, *wifiWhiteColor, *wifiBlackColor, *dataWhiteColor, *dataBlackColor, *batteryWhiteColor, *batteryBlackColor, *chargingWhiteColor, *chargingBlackColor;
 
 -(CRNotificationListener *)init;
 -(BOOL)reloadPrefs;

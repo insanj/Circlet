@@ -116,15 +116,17 @@ static UIImage * imageFromCircle(CRView * arg1){
 	[textColor getWhite:&w alpha:&a];
 
 	UIImage *image, *shadow;
+	UIColor *white = (networkType == 5)?listener.wifiWhiteColor:listener.dataWhiteColor;
+	UIColor *black = (networkType == 5)?listener.wifiBlackColor:listener.dataBlackColor;
 
 	if(w > 0.5f){ // white color
-		image = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiWhiteColor : listener.dataWhiteColor)]);
-		shadow = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiBlackColor : listener.dataBlackColor)]);
+		image = imageFromCircle([wifiCircle versionWithColor:white]);
+		shadow = imageFromCircle([wifiCircle versionWithColor:black]);
 	}
 
 	else{
-		image = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiBlackColor : listener.dataBlackColor)]);
-		shadow = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiWhiteColor : listener.dataWhiteColor)]);
+		image = imageFromCircle([wifiCircle versionWithColor:black]);
+		shadow = imageFromCircle([wifiCircle versionWithColor:white]);
 	}
 
 	[listener debugLog:[NSString stringWithFormat:@"Created Data Circle view with radius:%f, type:%i, strength:%i, lightColor:%@, and darkColor:%@ (for current white:%f)", radius, networkType, wifiState, image, shadow, w]];
@@ -141,6 +143,9 @@ static UIImage * imageFromCircle(CRView * arg1){
 %end
 
 /**************************** Battery Strength  ****************************/
+
+//%hook UIStatusBarNotChargingItemView?!
+
 %hook UIStatusBarBatteryItemView
 
 -(_UILegibilityImageSet *)contentsImage{
@@ -160,18 +165,22 @@ static UIImage * imageFromCircle(CRView * arg1){
 		CGFloat w, a;
 		[textColor getWhite:&w alpha:&a];
 
+		int state = MSHookIvar<int>(self, "_state");
 		UIImage *image, *shadow;
+		UIColor *white = (state != 0)?listener.chargingWhiteColor:listener.batteryWhiteColor;
+		UIColor *black = (state != 0)?listener.chargingBlackColor:listener.batteryBlackColor;
+
 		if(w > 0.5f){ // white color
-			image = imageFromCircle([batteryCircle versionWithColor:listener.batteryWhiteColor]);
-			shadow = imageFromCircle([batteryCircle versionWithColor:listener.batteryBlackColor]);
+			image = imageFromCircle([batteryCircle versionWithColor:white]);
+			shadow = imageFromCircle([batteryCircle versionWithColor:black]);
 		}
 
 		else{
-			image = imageFromCircle([batteryCircle versionWithColor:listener.batteryBlackColor]);
-			shadow = imageFromCircle([batteryCircle versionWithColor:listener.batteryWhiteColor]);
+			image = imageFromCircle([batteryCircle versionWithColor:black]);
+			shadow = imageFromCircle([batteryCircle versionWithColor:white]);
 		}
 
-		[listener debugLog:[NSString stringWithFormat:@"Created Battery Circle view with radius:%f, capacity:%f, lightColor:%@, and darkColor:%@ (for current white:%f)", radius, capacity, image, shadow, w]];
+		[listener debugLog:[NSString stringWithFormat:@"Created Battery Circle view with radius:%f, capacity:%f, state:%i, lightColor:%@, and darkColor:%@ (for current white:%f)", radius, capacity, state, image, shadow, w]];
 		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
 	}
 
@@ -184,7 +193,6 @@ static UIImage * imageFromCircle(CRView * arg1){
 %hook UIStatusBarLayoutManager
 
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
-	NSLog(@"--- \titem:%@, \n\tframe:%@", arg1, NSStringFromCGRect(%orig()));
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
 		if(listener.signalEnabled){
 			signalWidth = signalDiameter;
@@ -205,8 +213,14 @@ static UIImage * imageFromCircle(CRView * arg1){
 
 	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && listener.batteryEnabled){
 		[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ from (%@)", arg1, NSStringFromCGRect(%orig())]];
-		//CGFloat state = MSHookIvar<int>(arg1, "_state");
-		return CGRectMake(%orig().origin.x, ceilf(listener.batteryPadding / 2.25f), batteryDiameter, batteryDiameter);
+
+		CGRect batteryFrame = CGRectMake(%orig().origin.x, ceilf(listener.batteryPadding / 2.25f), batteryDiameter, batteryDiameter);
+		
+		int state = MSHookIvar<int>(arg1, "_state");
+		if(state != 0)
+			[[[arg1 subviews] lastObject] setHidden:YES];
+
+		return batteryFrame;
 	}
 
 	return %orig();

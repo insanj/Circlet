@@ -5,17 +5,43 @@
 #import <Preferences/PSListItemsController.h>
 #include <notify.h>
 
-#import "HBTSTintedListController.h"
-
 #define URL_ENCODE(string) [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)(string), NULL, CFSTR(":/=,!$& '()*+;[]@#?"), kCFStringEncodingUTF8) autorelease]
 
-@interface CRListItemsController : HBTSTintedListController
+@interface CRListItemsController : PSListItemsController
 @end
 
-@interface CRPrefsListController : HBTSTintedListController
+@implementation CRListItemsController
+-(void)viewWillAppear:(BOOL)animated {
+	UIColor *tintColor = [UIColor blackColor];
+	self.view.tintColor = tintColor;
+    self.navigationController.navigationBar.tintColor = tintColor;
+}
+
+-(void)viewWillDisappear:(BOOL)animated {
+	[super viewWillDisappear:animated];
+
+	self.view.tintColor = nil;
+	self.navigationController.navigationBar.tintColor = nil;
+}
+@end
+
+
+@interface CRPrefsListController : PSListController
 @end
 
 @implementation CRPrefsListController
+-(void)viewWillAppear:(BOOL)animated {
+	UIColor *tintColor = [UIColor blackColor];
+	self.view.tintColor = tintColor;
+    self.navigationController.navigationBar.tintColor = tintColor;
+
+   	[super viewWillAppear:animated];
+}
+
+-(void)viewWillAisappear:(BOOL)animated {
+	self.view.tintColor = nil;
+	self.navigationController.navigationBar.tintColor = nil;
+}
 
 -(void)loadView{
 	[super loadView];
