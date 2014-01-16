@@ -1,4 +1,4 @@
-Circular
+Circlet
 =======================
 
 A simpler status bar, one circle at a time.

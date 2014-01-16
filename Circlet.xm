@@ -12,12 +12,13 @@
 
 // Global variables and functions for preference usage
 static CRNotificationListener *listener;
-static CRView *signalCircle, *wifiCircle;
-static CGFloat signalDiameter, wifiDiameter;
+static CRView *signalCircle, *wifiCircle, *batteryCircle;
+static CGFloat signalDiameter, wifiDiameter, batteryDiameter;
 
 static BOOL initialized;
 static CGFloat signalWidth;
 
+/**************************** Global Functions ****************************/
 %ctor{
 	if(!initialized){
 		initialized = YES;
@@ -27,6 +28,7 @@ static CGFloat signalWidth;
 
 			signalCircle = [[CRView alloc] initWithRadius:listener.signalPadding];
 			wifiCircle = [[CRView alloc] initWithRadius:listener.wifiPadding];
+			batteryCircle = [[CRView alloc] initWithRadius:listener.batteryPadding];
 		}
 	}
 }
@@ -40,6 +42,8 @@ static UIImage * imageFromCircle(CRView * arg1){
     return image;
 }
 
+
+/**************************** Signal Strength ****************************/
 
 %hook UIStatusBarSignalStrengthItemView
 
@@ -73,13 +77,16 @@ static UIImage * imageFromCircle(CRView * arg1){
 			shadow = imageFromCircle([signalCircle versionWithColor:listener.signalWhiteColor]);
 		}
 
-		[listener debugLog:[NSString stringWithFormat:@"Created Circle view with radius:%f, state:%f, lightColor:%@, and darkColor:%@ (for current white:%f)", radius, signalState, image, shadow, w]];
+		[listener debugLog:[NSString stringWithFormat:@"Created Signal Circle view with radius:%f, state:%f, lightColor:%@, and darkColor:%@ (for current white:%f)", radius, signalState, image, shadow, w]];
 		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
 	}
 
 	return %orig();
 }
 %end
+
+/**************************** Wifi/Data Strength  ****************************/
+
 
 @interface UIStatusBarDataNetworkItemView (Circlet)
 -(_UILegibilityImageSet *)replacementImageFor:(_UILegibilityImageSet *)orig;
@@ -88,16 +95,20 @@ static UIImage * imageFromCircle(CRView * arg1){
 %hook UIStatusBarDataNetworkItemView
 
 %new -(_UILegibilityImageSet *)replacementImageFor:(_UILegibilityImageSet *)orig{
-	[listener debugLog:@"Dealing with old signal view's symbol management"];
+	[listener debugLog:@"Dealing with old data view's symbol management"];
 
 	wifiDiameter = [orig image].size.height - listener.wifiPadding;
 	CGFloat radius = (wifiDiameter / 2.f);
 	if(wifiCircle.radius != radius)
 		[wifiCircle setRadius:radius];
 
+	int networkType = MSHookIvar<int>(self, "_dataNetworkType");
 	int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
 	[listener debugLog:[NSString stringWithFormat:@"WifiStrength Bars:%i", wifiState]];
-	[wifiCircle setState:wifiState withMax:3];
+	if(networkType == 5)
+		[wifiCircle setState:wifiState withMax:3];
+	else
+		[wifiCircle setState:1 withMax:1];
 
 	UIColor *textColor = [[self foregroundStyle] textColorForStyle:[self legibilityStyle]];
 
@@ -105,8 +116,6 @@ static UIImage * imageFromCircle(CRView * arg1){
 	[textColor getWhite:&w alpha:&a];
 
 	UIImage *image, *shadow;
-	int networkType = MSHookIvar<int>(self, "_dataNetworkType");
-	[listener debugLog:[NSString stringWithFormat:@"Network type: %i", networkType]];
 
 	if(w > 0.5f){ // white color
 		image = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiWhiteColor : listener.dataWhiteColor)]);
@@ -117,6 +126,8 @@ static UIImage * imageFromCircle(CRView * arg1){
 		image = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiBlackColor : listener.dataBlackColor)]);
 		shadow = imageFromCircle([wifiCircle versionWithColor:((networkType == 5)?listener.wifiWhiteColor : listener.dataWhiteColor)]);
 	}
+
+	[listener debugLog:[NSString stringWithFormat:@"Created Data Circle view with radius:%f, type:%i, strength:%i, lightColor:%@, and darkColor:%@ (for current white:%f)", radius, networkType, wifiState, image, shadow, w]];
 
 	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
 }
@@ -129,10 +140,51 @@ static UIImage * imageFromCircle(CRView * arg1){
 }
 %end
 
+/**************************** Battery Strength  ****************************/
+%hook UIStatusBarBatteryItemView
+
+-(_UILegibilityImageSet *)contentsImage{
+	if(listener.batteryEnabled){
+		[listener debugLog:@"Dealing with old battery view's symbol management"];
+
+		batteryDiameter = [%orig image].size.height - listener.batteryPadding;
+		CGFloat radius = (batteryDiameter / 2.f);
+		if(batteryCircle.radius != radius)
+			[batteryCircle setRadius:radius];
+
+		CGFloat capacity = MSHookIvar<int>(self, "_capacity");
+		[batteryCircle setState:capacity withMax:100];
+
+		UIColor *textColor = [[self foregroundStyle] textColorForStyle:[self legibilityStyle]];
+
+		CGFloat w, a;
+		[textColor getWhite:&w alpha:&a];
+
+		UIImage *image, *shadow;
+		if(w > 0.5f){ // white color
+			image = imageFromCircle([batteryCircle versionWithColor:listener.batteryWhiteColor]);
+			shadow = imageFromCircle([batteryCircle versionWithColor:listener.batteryBlackColor]);
+		}
+
+		else{
+			image = imageFromCircle([batteryCircle versionWithColor:listener.batteryBlackColor]);
+			shadow = imageFromCircle([batteryCircle versionWithColor:listener.batteryWhiteColor]);
+		}
+
+		[listener debugLog:[NSString stringWithFormat:@"Created Battery Circle view with radius:%f, capacity:%f, lightColor:%@, and darkColor:%@ (for current white:%f)", radius, capacity, image, shadow, w]];
+		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
+	}
+
+	return %orig();
+}
+%end
+
+/**************************** Item View Spacing  ****************************/
 
 %hook UIStatusBarLayoutManager
 
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
+	NSLog(@"--- \titem:%@, \n\tframe:%@", arg1, NSStringFromCGRect(%orig()));
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
 		if(listener.signalEnabled){
 			signalWidth = signalDiameter;
@@ -149,6 +201,12 @@ static UIImage * imageFromCircle(CRView * arg1){
 	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && listener.wifiEnabled){
 		[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ from (%@)", arg1, NSStringFromCGRect(%orig())]];
 		return CGRectMake(ceilf(signalWidth + wifiDiameter + 1.f), ceilf(listener.wifiPadding / 2.25f), wifiDiameter, wifiDiameter);
+	}
+
+	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && listener.batteryEnabled){
+		[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ from (%@)", arg1, NSStringFromCGRect(%orig())]];
+		//CGFloat state = MSHookIvar<int>(arg1, "_state");
+		return CGRectMake(%orig().origin.x, ceilf(listener.batteryPadding / 2.25f), batteryDiameter, batteryDiameter);
 	}
 
 	return %orig();

@@ -41,7 +41,7 @@ NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColo
 	_signalWhiteColor = [self colorWithCaseNumber:[_settings[@"signalLightColor"] intValue] andDefault:16];
 	_signalBlackColor = [self colorWithCaseNumber:[_settings[@"signalDarkColor"] intValue] andDefault:1];
 	
-	//Wifi
+	// Data/Wifi
 	_wifiEnabled = _settings[@"wifiEnabled"] != nil && [_settings[@"wifiEnabled"] boolValue];
 	_wifiPadding = (_settings[@"wifiSize"] == nil)?12.f:[_settings[@"wifiSize"] floatValue];
 
@@ -49,6 +49,13 @@ NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColo
 	_wifiBlackColor = [self colorWithCaseNumber:[_settings[@"wifiDarkColor"] intValue] andDefault:1];
 	_dataWhiteColor = [self colorWithCaseNumber:[_settings[@"dataLightColor"] intValue] andDefault:16];
 	_dataBlackColor = [self colorWithCaseNumber:[_settings[@"dataDarkColor"] intValue] andDefault:1];
+
+	// Battery
+	_batteryEnabled = _settings[@"batteryEnabled"] != nil && [_settings[@"batteryEnabled"] boolValue];
+	_batteryPadding = (_settings[@"batterySize"] == nil)?12.f:[_settings[@"batterySize"] floatValue];
+
+	_batteryWhiteColor = [self colorWithCaseNumber:[_settings[@"batteryLightColor"] intValue] andDefault:16];
+	_batteryBlackColor = [self colorWithCaseNumber:[_settings[@"batteryDarkColor"] intValue] andDefault:1];
 
 	return _settings != nil;
 }

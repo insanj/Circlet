@@ -2,19 +2,26 @@
 #import <UIKit/UIActivityViewController.h>
 #import <Twitter/Twitter.h>
 #import <Preferences/PSSpecifier.h>
-#import <Preferences/PSListController.h>
+#import <Preferences/PSListItemsController.h>
 #include <notify.h>
+
+#import "HBTSTintedListController.h"
 
 #define URL_ENCODE(string) [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)(string), NULL, CFSTR(":/=,!$& '()*+;[]@#?"), kCFStringEncodingUTF8) autorelease]
 
-@interface CRPrefsListController : PSListController
+@interface CRListItemsController : HBTSTintedListController
+@end
+
+@interface CRPrefsListController : HBTSTintedListController
 @end
 
 @implementation CRPrefsListController
+
 -(void)loadView{
 	[super loadView];
 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped:)];
 }
+
 
 -(NSArray *)specifiers{
 	if(!_specifiers)
