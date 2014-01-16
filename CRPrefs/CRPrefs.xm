@@ -3,6 +3,7 @@
 #import <Twitter/Twitter.h>
 #import <Preferences/PSSpecifier.h>
 #import <Preferences/PSListItemsController.h>
+#import <MessageUI/MessageUI.h>
 #include <notify.h>
 
 #define URL_ENCODE(string) [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)(string), NULL, CFSTR(":/=,!$& '()*+;[]@#?"), kCFStringEncodingUTF8) autorelease]
@@ -18,6 +19,7 @@
 }
 
 -(void)viewWillDisappear:(BOOL)animated {
+
 	[super viewWillDisappear:animated];
 
 	self.view.tintColor = nil;
@@ -26,7 +28,7 @@
 @end
 
 
-@interface CRPrefsListController : PSListController
+@interface CRPrefsListController : PSListController <MFMailComposeViewControllerDelegate>
 @end
 
 @implementation CRPrefsListController
@@ -34,11 +36,11 @@
 	UIColor *tintColor = [UIColor blackColor];
 	self.view.tintColor = tintColor;
     self.navigationController.navigationBar.tintColor = tintColor;
-
-   	[super viewWillAppear:animated];
 }
 
--(void)viewWillAisappear:(BOOL)animated {
+-(void)viewWillDisappear:(BOOL)animated {
+	[super viewWillDisappear:animated];
+
 	self.view.tintColor = nil;
 	self.navigationController.navigationBar.tintColor = nil;
 }
@@ -47,7 +49,6 @@
 	[super loadView];
 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped:)];
 }
-
 
 -(NSArray *)specifiers{
 	if(!_specifiers)
@@ -77,8 +78,7 @@
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPrefsChanged" object:nil];
 }
 
-
--(void)twitter:(PSSpecifier *)specifier{
+-(void)twitter{
 	if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetbot:"]])
 		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tweetbot:///user_profile/insanj"]];
 
@@ -96,6 +96,23 @@
 }//end twitter
 
 -(void)mail{
-	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"mailto:me%40insanj.com?subject=Circlet%20(1.0)%20Support"]];//
+	NSURL *helpurl = [NSURL URLWithString:@"mailto:me%40insanj.com?subject=Circlet%20(1.0)%20Support"];
+	if([MFMailComposeViewController canSendMail]){
+		MFMailComposeViewController *composeViewController = [[MFMailComposeViewController alloc] initWithNibName:nil bundle:nil];
+		[composeViewController setMailComposeDelegate:self];
+		[composeViewController setToRecipients:@[@"me@insanj.com"]];
+		[composeViewController setSubject:@"Circlet (1.0) Support"];
+		[self presentViewController:composeViewController animated:YES completion:nil];
+	}//end if
+		
+	else if ([[UIApplication sharedApplication] canOpenURL:helpurl])
+		[[UIApplication sharedApplication] openURL:helpurl];
+		
+	else
+		[[[UIAlertView alloc] initWithTitle:@"Contact Developer" message:@"Shoot an email to me@insanj.com, or talk to me on twitter (@insanj) if you have any problems, requests, or ideas!" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"Dismiss", nil] show];
+}//end method
+
+-(void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 @end
