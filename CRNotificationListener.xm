@@ -9,6 +9,7 @@
 #import "CRNotificationListener.h"
 
 @implementation CRNotificationListener
+static CRNotificationListener *sharedInstance;
 NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColorFromRGB(0x0074D9),
 			 	   [UIColor clearColor],	    UIColorFromRGB(0xF012BE), UIColorFromRGB(0xAAAAAA),
 			 	   UIColorFromRGB(0x2ECC40),    UIColorFromRGB(0x01FF70), UIColorFromRGB(0x85144B),
@@ -16,13 +17,26 @@ NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColo
 		     	   UIColorFromRGB(0xB10DC9),    UIColorFromRGB(0xFF4136), UIColorFromRGB(0xDDDDDD),
 		     	   UIColorFromRGB(0x39CCCC),    UIColorFromRGB(0xFFFFFF), UIColorFromRGB(0xFFDC00)];
 
++(CRNotificationListener *)sharedInstance{
+	if(!sharedInstance){
+		static dispatch_once_t provider_token = 0;
+	    dispatch_once(&provider_token, ^{
+	        sharedInstance = [[self alloc] init];
+	    });
+	}
+
+	return sharedInstance;
+}//end sharedProvider
+
+
 -(CRNotificationListener *)init{
 	if((self = [super init])){
-		[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadPrefs) name:@"CRPrefsChanged" object:nil];
+		[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(respring) name:@"CRPrefsChanged" object:nil];
 		[self reloadPrefs];
 		_signalCircle = [[CRView alloc] initWithRadius:_signalPadding];
 		_wifiCircle = [[CRView alloc] initWithRadius:_wifiPadding];
 		_batteryCircle = [[CRView alloc] initWithRadius:_batteryPadding];
+		sharedInstance = self;
 	}
 
 	return self;
@@ -34,7 +48,7 @@ NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColo
 
 -(BOOL)reloadPrefs{
 	_settings = [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]];
-	debug = _settings[@"debugEnabled"] == nil || [_settings[@"debugEnabled"] boolValue];
+	debug = _settings[@"debugEnabled"] != nil && [_settings[@"debugEnabled"] boolValue];
 	[self debugLog:[NSString stringWithFormat:@"Reloading _settings, retrieved plist:%@ ", _settings]];
 
 	// Signal
@@ -69,7 +83,6 @@ NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColo
 -(UIColor *)colorWithCaseNumber:(int)arg1 andDefault:(int)arg2{
 	return [colors objectAtIndex:(arg1==0)?arg2:(arg1-1)];
 }
-
 
 -(void)debugLog:(NSString*)str{
 	if(debug)

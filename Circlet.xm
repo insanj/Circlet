@@ -10,30 +10,29 @@
 #import "CRNotificationListener.h"
 #import "CRView.h"
 
-// Global variables and functions for preference usage
-static CRNotificationListener *listener; /// problem could be multiple instances of this, just make it a shared via springboard that might fix a lot
-static CRView *signalCircle, *wifiCircle, *batteryCircle;
 static CGFloat signalDiameter, wifiDiameter, batteryDiameter;
 static CGFloat signalWidth;
 
-/**************************** Global Functions ****************************/
+/******************** SpringBoard (foreground) Methods ********************/
 
-// Generate a UIImage from given CRView using GraphicsImageContext (should be quite accurate)
-static UIImage * imageFromCircle(CRView * arg1){
-	UIGraphicsBeginImageContextWithOptions(arg1.bounds.size, NO, 0.f);
-    [arg1.layer renderInContext:UIGraphicsGetCurrentContext()];
+@interface SpringBoard (Circlet)
++(CRNotificationListener *)CRSharedListener;
++(UIImage *)imageFromCircle:(CRView *)circle;
+@end
+
+%hook SpringBoard
+%new +(CRNotificationListener *)CRSharedListener{ 
+ 	return [CRNotificationListener sharedInstance];
+}
+
+%new +(UIImage *)imageFromCircle:(CRView *)circle{
+	UIGraphicsBeginImageContextWithOptions(circle.bounds.size, NO, 0.f);
+    [circle.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return image;
 }
-
-// Retrieve saved information from a new CRNotificationListener
-%ctor{
-	listener = [[CRNotificationListener alloc] init];
-	signalCircle = listener.signalCircle;
-	wifiCircle = listener.wifiCircle;
-	batteryCircle = listener.batteryCircle;
-}
+%end
 
 /**************************** Signal Strength ****************************/
 
@@ -41,10 +40,12 @@ static UIImage * imageFromCircle(CRView * arg1){
 
 // Return a converted CRView (to UIImage) in both black and white, to replace the contentsImage 
 -(_UILegibilityImageSet *)contentsImage{
+	CRNotificationListener *listener = [%c(SpringBoard) CRSharedListener];
 	if(listener.signalEnabled){
 		[listener debugLog:@"Dealing with old signal view's symbol management"];
 
-		signalDiameter = [%orig image].size.height - listener.signalPadding;
+		CRView *signalCircle = listener.signalCircle;
+		signalDiameter = [%orig() image].size.height - listener.signalPadding;
 		CGFloat radius = (signalDiameter / 2.f);
 		if(signalCircle.radius != radius)
 			[signalCircle setRadius:radius];
@@ -60,13 +61,13 @@ static UIImage * imageFromCircle(CRView * arg1){
 
 		UIImage *image, *shadow;
 		if(w > 0.5f){ // white color
-			image = imageFromCircle([signalCircle versionWithColor:listener.signalWhiteColor]);
-			shadow = imageFromCircle([signalCircle versionWithColor:listener.signalBlackColor]);
+			image = [%c(SpringBoard) imageFromCircle:[signalCircle versionWithColor:listener.signalWhiteColor]];
+			shadow = [%c(SpringBoard) imageFromCircle:[signalCircle versionWithColor:listener.signalBlackColor]];
 		}
 
 		else{
-			image = imageFromCircle([signalCircle versionWithColor:listener.signalBlackColor]);
-			shadow = imageFromCircle([signalCircle versionWithColor:listener.signalWhiteColor]);
+			image = [%c(SpringBoard) imageFromCircle:[signalCircle versionWithColor:listener.signalBlackColor]];
+			shadow = [%c(SpringBoard) imageFromCircle:[signalCircle versionWithColor:listener.signalWhiteColor]];
 		}
 
 		[listener debugLog:[NSString stringWithFormat:@"Created Signal Circle view with radius:%f, state:%f, lightColor:%@, and darkColor:%@ (for current white:%f)", radius, signalState, image, shadow, w]];
@@ -75,62 +76,59 @@ static UIImage * imageFromCircle(CRView * arg1){
 
 	return %orig();
 }
+
 %end
 
 /**************************** Wifi/Data Strength  ****************************/
 
-@interface UIStatusBarDataNetworkItemView (Circlet)
--(_UILegibilityImageSet *)replacementImageFor:(_UILegibilityImageSet *)orig;
-@end
-
 %hook UIStatusBarDataNetworkItemView
 
-%new -(_UILegibilityImageSet *)replacementImageFor:(_UILegibilityImageSet *)orig{
-	[listener debugLog:@"Dealing with old data view's symbol management"];
-
-	wifiDiameter = [orig image].size.height - listener.wifiPadding;
-	CGFloat radius = (wifiDiameter / 2.f);
-	if(wifiCircle.radius != radius)
-		[wifiCircle setRadius:radius];
-
-	int networkType = MSHookIvar<int>(self, "_dataNetworkType");
-	int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
-	[listener debugLog:[NSString stringWithFormat:@"WifiStrength Bars:%i", wifiState]];
-	if(networkType == 5)
-		[wifiCircle setState:wifiState withMax:3];
-	else
-		[wifiCircle setState:1 withMax:1];
-
-	UIColor *textColor = [[self foregroundStyle] textColorForStyle:[self legibilityStyle]];
-
-	CGFloat w, a;
-	[textColor getWhite:&w alpha:&a];
-
-	UIImage *image, *shadow;
-	UIColor *white = (networkType == 5)?listener.wifiWhiteColor:listener.dataWhiteColor;
-	UIColor *black = (networkType == 5)?listener.wifiBlackColor:listener.dataBlackColor;
-
-	if(w > 0.5f){ // white color
-		image = imageFromCircle([wifiCircle versionWithColor:white]);
-		shadow = imageFromCircle([wifiCircle versionWithColor:black]);
-	}
-
-	else{
-		image = imageFromCircle([wifiCircle versionWithColor:black]);
-		shadow = imageFromCircle([wifiCircle versionWithColor:white]);
-	}
-
-	[listener debugLog:[NSString stringWithFormat:@"Created Data Circle view with radius:%f, type:%i, strength:%i, lightColor:%@, and darkColor:%@ (for current white:%f)", radius, networkType, wifiState, image, shadow, w]];
-
-	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
-}
-
 -(_UILegibilityImageSet *)contentsImage{
-	if(listener.wifiEnabled)
-		return [self replacementImageFor:%orig()];
+	CRNotificationListener *listener = [%c(SpringBoard) CRSharedListener];
+	if(listener.wifiEnabled){
+		[listener debugLog:@"Dealing with old data view's symbol management"];
+
+		CRView *wifiCircle = listener.wifiCircle;
+		wifiDiameter = [%orig() image].size.height - listener.wifiPadding;
+		CGFloat radius = (wifiDiameter / 2.f);
+		if(wifiCircle.radius != radius)
+			[wifiCircle setRadius:radius];
+
+		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
+		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
+		[listener debugLog:[NSString stringWithFormat:@"WifiStrength Bars:%i", wifiState]];
+		if(networkType == 5)
+			[wifiCircle setState:wifiState withMax:3];
+		else
+			[wifiCircle setState:1 withMax:1];
+
+		UIColor *textColor = [[self foregroundStyle] textColorForStyle:[self legibilityStyle]];
+
+		CGFloat w, a;
+		[textColor getWhite:&w alpha:&a];
+
+		UIImage *image, *shadow;
+		UIColor *white = (networkType == 5)?listener.wifiWhiteColor:listener.dataWhiteColor;
+		UIColor *black = (networkType == 5)?listener.wifiBlackColor:listener.dataBlackColor;
+
+		if(w > 0.5f){ // white color
+			image = [%c(SpringBoard) imageFromCircle:[wifiCircle versionWithColor:white]];
+			shadow = [%c(SpringBoard) imageFromCircle:[wifiCircle versionWithColor:black]];
+		}
+
+		else{
+			image = [%c(SpringBoard) imageFromCircle:[wifiCircle versionWithColor:black]];
+			shadow = [%c(SpringBoard) imageFromCircle:[wifiCircle versionWithColor:white]];
+		}
+
+		[listener debugLog:[NSString stringWithFormat:@"Created Data Circle view with radius:%f, type:%i, strength:%i, lightColor:%@, and darkColor:%@ (for current white:%f)", radius, networkType, wifiState, image, shadow, w]];
+
+		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
+	}
 
 	return %orig();
 }
+
 %end
 
 /**************************** Battery Strength  ****************************/
@@ -140,10 +138,12 @@ static UIImage * imageFromCircle(CRView * arg1){
 %hook UIStatusBarBatteryItemView
 
 -(_UILegibilityImageSet *)contentsImage{
+	CRNotificationListener *listener = [%c(SpringBoard) CRSharedListener];
 	if(listener.batteryEnabled){
 		[listener debugLog:@"Dealing with old battery view's symbol management"];
 
-		batteryDiameter = [%orig image].size.height - listener.batteryPadding;
+		CRView *batteryCircle = listener.batteryCircle;
+		batteryDiameter = [%orig() image].size.height - listener.batteryPadding;
 		CGFloat radius = (batteryDiameter / 2.f);
 		if(batteryCircle.radius != radius)
 			[batteryCircle setRadius:radius];
@@ -162,13 +162,13 @@ static UIImage * imageFromCircle(CRView * arg1){
 		UIColor *black = (state != 0)?listener.chargingBlackColor:listener.batteryBlackColor;
 
 		if(w > 0.5f){ // white color
-			image = imageFromCircle([batteryCircle versionWithColor:white]);
-			shadow = imageFromCircle([batteryCircle versionWithColor:black]);
+			image = [%c(SpringBoard) imageFromCircle:[batteryCircle versionWithColor:white]];
+			shadow = [%c(SpringBoard) imageFromCircle:[batteryCircle versionWithColor:black]];
 		}
 
 		else{
-			image = imageFromCircle([batteryCircle versionWithColor:black]);
-			shadow = imageFromCircle([batteryCircle versionWithColor:white]);
+			image = [%c(SpringBoard) imageFromCircle:[batteryCircle versionWithColor:black]];
+			shadow = [%c(SpringBoard) imageFromCircle:[batteryCircle versionWithColor:white]];
 		}
 
 		[listener debugLog:[NSString stringWithFormat:@"Created Battery Circle view with radius:%f, capacity:%f, state:%i, lightColor:%@, and darkColor:%@ (for current white:%f)", radius, capacity, state, image, shadow, w]];
@@ -182,8 +182,9 @@ static UIImage * imageFromCircle(CRView * arg1){
 /**************************** Item View Spacing  ****************************/
 
 %hook UIStatusBarLayoutManager
-
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
+	CRNotificationListener *listener = [%c(SpringBoard) CRSharedListener];
+
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
 		if(listener.signalEnabled){
 			signalWidth = signalDiameter;

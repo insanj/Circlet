@@ -20,6 +20,7 @@
 
 @property (nonatomic, retain) CRView *signalCircle, *wifiCircle, *batteryCircle;
 
++(CRNotificationListener *)sharedInstance;
 -(CRNotificationListener *)init;
 -(BOOL)reloadPrefs;
 -(void)debugLog:(NSString *)str;
