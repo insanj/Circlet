@@ -7,6 +7,7 @@
 //
 
 #import "CRHeaders.h"
+#import "CRView.h"
 
 @interface CRNotificationListener : NSObject {
 	BOOL debug;
@@ -16,6 +17,8 @@
 @property (nonatomic, readwrite) BOOL signalEnabled, wifiEnabled, batteryEnabled;
 @property (nonatomic, readwrite) CGFloat signalPadding, wifiPadding, batteryPadding;
 @property (nonatomic, retain) UIColor *signalWhiteColor, *signalBlackColor, *wifiWhiteColor, *wifiBlackColor, *dataWhiteColor, *dataBlackColor, *batteryWhiteColor, *batteryBlackColor, *chargingWhiteColor, *chargingBlackColor;
+
+@property (nonatomic, retain) CRView *signalCircle, *wifiCircle, *batteryCircle;
 
 -(CRNotificationListener *)init;
 -(BOOL)reloadPrefs;

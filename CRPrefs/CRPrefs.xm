@@ -19,14 +19,12 @@
 }
 
 -(void)viewWillDisappear:(BOOL)animated {
-
 	[super viewWillDisappear:animated];
 
 	self.view.tintColor = nil;
 	self.navigationController.navigationBar.tintColor = nil;
 }
 @end
-
 
 @interface CRPrefsListController : PSListController <MFMailComposeViewControllerDelegate>
 @end
@@ -36,6 +34,29 @@
 	UIColor *tintColor = [UIColor blackColor];
 	self.view.tintColor = tintColor;
     self.navigationController.navigationBar.tintColor = tintColor;
+
+	NSDictionary *settings = [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]];
+	
+	if(![settings objectForKey:@"signalSize"]){
+		PSSpecifier *signalSizeSpecifier = [self specifierForID:@"SignalSize"];
+		[self setPreferenceValue:@(12.0) specifier:signalSizeSpecifier];
+		[self reloadSpecifier:signalSizeSpecifier];
+	}
+
+
+	if(![settings objectForKey:@"wifiSize"]){
+		PSSpecifier *wifiSizeSpecifier = [self specifierForID:@"WifiSize"];
+		[self setPreferenceValue:@(12.0) specifier:wifiSizeSpecifier];
+		[self reloadSpecifier:wifiSizeSpecifier];
+	}
+
+	if(![settings objectForKey:@"batterySize"]){
+		PSSpecifier *batterySizeSpecifier = [self specifierForID:@"BatterySize"];
+		[self setPreferenceValue:@(12.0) specifier:batterySizeSpecifier];
+		[self reloadSpecifier:batterySizeSpecifier];
+	}
+
+	//[[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 -(void)viewWillDisappear:(BOOL)animated {
@@ -75,9 +96,7 @@
 }
 
 -(void)apply:(PSSpecifier *)specifier{
-	NSLog(@"---- aply!");
-	//[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPrefsChanged" object:nil];
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CCShouldGenerateListener" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPrefsChanged" object:nil];
 }
 
 -(void)twitter{

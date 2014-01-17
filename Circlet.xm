@@ -11,23 +11,12 @@
 #import "CRView.h"
 
 // Global variables and functions for preference usage
-static CRNotificationListener *listener;
+static CRNotificationListener *listener; /// problem could be multiple instances of this, just make it a shared via springboard that might fix a lot
 static CRView *signalCircle, *wifiCircle, *batteryCircle;
 static CGFloat signalDiameter, wifiDiameter, batteryDiameter;
 static CGFloat signalWidth;
 
 /**************************** Global Functions ****************************/
-
-// Retrieve saved information from a new CRNotificationListener
-static void CCGenerateListener(){
-	NSLog(@"---- gnerate!");
-	listener = [[CRNotificationListener alloc] init];
-	[listener reloadPrefs];
-
-	signalCircle = [[CRView alloc] initWithRadius:listener.signalPadding];
-	wifiCircle = [[CRView alloc] initWithRadius:listener.wifiPadding];
-	batteryCircle = [[CRView alloc] initWithRadius:listener.batteryPadding];
-}
 
 // Generate a UIImage from given CRView using GraphicsImageContext (should be quite accurate)
 static UIImage * imageFromCircle(CRView * arg1){
@@ -38,25 +27,13 @@ static UIImage * imageFromCircle(CRView * arg1){
     return image;
 }
 
+// Retrieve saved information from a new CRNotificationListener
 %ctor{
-	CCGenerateListener();
+	listener = [[CRNotificationListener alloc] init];
+	signalCircle = listener.signalCircle;
+	wifiCircle = listener.wifiCircle;
+	batteryCircle = listener.batteryCircle;
 }
-
-%subclass CCPreferencesManager : NSObject
--(id)init{
-	if((self = [[%c(NSObject) alloc] init])){
-		NSLog(@"---- to!");
-	}
-
-	return self;
-}
-
-%new -(void)generateListener{
-	NSLog(@"------ geee");
-	CCGenerateListener();
-}
-%end
-
 
 /**************************** Signal Strength ****************************/
 
@@ -101,7 +78,6 @@ static UIImage * imageFromCircle(CRView * arg1){
 %end
 
 /**************************** Wifi/Data Strength  ****************************/
-
 
 @interface UIStatusBarDataNetworkItemView (Circlet)
 -(_UILegibilityImageSet *)replacementImageFor:(_UILegibilityImageSet *)orig;

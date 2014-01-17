@@ -18,8 +18,11 @@ NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColo
 
 -(CRNotificationListener *)init{
 	if((self = [super init])){
-		[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(respring) name:@"CRPrefsChanged" object:nil];
+		[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadPrefs) name:@"CRPrefsChanged" object:nil];
 		[self reloadPrefs];
+		_signalCircle = [[CRView alloc] initWithRadius:_signalPadding];
+		_wifiCircle = [[CRView alloc] initWithRadius:_wifiPadding];
+		_batteryCircle = [[CRView alloc] initWithRadius:_batteryPadding];
 	}
 
 	return self;
@@ -58,7 +61,6 @@ NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColo
 	_batteryBlackColor = [self colorWithCaseNumber:[_settings[@"batteryDarkColor"] intValue] andDefault:1];
 	_chargingWhiteColor = [self colorWithCaseNumber:[_settings[@"chargingLightColor"] intValue] andDefault:16];
 	_chargingBlackColor = [self colorWithCaseNumber:[_settings[@"chargingDarkColor"] intValue] andDefault:1];
-
 
 
 	return _settings != nil;

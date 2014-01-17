@@ -23,10 +23,11 @@
 		<dict>
 			<key>cell</key>  		<string>PSSegmentCell</string>
 			<key>defaults</key> 	<string>com.insanj.circlet</string>
+			<key>id</key> 			<string>SignalSize</string>
  			<key>key</key> 			<string>signalSize</string>
  			<key>label</key> 		<string>Size</string>
  			<key>validTitles</key> <array>
- 				<string>Small (Default)</string>
+ 				<string>Small</string>
  				<string>Medium</string>
  				<string>Large</string>
  			</array>
@@ -148,16 +149,17 @@
 			<key>label</key>			<string>Enabled</string>
 			<key>key</key> 				<string>wifiEnabled</string>
 			<key>enabled</key> 			<true/>
-			<key>default</key> 			<true/>
+			<key>default</key> 			<false/>
 		</dict>
 		
 		<dict>
 			<key>cell</key>  		<string>PSSegmentCell</string>
 			<key>defaults</key> 	<string>com.insanj.circlet</string>
+			<key>id</key> 			<string>WifiSize</string>
  			<key>key</key> 			<string>wifiSize</string>
  			<key>label</key> 		<string>Size</string>
  			<key>validTitles</key> <array>
- 				<string>Small (Default)</string>
+ 				<string>Small</string>
  				<string>Medium</string>
  				<string>Large</string>
  			</array>
@@ -385,10 +387,11 @@
 		<dict>
 			<key>cell</key>  		<string>PSSegmentCell</string>
 			<key>defaults</key> 	<string>com.insanj.circlet</string>
+			<key>id</key> 			<string>BatterySize</string>
  			<key>key</key> 			<string>batterySize</string>
  			<key>label</key> 		<string>Size</string>
  			<key>validTitles</key> <array>
- 				<string>Small (Default)</string>
+ 				<string>Small</string>
  				<string>Medium</string>
  				<string>Large</string>
  			</array>
