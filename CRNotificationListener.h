@@ -24,5 +24,6 @@
 -(CRNotificationListener *)init;
 -(BOOL)reloadPrefs;
 -(void)debugLog:(NSString *)str;
+-(BOOL)enabledForClassname:(NSString *)className;
 @end
 

@@ -26,11 +26,13 @@ NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColo
 	}
 
 	return sharedInstance;
-}//end sharedProvider
-
+}
 
 -(CRNotificationListener *)init{
-	if((self = [super init])){
+	if(sharedInstance)
+		self = sharedInstance;
+
+	else if((self = [super init])){
 		[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(respring) name:@"CRPrefsChanged" object:nil];
 		[self reloadPrefs];
 		_signalCircle = [[CRView alloc] initWithRadius:_signalPadding];
@@ -87,6 +89,10 @@ NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColo
 -(void)debugLog:(NSString*)str{
 	if(debug)
 		NSLog(@"[Circlet] \e[1;31m%@\e[m ", str);
+}
+
+-(BOOL)enabledForClassname:(NSString *)className{
+	return ([className isEqualToString:@"UIStatusBarSignalStrengthItemView"] && _signalEnabled) || ([className isEqualToString:@"UIStatusBarDataNetworkItemView"] && _wifiEnabled) || ([className isEqualToString:@"UIStatusBarBatteryItemView"] && _batteryEnabled);
 }
 
 -(void)dealloc{
