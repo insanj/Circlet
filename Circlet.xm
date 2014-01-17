@@ -14,23 +14,19 @@
 static CRNotificationListener *listener;
 static CRView *signalCircle, *wifiCircle, *batteryCircle;
 static CGFloat signalDiameter, wifiDiameter, batteryDiameter;
-
-static BOOL initialized;
 static CGFloat signalWidth;
 
 /**************************** Global Functions ****************************/
-%ctor{
-	if(!initialized){
-		initialized = YES;
-		@autoreleasepool{
-			listener = [[CRNotificationListener alloc] init];
-			[listener reloadPrefs];
 
-			signalCircle = [[CRView alloc] initWithRadius:listener.signalPadding];
-			wifiCircle = [[CRView alloc] initWithRadius:listener.wifiPadding];
-			batteryCircle = [[CRView alloc] initWithRadius:listener.batteryPadding];
-		}
-	}
+// Retrieve saved information from a new CRNotificationListener
+static void CCGenerateListener(){
+	NSLog(@"---- gnerate!");
+	listener = [[CRNotificationListener alloc] init];
+	[listener reloadPrefs];
+
+	signalCircle = [[CRView alloc] initWithRadius:listener.signalPadding];
+	wifiCircle = [[CRView alloc] initWithRadius:listener.wifiPadding];
+	batteryCircle = [[CRView alloc] initWithRadius:listener.batteryPadding];
 }
 
 // Generate a UIImage from given CRView using GraphicsImageContext (should be quite accurate)
@@ -41,6 +37,25 @@ static UIImage * imageFromCircle(CRView * arg1){
     UIGraphicsEndImageContext();
     return image;
 }
+
+%ctor{
+	CCGenerateListener();
+}
+
+%subclass CCPreferencesManager : NSObject
+-(id)init{
+	if((self = [[%c(NSObject) alloc] init])){
+		NSLog(@"---- to!");
+	}
+
+	return self;
+}
+
+%new -(void)generateListener{
+	NSLog(@"------ geee");
+	CCGenerateListener();
+}
+%end
 
 
 /**************************** Signal Strength ****************************/

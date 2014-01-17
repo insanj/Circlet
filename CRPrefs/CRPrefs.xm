@@ -75,7 +75,9 @@
 }
 
 -(void)apply:(PSSpecifier *)specifier{
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPrefsChanged" object:nil];
+	NSLog(@"---- aply!");
+	//[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPrefsChanged" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CCShouldGenerateListener" object:nil];
 }
 
 -(void)twitter{
