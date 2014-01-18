@@ -22,8 +22,6 @@
 
 %hook SpringBoard
 -(id)init{
-	NSLog(@"----- init!");
-
 	void (^CRLoadBlock)(NSNotification *notification) = ^void(NSNotification *notification){
 		CRNotificationListener *listener = [CRNotificationListener sharedInstance];
 		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRSharedListener" object:nil userInfo:@{@"CRListener" : listener, @"CRCurrentImages" : [self generateCurrentImagesFrom:listener]}];
@@ -31,7 +29,6 @@
 
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:CRLoadBlock];
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRSendImages" object:nil queue:[NSOperationQueue mainQueue] usingBlock:CRLoadBlock];
-
 
 	return %orig();
 }
@@ -44,7 +41,7 @@
     return image;
 }
 
-%new -(NSDictionary *)generateCurrentImages:(CRNotificationListener *)listener{
+%new -(NSDictionary *)generateCurrentImagesFrom:(CRNotificationListener *)listener{
 	return @{@"UIStatusBarSignalStrengthItemView" : [self signalImage:listener], @"UIStatusBarDataNetworkItemView" : [self wifiImage:listener], @"UIStatusBarBatteryItemView" : [self batteryImage:listener]};
 }
 
