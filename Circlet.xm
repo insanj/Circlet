@@ -46,22 +46,7 @@
 }
 
 %new -(_UILegibilityImageSet *)signalImage:(CRNotificationListener *)listener{
-	[listener debugLog:[NSString stringWithFormat:@"Generating signal image from shared preferences listener: %@", listener]];
-
-	CRView *signalCircle = listener.signalCircle;
-	CGFloat radius = listener.signalPadding / 2.f;
-	if(signalCircle.radius != radius)
-		[signalCircle setRadius:radius];
-
-	CGFloat signalState = MSHookIvar<int>(self, "_signalStrengthBars");
-	[listener debugLog:[NSString stringWithFormat:@"SignalStrength Bars:%f", signalState]];
-	[signalCircle setState:signalState withMax:5.0];
-
-	UIImage *image = [self imageFromCircle:[signalCircle versionWithColor:listener.signalWhiteColor]];
-	UIImage *shadow = [self imageFromCircle:[signalCircle versionWithColor:listener.signalBlackColor]];
-
-	[listener debugLog:[NSString stringWithFormat:@"Created Signal Circle view with radius:%f, state:%f, lightColor:%@, and darkColor:%@", radius, signalState, image, shadow]];
-	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
+	
 }
 
 %new -(_UILegibilityImageSet *)wifiImage:(CRNotificationListener *)listener{
@@ -186,10 +171,10 @@ CGFloat signalWidth;
 	NSDictionary *dict = objc_getAssociatedObject(self, &kCRLayoutManagerCurrentImageskey);
 
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
-		if([listener enabledForClassname:@"UIStatusBarSignalStrengthItemViews"]){
+		if([listener enabledForClassname:@"UIStatusBarSignalStrengthItemView"]){
 			[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ (from %@)", arg1, NSStringFromCGRect(%orig())]];
 
-			_UILegibilityImageSet *signalSet = [dict objectForKey:@"UIStatusBarSignalStrengthItemViews"];
+			_UILegibilityImageSet *signalSet = [dict objectForKey:@"UIStatusBarSignalStrengthItemView"];
 			UIImage *image = [signalSet image];
 			signalWidth = image.size.width;
 			return CGRectMake(%orig().origin.x, ceilf(listener.signalPadding / 2.25f), image.size.width * 2, image.size.height * 2);
