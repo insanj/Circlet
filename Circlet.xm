@@ -28,18 +28,18 @@
 
 	CRNotificationListener *listener = [CRNotificationListener sharedListener];
 	if(listener.signalEnabled){
-		[listener.signalCircle setRadius:(listener.signalPadding / 2.f)];
+		[listener.signalCircle setRadius:(listener.signalPadding / 2.0)];
 		[self circlet_saveCircle:listener.signalCircle toPath:@"/private/var/mobile/Library/Circlet/Signal" withWhite:listener.signalWhiteColor black:listener.signalBlackColor count:5];
 	}
 
 	if(listener.wifiEnabled){
-		[listener.wifiCircle setRadius:(listener.wifiPadding / 2.f)];
+		[listener.wifiCircle setRadius:(listener.wifiPadding / 2.0)];
 		[self circlet_saveCircle:listener.wifiCircle toPath:@"/private/var/mobile/Library/Circlet/Wifi" withWhite:listener.wifiWhiteColor black:listener.signalBlackColor count:3];
 		[self circlet_saveCircle:listener.wifiCircle toPath:@"/private/var/mobile/Library/Circlet/Data" withWhite:listener.dataWhiteColor black:listener.dataBlackColor count:1];
 	}
 
 	if(listener.batteryEnabled){
-		[listener.batteryCircle setRadius:(listener.batteryPadding / 2.f)];
+		[listener.batteryCircle setRadius:(listener.batteryPadding / 2.0)];
 		[self circlet_saveCircle:listener.batteryCircle toPath:@"/private/var/mobile/Library/Circlet/Battery" withWhite:listener.batteryWhiteColor black:listener.batteryBlackColor count:20];
 		[self circlet_saveCircle:listener.wifiCircle toPath:@"/private/var/mobile/Library/Circlet/Charging" withWhite:listener.chargingWhiteColor black:listener.chargingBlackColor count:20];
 	}
@@ -69,7 +69,7 @@
 }
 
 %new -(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withName:(NSString *)name{
-	UIGraphicsBeginImageContextWithOptions(circle.bounds.size, NO, 0.f);
+	UIGraphicsBeginImageContextWithOptions(circle.bounds.size, NO, 0.0);
     [circle.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
@@ -116,9 +116,7 @@
 		}//end if wifi
 
 		else if ([[self class] isKindOfClass:%c(UIStatusBarBatteryItemView)]){
-			//Normalize note index: ceiling(lowestNote + ((currentLocation - minimumLocation) * ((highestNote - lowestNote)/(maximumLocation - minimumLocation))))
-
-			int level = ceilf((MSHookIvar<int>(self, "_capacity")) * (19/100));
+			int level = ceilf((MSHookIvar<int>(self, "_capacity")) * (19.0/100.0));
 			int state = MSHookIvar<int>(self, "_state");
 			if(state != 0){
 				white = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Charging/%iWhite@2x.png", level]];
@@ -161,13 +159,13 @@ CGFloat signalWidth;
 	}
 
 	else if([className isEqualToString:@"UIStatusBarServiceItemView"])
-		signalWidth += %orig().size.width + 5.f;
+		signalWidth += %orig().size.width + 5.0;
 
 	else if([className isEqualToString:@"UIStatusBarDataNetworkItemView"] && [listener enabledForClassname:className]){
 		[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ from (%@)", arg1, NSStringFromCGRect(%orig())]];
 
 		CGFloat diameter = listener.wifiPadding;
-		return CGRectMake(ceilf(signalWidth + diameter  + 1.f), ceilf(listener.wifiPadding / 2.25f), diameter, diameter);
+		return CGRectMake(ceilf(signalWidth + diameter  + 1.0), ceilf(listener.wifiPadding / 2.25), diameter, diameter);
 	}
 
 	else if([className isEqualToString:@"UIStatusBarBatteryItemView"] && [listener enabledForClassname:className]){
@@ -178,7 +176,7 @@ CGFloat signalWidth;
 		if(state != 0)
 			[[[arg1 subviews] lastObject] setHidden:YES];
 
-		return CGRectMake(%orig().origin.x, ceilf(listener.batteryPadding / 2.25f), diameter, diameter);;
+		return CGRectMake(%orig().origin.x, ceilf(listener.batteryPadding / 2.25), diameter, diameter);;
 	}
 
 	return %orig();

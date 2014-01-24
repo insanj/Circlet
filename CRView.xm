@@ -20,18 +20,18 @@
 
 #pragma mark - lifecycle
 -(instancetype)initWithRadius:(CGFloat)given{
-	CGFloat pending = given * 2.f;
-	CCBorderWidth = 1.f;
-	CCReactiveBorderWidth = CCBorderWidth/2.f;
+	CGFloat pending = given * 2.0;
+	CCBorderWidth = 1.0;
+	CCReactiveBorderWidth = CCBorderWidth/2.0;
 	
-	if((self = [super initWithFrame:CGRectMake(0.f, 0.f, pending, pending)])){
+	if((self = [super initWithFrame:CGRectMake(0.0, 0.0, pending, pending)])){
 		self.layer.cornerRadius = given;
 		radius = given;
 		diameter = pending;
 		state = -1;
 		
 		self.backgroundColor = [UIColor clearColor];
-		fake = [[UIButton alloc] initWithFrame:CGRectMake(0.f, 0.f, diameter, diameter)];
+		fake = [[UIButton alloc] initWithFrame:CGRectMake(0.0, 0.0, diameter, diameter)];
 		[fake setBackgroundColor:[UIColor clearColor]];
 		fake.layer.borderWidth = CCBorderWidth;
 		fake.layer.borderColor = [UIColor whiteColor].CGColor;
@@ -39,7 +39,7 @@
 		fake.layer.masksToBounds = NO;
 		[self addSubview:fake];
 		
-		holder = [[UIView alloc] initWithFrame:CGRectMake(0.f, 0.f, diameter, diameter)];
+		holder = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, diameter, diameter)];
 		holder.center = fake.center;
 		holder.backgroundColor = [UIColor clearColor];
 		holder.clipsToBounds = YES;
@@ -47,7 +47,7 @@
 		[self insertSubview:holder belowSubview:fake];
 		
 		inside = [[UIView alloc] initWithFrame:holder.frame];
-		inside.backgroundColor = [UIColor colorWithWhite:0.9f alpha:1.f];
+		inside.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0];
 		inside.clipsToBounds = YES;
 		[holder addSubview:inside];
 		
@@ -55,7 +55,7 @@
 		levelHandler = ^void(CMAccelerometerData *accelerometerData, NSError *error){
 			CGFloat x = accelerometerData.acceleration.x;
 			weakSelf.holder.transform = CGAffineTransformIdentity;
-			weakSelf.holder.transform = CGAffineTransformMakeRotation(-x * 0.5f);
+			weakSelf.holder.transform = CGAffineTransformMakeRotation(-x * 0.5);
 		};
 		
 		shouldUpdateManager = NO;
@@ -68,14 +68,14 @@
 
 -(void)setRadius:(CGFloat)given{
 	radius = given;
-	diameter = radius * 2.f;
+	diameter = radius * 2.0;
 
 	self.layer.cornerRadius = radius;
 
-	[fake setFrame:CGRectMake(0.f, 0.f, diameter, diameter)];
+	[fake setFrame:CGRectMake(0.0, 0.0, diameter, diameter)];
 	fake.layer.cornerRadius = radius;
 
-	[holder setFrame:CGRectMake(0.f, 0.f, diameter, diameter)];
+	[holder setFrame:CGRectMake(0.0, 0.0, diameter, diameter)];
 	holder.center = fake.center;
 	holder.layer.cornerRadius = radius;
 
@@ -90,7 +90,7 @@
 	//NSLog(@"----- state, arg1:%i, arg2:%i, ")
 	if(state == -1){
 		[self addLine];
-		[self setInsideHeight:0.f];
+		[self setInsideHeight:0.0];
 	}
 
 	else
@@ -139,7 +139,7 @@
 
 	CGFloat w, a;
 	[given getWhite:&w alpha:&a];
-	[inverse setTint:[UIColor colorWithWhite:1.f-w alpha:a]];
+	[inverse setTint:[UIColor colorWithWhite:1.0-w alpha:a]];
 
 	return inverse;
 }
@@ -148,7 +148,7 @@
 
 -(void)addLine{
 	UIBezierPath *path = [UIBezierPath bezierPath];
-	[path moveToPoint:CGPointMake(0.f, 0.f)];
+	[path moveToPoint:CGPointMake(0.0, 0.0)];
 	[path addLineToPoint:CGPointMake(diameter, diameter)];
 	
 	line = [CAShapeLayer layer];
@@ -171,7 +171,7 @@
 	insideFrame.size.height = height;
 	insideFrame.origin.y = (diameter - height);
 	
-	[UIView animateWithDuration:0.1f animations:^{
+	[UIView animateWithDuration:0.1 animations:^{
 		[inside setFrame:insideFrame];
 	} completion:^(BOOL finished){
 		[manager startAccelerometerUpdatesToQueue:[NSOperationQueue mainQueue] withHandler:levelHandler];
@@ -182,6 +182,6 @@
 	[manager stopAccelerometerUpdates];
 	
 	holder.transform = CGAffineTransformIdentity;
-	holder.transform = CGAffineTransformMakeRotation(0.f);
+	holder.transform = CGAffineTransformMakeRotation(0.0);
 }
 @end
