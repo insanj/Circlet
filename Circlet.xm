@@ -13,42 +13,67 @@
 /******************** SpringBoard (foreground) Methods ********************/
 
 @interface SpringBoard (Circlet)
--(UIImage *)imageFromCircle:(CRView *)circle;
--(NSArray *)generateCurrentImagesFrom:(CRNotificationListener *)listener;
--(_UILegibilityImageSet *)signalImage:(CRNotificationListener *)listener;
--(_UILegibilityImageSet *)wifiImage:(CRNotificationListener *)listener;
--(_UILegibilityImageSet *)batteryImage:(CRNotificationListener *)listener;
+-(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withWhite:(UIColor *)white black:(UIColor *)black count:(int)count;
+-(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withName:(NSString *)name;
 @end
 
 %hook SpringBoard
--(id)init{
-	void (^CRLoadBlock)(NSNotification *notification) = ^void(NSNotification *notification){
-		CRNotificationListener *listener = [CRNotificationListener sharedInstance];
-		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRSharedListener" object:nil userInfo:@{@"CRListener" : listener, @"CRCurrentImages" : [self generateCurrentImagesFrom:listener]}];
-	};
+static CRNotificationListener *listener;
 
-	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:CRLoadBlock];
-	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRSendImages" object:nil queue:[NSOperationQueue mainQueue] usingBlock:CRLoadBlock];
+-(id)init{
+	listener = [CRNotificationListener sharedInstance];
+	if(listener.signalEnabled){
+		[listener.signalCircle setRadius:(listener.signalPadding / 2.f)];
+		[self circlet_saveCircle:listener.signalCircle toPath:@"/private/var/mobile/Library/Circlet/Signal" withWhite:listener.signalWhiteColor black:listener.signalBlackColor count:5];
+	}
+
+	if(listener.wifiEnabled){
+		[listener.wifiCircle setRadius:(listener.wifiPadding / 2.f)];
+		[self circlet_saveCircle:listener.wifiCircle toPath:@"/private/var/mobile/Library/Circlet/Wifi" withWhite:listener.wifiWhiteColor black:listener.signalBlackColor count:3];
+		[self circlet_saveCircle:listener.wifiCircle toPath:@"/private/var/mobile/Library/Circlet/Data" withWhite:listener.dataWhiteColor black:listener.dataBlackColor count:1];
+	}
+
+	if(listener.batteryEnabled){
+		[listener.batteryCircle setRadius:(listener.batteryPadding / 2.f)];
+		[self circlet_saveCircle:listener.batteryCircle toPath:@"/private/var/mobile/Library/Circlet/Battery" withWhite:listener.batteryWhiteColor black:listener.batteryBlackColor count:20];
+		[self circlet_saveCircle:listener.wifiCircle toPath:@"/private/var/mobile/Library/Circlet/Charging" withWhite:listener.chargingWhiteColor black:listener.chargingBlackColor count:20];
+	}
 
 	return %orig();
 }
 
-%new -(UIImage *)imageFromCircle:(CRView *)circle{
+%new -(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withWhite:(UIColor *)white black:(UIColor *)black count:(int)count{
+	CRView *whiteCircle = [circle versionWithColor:white];
+	CRView *blackCircle = [circle versionWithColor:black];
+
+	NSError *error;
+	NSFileManager *fileManager = [[NSFileManager alloc] init];
+	[fileManager removeItemAtPath:path error:%error];
+	[fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error)
+
+	for(int i = 0; i < count; i++){
+		[whiteCircle setState:i withMax:count];
+		[blackCircle setState:i withMax:count];
+
+		[self circlet_saveCircle:whiteCircle toPath:path withName:[NSString stringWithFormat:@"/%iWhite@2x.png", i]];
+		[self circlet_saveCircle:blackCircle toPath:path withName:[NSString stringWithFormat:@"/%iBlack@2x.png", i]];
+	}
+
+	NSLog(@"[Circlet] Wrote %i circle-views to directory: %@", count, [fileManager contentsOfDirectoryAtPath:path error:&error]);
+}
+
+%new -(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withName:(NSString *)name{
 	UIGraphicsBeginImageContextWithOptions(circle.bounds.size, NO, 0.f);
     [circle.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    return image;
+
+	[UIImagePNGRepresentation(image) writeToFile:[path stringByAppendingString:name] atomically:YES];
 }
 
-%new -(NSDictionary *)generateCurrentImagesFrom:(CRNotificationListener *)listener{
-	return @{@"UIStatusBarSignalStrengthItemView" : [self signalImage:listener], @"UIStatusBarDataNetworkItemView" : [self wifiImage:listener], @"UIStatusBarBatteryItemView" : [self batteryImage:listener]};
-}
+%end
 
-%new -(_UILegibilityImageSet *)signalImage:(CRNotificationListener *)listener{
-	
-}
-
+// tomorrow
 %new -(_UILegibilityImageSet *)wifiImage:(CRNotificationListener *)listener{
 	[listener debugLog:[NSString stringWithFormat:@"Generating wifi image from shared preferences listener: %@", listener]];
 

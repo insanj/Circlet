@@ -33,9 +33,9 @@
  			</array>
  			<key>validValues</key>
  			<array>
- 				<real>12.0</real>
- 				<real>10.0</real>
- 				<real>8.0</real>
+ 				<real>14.0</real>
+ 				<real>16.0</real>
+ 				<real>18.0</real>
  			</array>
 		</dict>
 
@@ -165,9 +165,9 @@
  			</array>
  			<key>validValues</key>
  			<array>
- 				<real>12.0</real>
- 				<real>10.0</real>
- 				<real>8.0</real>
+ 				<real>14.0</real>
+ 				<real>16.0</real>
+ 				<real>18.0</real>
  			</array>
 		</dict>
 
@@ -397,9 +397,9 @@
  			</array>
  			<key>validValues</key>
  			<array>
- 				<real>12.0</real>
- 				<real>10.0</real>
- 				<real>8.0</real>
+ 				<real>14.0</real>
+ 				<real>16.0</real>
+ 				<real>18.0</real>
  			</array>
 		</dict>
 
