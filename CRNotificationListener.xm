@@ -1,5 +1,5 @@
 //
-//  CRNotificationListener.xm
+//  CRNotification_xm
 //  Circlet
 //
 //  Created by Julian Weiss on 1/14/14.
@@ -7,24 +7,6 @@
 //
 
 #import "CRNotificationListener.h"
-
-
-NSString *const CRImagesLoadedNotification = @"CRImagesLoadedNotification";
-
-enum{
-	CRMessageIdGetSignalImage,
-	CRMessageIdGetDataImage,
-	CRMessageIdGetBatteryImage
-};
-
-static LMConnection connection = {
-	MACH_PORT_NULL,
-	"circlet.datasource"
-};
-
-__attribute__((visibility("hidden")))
-@interface CRNotificationListenerImpl : CRNotificationListener
-@end
 
 static CRNotificationListener *sharedListener;
 static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111), UIColorFromRGB(0x0074D9),
@@ -41,27 +23,27 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 }
 
 +(CRNotificationListener *)sharedListener{
+	if(!sharedListener)
+		[CRNotificationListener initialize];
 	return sharedListener;
 }
 
 -(CRNotificationListener *)init{
-	if(sharedListener)
-		return sharedListener;
-
-	else if((self = [super init])){
+	if((self = [super init])){
 		[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(respring) name:@"CRPrefsChanged" object:nil];
 		[self reloadPrefs];
 		_signalCircle = [[CRView alloc] initWithRadius:_signalPadding];
 		_wifiCircle = [[CRView alloc] initWithRadius:_wifiPadding];
 		_batteryCircle = [[CRView alloc] initWithRadius:_batteryPadding];
-		sharedInstance = self;
 	}
 
 	return self;
 }
 
 -(void)respring{
-	[(SpringBoard *)[%c(SpringBoard) sharedApplication] _relaunchSpringBoardNow];
+	SpringBoard *sb = (SpringBoard *)[%c(SpringBoard) sharedApplication];
+	[sb circlet_generateCirclesFresh];
+	[sb _relaunchSpringBoardNow];
 }
 
 -(BOOL)reloadPrefs{
@@ -94,44 +76,12 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 	_chargingWhiteColor = [self colorWithCaseNumber:[_settings[@"chargingLightColor"] intValue] andDefault:16];
 	_chargingBlackColor = [self colorWithCaseNumber:[_settings[@"chargingDarkColor"] intValue] andDefault:1];
 
-
 	return _settings != nil;
 }
 
 -(UIColor *)colorWithCaseNumber:(int)arg1 andDefault:(int)arg2{
 	return [colors objectAtIndex:(arg1==0)?arg2:(arg1-1)];
 }
-
--(UIImage *)imageFromCircle:(CRView *)circle{
-    UIGraphicsBeginImageContextWithOptions(circle.bounds.size, NO, 0.f);
-    [circle.layer renderInContext:UIGraphicsGetCurrentContext()];
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return image;
-}
-
--(_UILegibilityImageSet *)signalImageForItemView:(UIStatusBarSignalStrengthItemView *)view andOriginal:(_UILegibilityImageSet *)original{
-	[self debugLog:[NSString stringWithFormat:@"Generating signal image from shared notification listener: %@", self]];
-
-    CGFloat radius = ([original image].size.height - _signalPadding) / 2.0;
-	if(_signalCircle.radius != radius)
-		[_signalCircle setRadius:radius];
-
-	CGFloat signalState = MSHookIvar<int>(view, "_signalStrengthBars");
-	[self debugLog:[NSString stringWithFormat:@"SignalStrength Bars:%f", signalState]];
-	[_signalCircle setState:signalState withMax:5.0];
-
-	UIImage *image = [self imageFromCircle:[_signalCircle versionWithColor:_signalWhiteColor]];
-	UIImage *shadow = [self imageFromCircle:[_signalCircle versionWithColor:_signalBlackColor]];
-
-	[listener debugLog:[NSString stringWithFormat:@"Created Signal Circle view with radius:%f, state:%f, lightColor:%@, and darkColor:%@", radius, signalState, image, shadow]];
-                                
-	LMResponseBuffer buffer;
-	result = [LMResponseConsumeImage(&buffer) CGImage];
-
-    return CGImageRetain(result);
-}
-
 
 -(void)debugLog:(NSString*)str{
 	if(debug)

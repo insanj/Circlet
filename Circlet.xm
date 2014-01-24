@@ -12,16 +12,21 @@
 
 /******************** SpringBoard (foreground) Methods ********************/
 
-@interface SpringBoard (Circlet)
--(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withWhite:(UIColor *)white black:(UIColor *)black count:(int)count;
--(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withName:(NSString *)name;
-@end
-
 %hook SpringBoard
-static CRNotificationListener *listener;
 
 -(id)init{
-	listener = [CRNotificationListener sharedInstance];
+	if(![NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]])
+		[self circlet_generateCirclesFresh];
+
+	return %orig();
+}
+
+%new -(void)circlet_generateCirclesFresh{ 
+	NSError *error;
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	[fileManager removeItemAtPath:@"/private/var/mobile/Library/Circlet" error:&error];
+
+	CRNotificationListener *listener = [CRNotificationListener sharedListener];
 	if(listener.signalEnabled){
 		[listener.signalCircle setRadius:(listener.signalPadding / 2.f)];
 		[self circlet_saveCircle:listener.signalCircle toPath:@"/private/var/mobile/Library/Circlet/Signal" withWhite:listener.signalWhiteColor black:listener.signalBlackColor count:5];
@@ -38,18 +43,19 @@ static CRNotificationListener *listener;
 		[self circlet_saveCircle:listener.batteryCircle toPath:@"/private/var/mobile/Library/Circlet/Battery" withWhite:listener.batteryWhiteColor black:listener.batteryBlackColor count:20];
 		[self circlet_saveCircle:listener.wifiCircle toPath:@"/private/var/mobile/Library/Circlet/Charging" withWhite:listener.chargingWhiteColor black:listener.chargingBlackColor count:20];
 	}
-
-	return %orig();
 }
 
 %new -(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withWhite:(UIColor *)white black:(UIColor *)black count:(int)count{
-	CRView *whiteCircle = [circle versionWithColor:white];
-	CRView *blackCircle = [circle versionWithColor:black];
 
 	NSError *error;
 	NSFileManager *fileManager = [[NSFileManager alloc] init];
-	[fileManager removeItemAtPath:path error:%error];
-	[fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error)
+	if([fileManager fileExistsAtPath:path])
+		return;
+
+	[fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
+	
+	CRView *whiteCircle = [circle versionWithColor:white];
+	CRView *blackCircle = [circle versionWithColor:black];
 
 	for(int i = 0; i < count; i++){
 		[whiteCircle setState:i withMax:count];
@@ -73,99 +79,60 @@ static CRNotificationListener *listener;
 
 %end
 
-// tomorrow
-%new -(_UILegibilityImageSet *)wifiImage:(CRNotificationListener *)listener{
-	[listener debugLog:[NSString stringWithFormat:@"Generating wifi image from shared preferences listener: %@", listener]];
-
-	CRView *wifiCircle = listener.wifiCircle;
-	CGFloat radius = listener.wifiPadding / 2.f;
-	if(wifiCircle.radius != radius)
-		[wifiCircle setRadius:radius];
-
-	int networkType = MSHookIvar<int>(self, "_dataNetworkType");
-	int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
-	[listener debugLog:[NSString stringWithFormat:@"WifiStrength Bars:%i", wifiState]];
-	if(networkType == 5)
-		[wifiCircle setState:wifiState withMax:3];
-	else
-		[wifiCircle setState:1 withMax:1];
-
-	UIColor *white = (networkType == 5)?listener.wifiWhiteColor:listener.dataWhiteColor;
-	UIColor *black = (networkType == 5)?listener.wifiBlackColor:listener.dataBlackColor;
-
-	UIImage *image = [self imageFromCircle:[wifiCircle versionWithColor:white]];
-	UIImage *shadow = [self imageFromCircle:[wifiCircle versionWithColor:black]];
-
-	[listener debugLog:[NSString stringWithFormat:@"Created Data Circle view with radius:%f, type:%i, strength:%i, lightColor:%@, and darkColor:%@", radius, networkType, wifiState, image, shadow]];
-
-	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
-}
-
-%new -(_UILegibilityImageSet *)batteryImage:(CRNotificationListener *)listener{
-	[listener debugLog:@"Dealing with old battery view's symbol management"];
-
-	CRView *batteryCircle = listener.batteryCircle;
-	CGFloat radius = listener.batteryPadding / 2.f;
-	if(batteryCircle.radius != radius)
-		[batteryCircle setRadius:radius];
-
-	CGFloat capacity = MSHookIvar<int>(self, "_capacity");
-	[batteryCircle setState:capacity withMax:100];
-
-	int state = MSHookIvar<int>(self, "_state");
-	UIColor *white = (state != 0)?listener.chargingWhiteColor:listener.batteryWhiteColor;
-	UIColor *black = (state != 0)?listener.chargingBlackColor:listener.batteryBlackColor;
-
-	UIImage *image = [%c(SpringBoard) imageFromCircle:[batteryCircle versionWithColor:white]];
-	UIImage *shadow = [%c(SpringBoard) imageFromCircle:[batteryCircle versionWithColor:black]];
-
-	[listener debugLog:[NSString stringWithFormat:@"Created Battery Circle view with radius:%f, capacity:%f, state:%i, lightColor:%@, and darkColor:%@", radius, capacity, state, image, shadow]];
-	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
-}
-
-%end
-
 /**************************** StatusBar Image Replacment  ****************************/
 
 %hook UIStatusBarItemView
-static char kCRItemViewListenerKey, kCRItemViewCurrentImageskey;
-
--(id)initWithItem:(id)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4{
-	UIStatusBarItemView *o = %orig();
-	[[NSDistributedNotificationCenter defaultCenter] addObserver:o selector:@selector(setCRLegibilityImages:) name:@"CRSharedListener" object:nil];
-	return o;
-}
-
-%new -(void)setCRLegibilityImages:(NSNotification *)notification{
-	NSDictionary *userInfo = [notification userInfo];
-	objc_setAssociatedObject(self, &kCRItemViewListenerKey, [userInfo objectForKey:@"CRListener"], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	objc_setAssociatedObject(self, &kCRItemViewCurrentImageskey, [userInfo objectForKey:@"CRCurrentImages"], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
--(BOOL)updateForNewData:(id)arg1 actions:(int)arg2{
-	BOOL should = %orig();
-	if(should)
-		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRSendImages" object:nil];
-	return should;
-}
 
 -(_UILegibilityImageSet *)contentsImage{
-	NSString *currClass = NSStringFromClass([self class]);
-	CRNotificationListener *listener = objc_getAssociatedObject(self, &kCRItemViewListenerKey);
-	NSDictionary *dict = objc_getAssociatedObject(self, &kCRItemViewCurrentImageskey);
+	NSString *className = NSStringFromClass([self class]);
+	CRNotificationListener *listener = [CRNotificationListener sharedListener];
+	BOOL shouldOverride = [listener enabledForClassname:className];
+	[listener debugLog:[NSString stringWithFormat:@"Override preferences for classname \"%@\" are set to %@.", className, shouldOverride?@"override":@"ignore"]];
 
-	if([listener enabledForClassname:currClass]){
-		UIColor *textColor = [[self foregroundStyle] textColorForStyle:[self legibilityStyle]];
-		_UILegibilityImageSet *set = [dict objectForKey:currClass];
-
+	if(shouldOverride){
 		CGFloat w, a;
-		[textColor getWhite:&w alpha:&a];
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		BOOL isWhite = (w > 0.5);
+		UIImage *white, *black;
 
-		if(w < 0.5f)
-			return [%c(_UILegibilityImageSet) imageFromImage:[set shadowImage] withShadowImage:[set image]];
-		else
-			return set;
-	}
+		if([[self class] isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
+			int bars = MSHookIvar<int>(self, "_signalStrengthBars");
+			white = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Signal/%iWhite@2x.png", bars]];
+			black = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Signal/%iBlack@2x.png", bars]];
+		}//end if signal
+
+		else if([[self class] isKindOfClass:%c(UIStatusBarDataNetworkItemView)]){
+			int networkType = MSHookIvar<int>(self, "_dataNetworkType");
+			int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
+			if(networkType == 5){
+				white = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Wifi/%iWhite@2x.png", wifiState]];
+				black = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Wifi/%iBlack@2x.png", wifiState]];
+			}
+
+			else{
+				white = [UIImage imageWithContentsOfFile:@"/private/var/mobile/Library/Circlet/Data/0White@2x.png"];
+				black = [UIImage imageWithContentsOfFile:@"/private/var/mobile/Library/Circlet/Data/0Black@2x.png"];
+			}
+		}//end if wifi
+
+		else if ([[self class] isKindOfClass:%c(UIStatusBarBatteryItemView)]){
+			//Normalize note index: ceiling(lowestNote + ((currentLocation - minimumLocation) * ((highestNote - lowestNote)/(maximumLocation - minimumLocation))))
+
+			int level = ceilf((MSHookIvar<int>(self, "_capacity")) * (19/100));
+			int state = MSHookIvar<int>(self, "_state");
+			if(state != 0){
+				white = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Charging/%iWhite@2x.png", level]];
+				black = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Charging/%iBlack@2x.png", level]];
+			}
+
+			else{
+				white = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Battery/%iWhite@2x.png", level]];
+				black = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Battery/%iBlack@2x.png", level]];			
+			}
+		}//end if battery
+
+		return isWhite?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+	}//end if override
 
 	return %orig();
 }
@@ -174,57 +141,39 @@ static char kCRItemViewListenerKey, kCRItemViewCurrentImageskey;
 /**************************** Item View Spacing  ****************************/
 
 %hook UIStatusBarLayoutManager
-static char kCRLayoutManagerListenerKey, kCRLayoutManagerCurrentImageskey;
 CGFloat signalWidth;
 
--(id)initWithRegion:(int)arg1 foregroundView:(id)arg2{
-	UIStatusBarLayoutManager *o = %orig();
-	[[NSDistributedNotificationCenter defaultCenter] addObserver:o selector:@selector(setCRFrameLegibilityImages:) name:@"CRSharedListener" object:nil];
-	return o;
-}
-
-%new -(void)setCRFrameLegibilityImages:(NSNotification *)notification{
-	NSDictionary *userInfo = [notification userInfo];
-	objc_setAssociatedObject(self, &kCRLayoutManagerListenerKey, [userInfo objectForKey:@"CRListener"], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	objc_setAssociatedObject(self, &kCRLayoutManagerCurrentImageskey, [userInfo objectForKey:@"CRCurrentImages"], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRSendImages" object:nil];
-	
-	CRNotificationListener *listener = objc_getAssociatedObject(self, &kCRLayoutManagerListenerKey);
-	NSDictionary *dict = objc_getAssociatedObject(self, &kCRLayoutManagerCurrentImageskey);
+	CRNotificationListener *listener = [CRNotificationListener sharedListener];
+	NSString *className = NSStringFromClass([arg1 class]);
+	NSLog(@"--- className:%@", className);
 
-	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
-		if([listener enabledForClassname:@"UIStatusBarSignalStrengthItemView"]){
+	if([className isEqualToString:@"UIStatusBarSignalStrengthItemView"]){
+		if([listener enabledForClassname:className]){
 			[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ (from %@)", arg1, NSStringFromCGRect(%orig())]];
 
-			_UILegibilityImageSet *signalSet = [dict objectForKey:@"UIStatusBarSignalStrengthItemView"];
-			UIImage *image = [signalSet image];
-			signalWidth = image.size.width;
-			return CGRectMake(%orig().origin.x, ceilf(listener.signalPadding / 2.25f), image.size.width * 2, image.size.height * 2);
+			CGFloat diameter = listener.signalPadding;
+			signalWidth = diameter;
+			return CGRectMake(%orig().origin.x, ceilf(diameter / 2.25), diameter * 2.0, diameter * 2.0);
 		}
 		
 		signalWidth = %orig().size.width;
 	}
 
-	else if([arg1 isKindOfClass:%c(UIStatusBarServiceItemView)])
+	else if([className isEqualToString:@"UIStatusBarServiceItemView"])
 		signalWidth += %orig().size.width + 5.f;
 
-	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && [listener enabledForClassname:@"UIStatusBarDataNetworkItemView"]){
+	else if([className isEqualToString:@"UIStatusBarDataNetworkItemView"] && [listener enabledForClassname:className]){
 		[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ from (%@)", arg1, NSStringFromCGRect(%orig())]];
 
-		_UILegibilityImageSet *wifiSet = [dict objectForKey:@"UIStatusBarDataNetworkItemView"];
-		CGFloat diameter = [wifiSet image].size.height * 2;
+		CGFloat diameter = listener.wifiPadding;
 		return CGRectMake(ceilf(signalWidth + diameter  + 1.f), ceilf(listener.wifiPadding / 2.25f), diameter, diameter);
 	}
 
-	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && [listener enabledForClassname:@"UIStatusBarDataNetworkItemView"]){
+	else if([className isEqualToString:@"UIStatusBarBatteryItemView"] && [listener enabledForClassname:className]){
 		[listener debugLog:[NSString stringWithFormat:@"Changing the spacing for statusbar item: %@ from (%@)", arg1, NSStringFromCGRect(%orig())]];
 
-		_UILegibilityImageSet *batterySet = [dict objectForKey:@"UIStatusBarBatteryItemView"];
-		CGFloat diameter = [batterySet image].size.height * 2;
-		
+		CGFloat diameter = listener.batteryPadding;
 		int state = MSHookIvar<int>(arg1, "_state");
 		if(state != 0)
 			[[[arg1 subviews] lastObject] setHidden:YES];

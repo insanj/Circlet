@@ -43,7 +43,6 @@
 		[self reloadSpecifier:signalSizeSpecifier];
 	}
 
-
 	if(![settings objectForKey:@"wifiSize"]){
 		PSSpecifier *wifiSizeSpecifier = [self specifierForID:@"WifiSize"];
 		[self setPreferenceValue:@(12.0) specifier:wifiSizeSpecifier];
