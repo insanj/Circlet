@@ -18,6 +18,7 @@
 @interface SpringBoard
 -(void)_relaunchSpringBoardNow;
 -(void)applicationOpenURL:(id)url publicURLsOnly:(BOOL)only;
+-(void)_applicationOpenURL:(NSURL *)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)publicOnly animating:(BOOL)animating additionalActivationFlags:(id)activationFlags activationHandler:(id)activationHandler;
 -(void)applicationOpenURL:(id)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)only animating:(BOOL)animating needsPermission:(BOOL)permission additionalActivationFlags:(id)flags activationHandler:(id)handler;
 @end
 

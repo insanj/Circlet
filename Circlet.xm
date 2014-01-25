@@ -10,7 +10,7 @@
 #import "CRNotificationListener.h"
 #import "CRView.h"
 
-/******************** SpringBoard (foreground) Methods ********************/
+/******************** Initial Launch Hooks ********************/
 
 %hook SBUIController
 static BOOL kCRUnlocked;
@@ -24,28 +24,33 @@ static BOOL kCRUnlocked;
 }//end m
 %end
 
-@interface SBUIAnimationController (Circlet)
--(void)dismissWithClickedButtonIndex:(NSInteger)buttonIndex animated:(BOOL)animated;
+@interface CRAlertViewDelegate : NSObject <UIAlertViewDelegate>
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
+@end
+
+@implementation CRAlertViewDelegate
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+	if(buttonIndex != 0)
+		[(SpringBoard *)[UIApplication sharedApplication] applicationOpenURL:[NSURL URLWithString:@"prefs:root=Circlet"] publicURLsOnly:NO];
+}
 @end
 
 %hook SBUIAnimationController
+CRAlertViewDelegate *circletAVDelegate;
+
 -(void)endAnimation{
 	%orig();
 
 	if(kCRUnlocked && ![[NSUserDefaults standardUserDefaults] boolForKey:@"CRDidRun"]){
 		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"CRDidRun"];
-		[[[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:self cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil] show];
-	}//end if
-}
-
-%new -(void)dismissWithClickedButtonIndex:(NSInteger)buttonIndex animated:(BOOL)animated{
-	if(buttonIndex != 0){
-		dispatch_async(dispatch_get_main_queue(), ^{
-			[(SpringBoard *)[UIApplication sharedApplication] applicationOpenURL:[NSURL URLWithString:@"prefs:root=Circlet"] publicURLsOnly:NO];
-		});
+		
+		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
+		[[[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil] show];
 	}
 }
 %end	
+
+/******************** SpringBoard (foreground) Methods ********************/
 
 @interface SpringBoard (Circlet)
 -(void)circlet_generateCirclesFresh:(id)listener;

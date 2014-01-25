@@ -30,7 +30,10 @@
 @end
 
 @implementation CRPrefsListController
--(void)viewWillAppear:(BOOL)animated {
+
+-(void)viewWillAppear:(BOOL)animated{
+    [(UITableView *)self.view deselectRowAtIndexPath:((UITableView *)self.view).indexPathForSelectedRow animated:YES];
+
 	UIColor *tintColor = [UIColor blackColor];
 	self.view.tintColor = tintColor;
     self.navigationController.navigationBar.tintColor = tintColor;
@@ -56,10 +59,6 @@
 	}
 
 	//[[NSUserDefaults standardUserDefaults] synchronize];
-}
-
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 -(void)viewWillDisappear:(BOOL)animated {
