@@ -9,8 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreGraphics/CoreGraphics.h>
 
-#import "CRHeaders.h"
-#import "CRView.h"
+#import "Circlet.h"
 
 @interface CRNotificationListener : NSObject {
 	BOOL debug;

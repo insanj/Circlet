@@ -91,7 +91,7 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 }
 
 -(BOOL)enabledForClassname:(NSString *)className{
-	return ([className isEqualToString:@"UIStatusBarSignalStrengthItemView"] && _signalEnabled) || ([className isEqualToString:@"UIStatusBarDataNetworkItemView"] && _wifiEnabled) || ([className isEqualToString:@"UIStatusBarBatteryItemView"] && _batteryEnabled);
+	return (_settings != nil) && (([className isEqualToString:@"UIStatusBarSignalStrengthItemView"] && _signalEnabled) || ([className isEqualToString:@"UIStatusBarDataNetworkItemView"] && _wifiEnabled) || ([className isEqualToString:@"UIStatusBarBatteryItemView"] && _batteryEnabled));
 }
 
 -(void)dealloc{
