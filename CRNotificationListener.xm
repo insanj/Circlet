@@ -41,8 +41,10 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 }
 
 -(void)respring{
+	[self reloadPrefs];
+
 	SpringBoard *sb = (SpringBoard *)[%c(SpringBoard) sharedApplication];
-	[sb circlet_generateCirclesFresh];
+	[sb circlet_generateCirclesFresh:self];
 	[sb _relaunchSpringBoardNow];
 }
 
