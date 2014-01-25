@@ -623,7 +623,7 @@
 			<key>cell</key>				<string>PSGroupCell</string>
 			<key>label</key> 			<string>Contact</string>
 			<key>footerAlignment</key> 	<integer>1</integer>
-			<key>footerText</key>		<string>Thanks for purchasing Circlet (1.0~beta1)!&#10;&#10;(CC) 2014 Julian Weiss</string>
+			<key>footerText</key>		<string>Thanks for purchasing Circlet (1.0)!&#10;&#10;(CC) 2014 Julian Weiss</string>
 		</dict>
 
 		<dict>

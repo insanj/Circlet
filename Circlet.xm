@@ -60,13 +60,6 @@ CRAlertViewDelegate *circletAVDelegate;
 
 %hook SpringBoard
 
--(id)init{
-	if(![NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]])
-		[self circlet_generateCirclesFresh:[CRNotificationListener sharedListener]];
-
-	return %orig();
-}
-
 %new -(void)circlet_generateCirclesFresh:(CRNotificationListener *)listener{ 
 	NSError *error;
 	NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -79,7 +72,7 @@ CRAlertViewDelegate *circletAVDelegate;
 
 	if(listener.wifiEnabled){
 		[listener.wifiCircle setRadius:(listener.wifiPadding / 2.0)];
-		[self circlet_saveCircle:listener.wifiCircle toPath:@"/private/var/mobile/Library/Circlet/Wifi" withWhite:listener.wifiWhiteColor black:listener.signalBlackColor count:3];
+		[self circlet_saveCircle:listener.wifiCircle toPath:@"/private/var/mobile/Library/Circlet/Wifi" withWhite:listener.wifiWhiteColor black:listener.wifiBlackColor count:3];
 		[self circlet_saveCircle:listener.wifiCircle toPath:@"/private/var/mobile/Library/Circlet/Data" withWhite:listener.dataWhiteColor black:listener.dataBlackColor count:1];
 	}
 
@@ -127,15 +120,14 @@ CRAlertViewDelegate *circletAVDelegate;
 /**************************** StatusBar Image Replacment  ****************************/
 
 %hook UIStatusBarSignalStrengthItemView
-static CRNotificationListener *signalListener;
-static BOOL shouldOverrideSignal;
-static NSMutableArray *signalImages;
+CRNotificationListener *signalListener;
+NSMutableArray *signalImages;
 
 -(id)initWithItem:(UIStatusBarItem *)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4{
 	signalListener = [CRNotificationListener sharedListener];
-	shouldOverrideSignal = [signalListener enabledForClassname:@"UIStatusBarSignalStrengthItemView"];
-	[signalListener debugLog:[NSString stringWithFormat:@"Override preferences for classname \"%@\" are set to %@.", NSStringFromClass([%orig() class]), shouldOverrideSignal?@"override":@"ignore"]];
-	if(shouldOverrideSignal){
+
+	if([signalListener enabledForClassname:@"UIStatusBarSignalStrengthItemView"]){
+		[signalListener debugLog:[NSString stringWithFormat:@"Overriding preferences for classname \"%@\".", NSStringFromClass([%orig() class])]];
 		signalImages = [[NSMutableArray alloc] init];
 		for(int i = 0; i < 5; i++){
 			[signalImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Signal/%iWhite@2x.png", i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Signal/%iBlack@2x.png", i]]]];
@@ -144,7 +136,6 @@ static NSMutableArray *signalImages;
 
 	return %orig();
 }
-
 
 -(_UILegibilityImageSet *)contentsImage{
 	if(signalImages){
@@ -164,31 +155,45 @@ static NSMutableArray *signalImages;
 %end
 
 %hook UIStatusBarDataNetworkItemView
+CRNotificationListener *wifiListener;
+NSMutableArray *wifiImages;
+
+-(id)initWithItem:(UIStatusBarItem *)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4{
+	wifiListener = [CRNotificationListener sharedListener];
+	
+	if([wifiListener enabledForClassname:@"UIStatusBarDataNetworkItemView"]){
+		[wifiListener debugLog:[NSString stringWithFormat:@"Overriding preferences for classname \"%@\".", NSStringFromClass([%orig() class])]];
+		wifiImages = [[NSMutableArray alloc] init];
+		for(int i = 0; i < 3; i++){
+			[wifiImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Wifi/%iWhite@2x.png", i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Wifi/%iBlack@2x.png", i]]]];
+		}
+
+		[wifiImages addObject:@[[UIImage imageWithContentsOfFile:@"/private/var/mobile/Library/Circlet/Data/0White@2x.png"], [UIImage imageWithContentsOfFile:@"/private/var/mobile/Library/Circlet/Data/0Black@2x.png"]]];
+	}
+
+	return %orig();
+}
 
 -(_UILegibilityImageSet *)contentsImage{
-	CRNotificationListener *listener = [CRNotificationListener sharedListener];
-	BOOL shouldOverride = [listener enabledForClassname:@"UIStatusBarDataNetworkItemView"];
-	[listener debugLog:[NSString stringWithFormat:@"Override preferences for classname \"UIStatusBarDataNetworkItemView\" are set to %@.", shouldOverride?@"override":@"ignore"]];
-
-	if(shouldOverride){
+	if(wifiImages){
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
 		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars") - 1;
 		UIImage *white, *black;
+
 		if(networkType == 5){
-			white = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Wifi/%iWhite@2x.png", wifiState]];
-			black = [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/private/var/mobile/Library/Circlet/Wifi/%iBlack@2x.png", wifiState]];
+			white = (w > 0.5)?[[wifiImages objectAtIndex:wifiState] firstObject]:[[wifiImages objectAtIndex:wifiState] lastObject];
+			white = (w > 0.5)?[[wifiImages objectAtIndex:wifiState] firstObject]:[[wifiImages objectAtIndex:wifiState] lastObject];
 		}
-
+		
 		else{
-			white = [UIImage imageWithContentsOfFile:@"/private/var/mobile/Library/Circlet/Data/0White@2x.png"];
-			black = [UIImage imageWithContentsOfFile:@"/private/var/mobile/Library/Circlet/Data/0Black@2x.png"];
+			white = (w > 0.5)?[[wifiImages objectAtIndex:3] firstObject]:[[wifiImages objectAtIndex:3] lastObject];
+			black = (w > 0.5)?[[wifiImages objectAtIndex:3] lastObject]:[[wifiImages objectAtIndex:3] firstObject];
 		}
 
-		CGFloat w, a;
-		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-
-		return (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
-	}//end if override
+		return [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black];
+	}
 
 	return %orig();
 }
@@ -243,7 +248,7 @@ CGFloat signalWidth;
 		signalWidth += %orig().size.width;
 
 	else if([className isEqualToString:@"UIStatusBarDataNetworkItemView"] && [listener enabledForClassname:className])
-		return CGRectMake(signalWidth + listener.wifiPadding - 1.0, %orig().origin.y, %orig().size.width, %orig().size.height);
+		return CGRectMake(signalWidth + (listener.wifiPadding/1.25), %orig().origin.y, %orig().size.width, %orig().size.height);
 
 	else if([className isEqualToString:@"UIStatusBarBatteryItemView"] && [listener enabledForClassname:className]){
 		int state = MSHookIvar<int>(arg1, "_state");
