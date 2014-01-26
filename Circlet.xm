@@ -8,6 +8,7 @@
 
 #import "Circlet.h"
 #import "CRNotificationListener.h"
+#define CRPathFrom(a) [@"/var/mobile/Library/Circlet/" stringByAppendingString:a];
 
 /******************** Initial Launch Hooks ********************/
 
@@ -54,36 +55,42 @@ CRAlertViewDelegate *circletAVDelegate;
 %hook SpringBoard
 
 %new -(void)circlet_generateCirclesFresh:(CRNotificationListener *)listener{ 
+	[listener debugLog:[NSString stringWithFormat:@"Generating circles fresh from listener (%@). Signal: %@, Wifi: %@, Battery: %@", listener, NSStringFromBool(listener.signalEnabled), NSStringFromBool(listener.wifiEnabled), NSStringFromBool(listener.batteryEnabled)]];
+
 	NSError *error;
 	NSFileManager *fileManager = [NSFileManager defaultManager];
-	[fileManager removeItemAtPath:@"/Library/Application Support/Circlet" error:&error];
+	[fileManager removeItemAtPath:CRPathFrom(@"") error:&error];
 
 	if(listener.signalEnabled){
 		[listener.signalCircle setRadius:(listener.signalPadding / 2.0)];
-		[self circlet_saveCircle:listener.signalCircle toPath:@"/Library/Application Support/Circlet/Signal" withWhite:listener.signalWhiteColor black:listener.signalBlackColor count:5];
+		[self circlet_saveCircle:listener.signalCircle toPath:CRPathFrom(@"Signal/") withWhite:listener.signalWhiteColor black:listener.signalBlackColor count:5];
 	}
 
 	if(listener.wifiEnabled){
 		[listener.wifiCircle setRadius:(listener.wifiPadding / 2.0)];
-		[self circlet_saveCircle:listener.wifiCircle toPath:@"/Library/Application Support/Circlet/Wifi" withWhite:listener.wifiWhiteColor black:listener.wifiBlackColor count:3];
-		[self circlet_saveCircle:listener.wifiCircle toPath:@"/Library/Application Support/Circlet/Data" withWhite:listener.dataWhiteColor black:listener.dataBlackColor count:1];
+		[self circlet_saveCircle:listener.wifiCircle toPath:CRPathFrom(@"Wifi/")withWhite:listener.wifiWhiteColor black:listener.wifiBlackColor count:3];
+		[self circlet_saveCircle:listener.wifiCircle toPath:CRPathFrom(@"Data/") withWhite:listener.dataWhiteColor black:listener.dataBlackColor count:1];
 	}
 
 	if(listener.batteryEnabled){
 		[listener.batteryCircle setRadius:(listener.batteryPadding / 2.0)];
-		[self circlet_saveCircle:listener.batteryCircle toPath:@"/Library/Application Support/Circlet/Battery" withWhite:listener.batteryWhiteColor black:listener.batteryBlackColor count:20];
-		[self circlet_saveCircle:listener.wifiCircle toPath:@"/Library/Application Support/Circlet/Charging" withWhite:listener.chargingWhiteColor black:listener.chargingBlackColor count:20];
+		[self circlet_saveCircle:listener.batteryCircle toPath:CRPathFrom(@"Battery/") withWhite:listener.batteryWhiteColor black:listener.batteryBlackColor count:20];
+		[self circlet_saveCircle:listener.wifiCircle toPath:CRPathFrom(@"Charging/") withWhite:listener.chargingWhiteColor black:listener.chargingBlackColor count:20];
 	}
 }
 
 %new -(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withWhite:(UIColor *)white black:(UIColor *)black count:(int)count{
 
+	NSLog(@"--- saveCircle:%@ toPath:%@ withWhite:%@ black:%@ count:%i", circle, path, white, black, count);
+
 	NSError *error;
-	NSFileManager *fileManager = [[NSFileManager alloc] init];
+	NSFileManager *fileManager = [NSFileManager defaultManager];
 	if([fileManager fileExistsAtPath:path])
 		return;
 
 	[fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
+
+	NSLog(@"---- passed initial tests, created directory at path %@, check:%@, contents:%@", path, NSStringFromBool([fileManager fileExistsAtPath:path]), [fileManager contentsOfDirectoryAtPath:path error:&error]);
 	
 	CRView *whiteCircle = [circle versionWithColor:white];
 	CRView *blackCircle = [circle versionWithColor:black];
@@ -92,46 +99,58 @@ CRAlertViewDelegate *circletAVDelegate;
 		[whiteCircle setState:i withMax:count];
 		[blackCircle setState:i withMax:count];
 
-		[self circlet_saveCircle:whiteCircle toPath:path withName:[NSString stringWithFormat:@"/%iWhite@2x.png", i]];
-		[self circlet_saveCircle:blackCircle toPath:path withName:[NSString stringWithFormat:@"/%iBlack@2x.png", i]];
+		[self circlet_saveCircle:whiteCircle toPath:path withName:[NSString stringWithFormat:@"%iWhite@2x.png", i]];
+		[self circlet_saveCircle:blackCircle toPath:path withName:[NSString stringWithFormat:@"%iBlack@2x.png", i]];
 	}
 
-	NSLog(@"[Circlet] Wrote %i circle-views to directory: %@", count, [fileManager contentsOfDirectoryAtPath:path error:&error]);
+	NSLog(@"[Circlet] Wrote %i circle-views to directory: %@ (errors: %@)", count, [fileManager contentsOfDirectoryAtPath:path error:&error], error);
 }
 
-%new -(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withName:(NSString *)name{
+%new -(BOOL)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withName:(NSString *)name{
 	UIGraphicsBeginImageContextWithOptions(circle.bounds.size, NO, 0.0);
     [circle.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
 
-	[UIImagePNGRepresentation(image) writeToFile:[path stringByAppendingString:name] atomically:YES];
+    NSLog(@"---- saving png rep of %@ to %@", image, [path stringByAppendingString:name]);
+	return [UIImagePNGRepresentation(image) writeToFile:[path stringByAppendingString:name] atomically:YES];
 }
 
 %end
 
 /**************************** StatusBar Image Replacment  ****************************/
 
+@interface UIStatusBarSignalStrengthItemView (Circlet)
+-(void)circlet_spawnInjectionObjects;
+@end
+
 %hook UIStatusBarSignalStrengthItemView
 CRNotificationListener *signalListener;
 NSMutableArray *signalImages;
 
 -(id)initWithItem:(UIStatusBarItem *)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4{
+	UIStatusBarSignalStrengthItemView *view = %orig();
+	[view circlet_spawnInjectionObjects];
+	return view;
+}
+
+%new -(void)circlet_spawnInjectionObjects{
 	signalListener = [CRNotificationListener sharedListener];
 
 	if([signalListener enabledForClassname:@"UIStatusBarSignalStrengthItemView"]){
-		[signalListener debugLog:[NSString stringWithFormat:@"Overriding preferences for classname \"%@\".", NSStringFromClass([%orig() class])]];
+		[signalListener debugLog:[NSString stringWithFormat:@"Overriding preferences for classname \"%@\".", NSStringFromClass([self class])]];
 		signalImages = [[NSMutableArray alloc] init];
 		for(int i = 0; i < 5; i++){
-			[signalImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/Library/Application Support/Circlet/Signal/%iWhite@2x.png", i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/Library/Application Support/Circlet/Signal/%iBlack@2x.png", i]]]];
+			[signalImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Signal/"), i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iBlack@2x.png", CRPathFrom(@"Signal/"), i]]]];
 		}
 	}
-
-	return %orig();
 }
 
 -(_UILegibilityImageSet *)contentsImage{
 	if([signalListener enabledForClassname:@"UIStatusBarSignalStrengthItemView"]){
+		if(!signalImages || signalImages.count < 3)
+			[self circlet_spawnInjectionObjects];
+
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int bars = MSHookIvar<int>(self, "_signalStrengthBars") - 1;
@@ -158,10 +177,10 @@ NSMutableArray *wifiImages;
 		[wifiListener debugLog:[NSString stringWithFormat:@"Overriding preferences for classname \"%@\".", NSStringFromClass([%orig() class])]];
 		wifiImages = [[NSMutableArray alloc] init];
 		for(int i = 0; i < 3; i++){
-			[wifiImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/Library/Application Support/Circlet/Wifi/%iWhite@2x.png", i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/Library/Application Support/Circlet/Wifi/%iBlack@2x.png", i]]]];
+			[wifiImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Wifi/"), i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iBlack@2x.png", CRPathFrom(@"Wifi/"), i]]]];
 		}
 
-		[wifiImages addObject:@[[UIImage imageWithContentsOfFile:@"/Library/Application Support/Circlet/Data/0White@2x.png"], [UIImage imageWithContentsOfFile:@"/Library/Application Support/Circlet/Data/0Black@2x.png"]]];
+		[wifiImages addObject:@[[UIImage imageWithContentsOfFile:CRPathFrom(@"Data/0White@2x.png")], [UIImage imageWithContentsOfFile:CRPathFrom(@"Data/0Black@2x.png")]]];
 	}
 
 	return %orig();
@@ -204,11 +223,11 @@ NSMutableArray *batteryImages;
 		[batteryListener debugLog:[NSString stringWithFormat:@"Overriding preferences for classname \"%@\".", NSStringFromClass([%orig() class])]];
 		batteryImages = [[NSMutableArray alloc] init];
 		for(int i = 0; i < 20; i++){
-			[batteryImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/Library/Application Support/Circlet/Battery/%iWhite@2x.png", i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/Library/Application Support/Circlet/Battery/%iBlack@2x.png", i]]]];
+			[batteryImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Battery/"), i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iBlack@2x.png", CRPathFrom(@"Battery/"), i]]]];
 		}
 
 		for(int i = 0; i < 20; i++){
-			[batteryImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/Library/Application Support/Circlet/Charging/%iWhite@2x.png", i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"/Library/Application Support/Circlet/Charging/%iBlack@2x.png", i]]]];
+			[batteryImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Charging/"), i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iBlack@2x.png"CRPathFrom(@"Charging/"), i]]]];
 		}
 	}
 
