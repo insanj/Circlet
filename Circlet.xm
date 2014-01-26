@@ -78,6 +78,8 @@ CRAlertViewDelegate *circletAVDelegate;
 		[self circlet_saveCircle:listener.batteryCircle toPath:CRPathFrom(@"Battery/") withWhite:listener.batteryWhiteColor black:listener.batteryBlackColor count:20];
 		[self circlet_saveCircle:listener.wifiCircle toPath:CRPathFrom(@"Charging/") withWhite:listener.chargingWhiteColor black:listener.chargingBlackColor count:20];
 	}
+
+	[fileManager removeItemAtPath:@"/private/var/mobile/Library/Caches/com.apple.UIStatusbar" error:&error];
 }
 
 %new -(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withWhite:(UIColor *)white black:(UIColor *)black count:(int)count{
