@@ -8,7 +8,7 @@
 
 #import "Circlet.h"
 #import "CRNotificationListener.h"
-#define CRPathFrom(a) [@"/var/mobile/Library/Circlet/" stringByAppendingString:a];
+#define CRPathFrom(a) [@"/Library/Application Support/Library/Circlet/" stringByAppendingString:a]
 
 /******************** Initial Launch Hooks ********************/
 
@@ -60,6 +60,7 @@ CRAlertViewDelegate *circletAVDelegate;
 	NSError *error;
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	[fileManager removeItemAtPath:CRPathFrom(@"") error:&error];
+	[fileManager createDirectoryAtPath:CRPathFrom(@"") withIntermediateDirectories:YES attributes:nil error:&error];
 
 	if(listener.signalEnabled){
 		[listener.signalCircle setRadius:(listener.signalPadding / 2.0)];
@@ -95,7 +96,7 @@ CRAlertViewDelegate *circletAVDelegate;
 	CRView *whiteCircle = [circle versionWithColor:white];
 	CRView *blackCircle = [circle versionWithColor:black];
 
-	for(int i = 0; i < count; i++){
+	for(int i = 1; i <= count; i++){
 		[whiteCircle setState:i withMax:count];
 		[blackCircle setState:i withMax:count];
 
@@ -153,7 +154,7 @@ NSMutableArray *signalImages;
 
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		int bars = MSHookIvar<int>(self, "_signalStrengthBars") - 1;
+		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
 
 		UIImage *white = (w > 0.5)?[[signalImages objectAtIndex:bars] firstObject]:[[signalImages objectAtIndex:bars] lastObject];
 		UIImage *black = (w > 0.5)?[[signalImages objectAtIndex:bars] lastObject]:[[signalImages objectAtIndex:bars] firstObject];
@@ -176,11 +177,11 @@ NSMutableArray *wifiImages;
 	if([wifiListener enabledForClassname:@"UIStatusBarDataNetworkItemView"]){
 		[wifiListener debugLog:[NSString stringWithFormat:@"Overriding preferences for classname \"%@\".", NSStringFromClass([%orig() class])]];
 		wifiImages = [[NSMutableArray alloc] init];
-		for(int i = 0; i < 3; i++){
+		for(int i = 1; i <= 3; i++){
 			[wifiImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Wifi/"), i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iBlack@2x.png", CRPathFrom(@"Wifi/"), i]]]];
 		}
 
-		[wifiImages addObject:@[[UIImage imageWithContentsOfFile:CRPathFrom(@"Data/0White@2x.png")], [UIImage imageWithContentsOfFile:CRPathFrom(@"Data/0Black@2x.png")]]];
+		[wifiImages addObject:@[[UIImage imageWithContentsOfFile:CRPathFrom(@"Data/1White@2x.png")], [UIImage imageWithContentsOfFile:CRPathFrom(@"Data/1Black@2x.png")]]];
 	}
 
 	return %orig();
@@ -191,7 +192,7 @@ NSMutableArray *wifiImages;
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
-		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars") - 1;
+		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
 		UIImage *white, *black;
 
 		if(networkType == 5){
@@ -222,12 +223,12 @@ NSMutableArray *batteryImages;
 	if([batteryListener enabledForClassname:@"UIStatusBarBatteryItemView"]){
 		[batteryListener debugLog:[NSString stringWithFormat:@"Overriding preferences for classname \"%@\".", NSStringFromClass([%orig() class])]];
 		batteryImages = [[NSMutableArray alloc] init];
-		for(int i = 0; i < 20; i++){
+		for(int i = 1; i <= 20; i++){
 			[batteryImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Battery/"), i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iBlack@2x.png", CRPathFrom(@"Battery/"), i]]]];
 		}
 
-		for(int i = 0; i < 20; i++){
-			[batteryImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Charging/"), i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iBlack@2x.png"CRPathFrom(@"Charging/"), i]]]];
+		for(int i = 1; i <= 20; i++){
+			[batteryImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Charging/"), i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iBlack@2x.png", CRPathFrom(@"Charging/"), i]]]];
 		}
 	}
 
@@ -238,13 +239,13 @@ NSMutableArray *batteryImages;
 	if([batteryListener enabledForClassname:@"UIStatusBarBatteryItemView"]){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		int level = ceilf((MSHookIvar<int>(self, "_capacity")) * (19.0/100.0));
+		int level = ceilf((MSHookIvar<int>(self, "_capacity")) * (2.0/10.0));
 		int state = MSHookIvar<int>(self, "_state");
 		UIImage *white, *black;
 
 		if(state != 0){
-			white = (w > 0.5)?[[batteryImages objectAtIndex:(level + 19)] firstObject]:[[batteryImages objectAtIndex:(level + 19)] lastObject];
-			black = (w > 0.5)?[[batteryImages objectAtIndex:(level + 19)] lastObject]:[[batteryImages objectAtIndex:(level + 19)] firstObject];
+			white = (w > 0.5)?[[batteryImages objectAtIndex:(level + 20)] firstObject]:[[batteryImages objectAtIndex:(level + 20)] lastObject];
+			black = (w > 0.5)?[[batteryImages objectAtIndex:(level + 20)] lastObject]:[[batteryImages objectAtIndex:(level + 20)] firstObject];
 		}
 
 		else{
