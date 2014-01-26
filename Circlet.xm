@@ -82,7 +82,7 @@ CRAlertViewDelegate *circletAVDelegate;
 
 %new -(void)circlet_saveCircle:(CRView *)circle toPath:(NSString *)path withWhite:(UIColor *)white black:(UIColor *)black count:(int)count{
 
-	NSLog(@"--- saveCircle:%@ toPath:%@ withWhite:%@ black:%@ count:%i", circle, path, white, black, count);
+	NSLog(@"[Circlet] saveCircle:%@ toPath:%@ withWhite:%@ black:%@ count:%i", circle, path, white, black, count);
 
 	NSError *error;
 	NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -91,7 +91,7 @@ CRAlertViewDelegate *circletAVDelegate;
 
 	[fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
 
-	NSLog(@"---- passed initial tests, created directory at path %@, check:%@, contents:%@", path, NSStringFromBool([fileManager fileExistsAtPath:path]), [fileManager contentsOfDirectoryAtPath:path error:&error]);
+	NSLog(@"[Circlet] passed initial tests, created directory at path %@, check:%@, contents:%@", path, NSStringFromBool([fileManager fileExistsAtPath:path]), [fileManager contentsOfDirectoryAtPath:path error:&error]);
 	
 	CRView *whiteCircle = [circle versionWithColor:white];
 	CRView *blackCircle = [circle versionWithColor:black];
@@ -113,7 +113,6 @@ CRAlertViewDelegate *circletAVDelegate;
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
 
-    NSLog(@"---- saving png rep of %@ to %@", image, [path stringByAppendingString:name]);
 	return [UIImagePNGRepresentation(image) writeToFile:[path stringByAppendingString:name] atomically:YES];
 }
 
@@ -135,36 +134,23 @@ NSMutableArray *signalImages;
 
 		signalImages = [[NSMutableArray alloc] init];
 		for(int i = 1; i <= 5; i++){
-			NSLog(@"---- inserting pathname: %@ results: %@", [NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Signal/"), i], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Signal/"), i]]);
-
 			[signalImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Signal/"), i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iBlack@2x.png", CRPathFrom(@"Signal/"), i]]]];
 		}
 	}
-}
 
 	return view;
 }
 
-%new -(void)circlet_spawnInjectionObjects{
-	
-}
-
 -(_UILegibilityImageSet *)contentsImage{
 	if([signalListener enabledForClassname:@"UIStatusBarSignalStrengthItemView"]){
-		@try{
-			CGFloat w, a;
-			[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-			int bars = MSHookIvar<int>(self, "_signalStrengthBars");
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		int bars = MSHookIvar<int>(self, "_signalStrengthBars") - 1;
 
-			UIImage *white = (w > 0.5)?[[signalImages objectAtIndex:bars] firstObject]:[[signalImages objectAtIndex:bars] lastObject];
-			UIImage *black = (w > 0.5)?[[signalImages objectAtIndex:bars] lastObject]:[[signalImages objectAtIndex:bars] firstObject];
+		UIImage *white = (w > 0.5)?[[signalImages objectAtIndex:bars] firstObject]:[[signalImages objectAtIndex:bars] lastObject];
+		UIImage *black = (w > 0.5)?[[signalImages objectAtIndex:bars] lastObject]:[[signalImages objectAtIndex:bars] firstObject];
 
-			return [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black];
-		}
-
-		@catch(NSException *e){
-			NSLog(@"***** Circlet had trouble replacing UIStatusBarSignalStrengthItemView, aborting process. \n%@", e);
-		}
+		return [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black];
 	}
 
 	return %orig();
@@ -197,7 +183,7 @@ NSMutableArray *wifiImages;
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
-		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
+		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars") - 1;
 		UIImage *white, *black;
 
 		if(networkType == 5){
@@ -225,7 +211,7 @@ NSMutableArray *batteryImages;
 -(id)initWithItem:(UIStatusBarItem *)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4{
 	batteryListener = [CRNotificationListener sharedListener];
 
-	if([batteryListener enabledForClassname:@"UIStatusBarBatteryItemView"]){
+	if([batteryListener enabledForClassname:@"UIStatusBarBatteryItemView"] && !batteryImages){
 		[batteryListener debugLog:[NSString stringWithFormat:@"Overriding preferences for classname \"%@\".", NSStringFromClass([%orig() class])]];
 		batteryImages = [[NSMutableArray alloc] init];
 		for(int i = 1; i <= 20; i++){
@@ -244,13 +230,13 @@ NSMutableArray *batteryImages;
 	if([batteryListener enabledForClassname:@"UIStatusBarBatteryItemView"]){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		int level = ceilf((MSHookIvar<int>(self, "_capacity")) * (2.0/10.0));
+		int level = ceilf((MSHookIvar<int>(self, "_capacity")) * (19.0/100.0));
 		int state = MSHookIvar<int>(self, "_state");
 		UIImage *white, *black;
 
 		if(state != 0){
-			white = (w > 0.5)?[[batteryImages objectAtIndex:(level + 20)] firstObject]:[[batteryImages objectAtIndex:(level + 20)] lastObject];
-			black = (w > 0.5)?[[batteryImages objectAtIndex:(level + 20)] lastObject]:[[batteryImages objectAtIndex:(level + 20)] firstObject];
+			white = (w > 0.5)?[[batteryImages objectAtIndex:(level + 19)] firstObject]:[[batteryImages objectAtIndex:(level + 19)] lastObject];
+			black = (w > 0.5)?[[batteryImages objectAtIndex:(level + 19)] lastObject]:[[batteryImages objectAtIndex:(level + 19)] firstObject];
 		}
 
 		else{
