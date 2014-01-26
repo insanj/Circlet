@@ -42,19 +42,19 @@
 	
 	if(![settings objectForKey:@"signalSize"]){
 		PSSpecifier *signalSizeSpecifier = [self specifierForID:@"SignalSize"];
-		[self setPreferenceValue:@(14.0) specifier:signalSizeSpecifier];
+		[self setPreferenceValue:@(12.0) specifier:signalSizeSpecifier];
 		[self reloadSpecifier:signalSizeSpecifier];
 	}
 
 	if(![settings objectForKey:@"wifiSize"]){
 		PSSpecifier *wifiSizeSpecifier = [self specifierForID:@"WifiSize"];
-		[self setPreferenceValue:@(14.0) specifier:wifiSizeSpecifier];
+		[self setPreferenceValue:@(12.0) specifier:wifiSizeSpecifier];
 		[self reloadSpecifier:wifiSizeSpecifier];
 	}
 
 	if(![settings objectForKey:@"batterySize"]){
 		PSSpecifier *batterySizeSpecifier = [self specifierForID:@"BatterySize"];
-		[self setPreferenceValue:@(14.0) specifier:batterySizeSpecifier];
+		[self setPreferenceValue:@(12.0) specifier:batterySizeSpecifier];
 		[self reloadSpecifier:batterySizeSpecifier];
 	}
 

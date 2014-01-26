@@ -8,7 +8,7 @@
 
 #import "Circlet.h"
 #import "CRNotificationListener.h"
-#define CRPathFrom(a) [@"/Library/Application Support/Library/Circlet/" stringByAppendingString:a]
+#define CRPathFrom(a) [@"/Library/PreferenceBundles/CRPrefs.bundle/Assets/" stringByAppendingString:a]
 
 /******************** Initial Launch Hooks ********************/
 
@@ -121,45 +121,50 @@ CRAlertViewDelegate *circletAVDelegate;
 
 /**************************** StatusBar Image Replacment  ****************************/
 
-@interface UIStatusBarSignalStrengthItemView (Circlet)
--(void)circlet_spawnInjectionObjects;
-@end
-
 %hook UIStatusBarSignalStrengthItemView
 CRNotificationListener *signalListener;
 NSMutableArray *signalImages;
 
 -(id)initWithItem:(UIStatusBarItem *)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4{
 	UIStatusBarSignalStrengthItemView *view = %orig();
-	[view circlet_spawnInjectionObjects];
-	return view;
-}
 
-%new -(void)circlet_spawnInjectionObjects{
 	signalListener = [CRNotificationListener sharedListener];
 
-	if([signalListener enabledForClassname:@"UIStatusBarSignalStrengthItemView"]){
+	if([signalListener enabledForClassname:@"UIStatusBarSignalStrengthItemView"] && !signalImages){
 		[signalListener debugLog:[NSString stringWithFormat:@"Overriding preferences for classname \"%@\".", NSStringFromClass([self class])]];
+
 		signalImages = [[NSMutableArray alloc] init];
-		for(int i = 0; i < 5; i++){
+		for(int i = 1; i <= 5; i++){
+			NSLog(@"---- inserting pathname: %@ results: %@", [NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Signal/"), i], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Signal/"), i]]);
+
 			[signalImages addObject:@[[UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iWhite@2x.png", CRPathFrom(@"Signal/"), i]], [UIImage imageWithContentsOfFile:[NSString stringWithFormat:@"%@%iBlack@2x.png", CRPathFrom(@"Signal/"), i]]]];
 		}
 	}
 }
 
+	return view;
+}
+
+%new -(void)circlet_spawnInjectionObjects{
+	
+}
+
 -(_UILegibilityImageSet *)contentsImage{
 	if([signalListener enabledForClassname:@"UIStatusBarSignalStrengthItemView"]){
-		if(!signalImages || signalImages.count < 3)
-			[self circlet_spawnInjectionObjects];
+		@try{
+			CGFloat w, a;
+			[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+			int bars = MSHookIvar<int>(self, "_signalStrengthBars");
 
-		CGFloat w, a;
-		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
+			UIImage *white = (w > 0.5)?[[signalImages objectAtIndex:bars] firstObject]:[[signalImages objectAtIndex:bars] lastObject];
+			UIImage *black = (w > 0.5)?[[signalImages objectAtIndex:bars] lastObject]:[[signalImages objectAtIndex:bars] firstObject];
 
-		UIImage *white = (w > 0.5)?[[signalImages objectAtIndex:bars] firstObject]:[[signalImages objectAtIndex:bars] lastObject];
-		UIImage *black = (w > 0.5)?[[signalImages objectAtIndex:bars] lastObject]:[[signalImages objectAtIndex:bars] firstObject];
+			return [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black];
+		}
 
-		return [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black];
+		@catch(NSException *e){
+			NSLog(@"***** Circlet had trouble replacing UIStatusBarSignalStrengthItemView, aborting process. \n%@", e);
+		}
 	}
 
 	return %orig();
@@ -174,7 +179,7 @@ NSMutableArray *wifiImages;
 -(id)initWithItem:(UIStatusBarItem *)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4{
 	wifiListener = [CRNotificationListener sharedListener];
 	
-	if([wifiListener enabledForClassname:@"UIStatusBarDataNetworkItemView"]){
+	if([wifiListener enabledForClassname:@"UIStatusBarDataNetworkItemView"] && !wifiImages){
 		[wifiListener debugLog:[NSString stringWithFormat:@"Overriding preferences for classname \"%@\".", NSStringFromClass([%orig() class])]];
 		wifiImages = [[NSMutableArray alloc] init];
 		for(int i = 1; i <= 3; i++){
