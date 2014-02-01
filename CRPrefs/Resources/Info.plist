@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>CRPrefs</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.insanj.circular</string>
+	<string>com.insanj.circlet</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
