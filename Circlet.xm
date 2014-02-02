@@ -9,23 +9,26 @@
 #import "CRHeaders.h"
 #import "CRNotificationListener.h"
 
-#define DEGREES_TO_RADIANS(degrees) ((M_PI * degrees)/180)
+#define DEGREES_TO_RADIANS(degrees) ((M_PI * degrees)/180.0)
 
 /**************************** StatusBar Image Replacment  ****************************/
 
 static UIImage *ALCRGetCircleForSignalStrength(CGFloat number, CGFloat max, CGFloat radius, UIColor *color){
+	NSLog(@"-------- number: %f, max: %f, div: %f", number, max, number/max);
+	CGRect circle = CGRectMake(10.0 - radius, 10.0 - radius, radius * 2.0, radius * 2.0);
+
 	UIGraphicsBeginImageContext(CGSizeMake(20.0, 20.0));
 	CGContextRef context = UIGraphicsGetCurrentContext();
+	CGContextSetInterpolationQuality(context, kCGInterpolationHigh);
 	CGContextSetShouldAntialias(context, YES);
 	CGContextSetFillColorWithColor(context, color.CGColor);
 	CGContextSetStrokeColorWithColor(context, color.CGColor);
-	CGContextStrokeEllipseInRect(context, CGRectMake(10.0 - radius, 10 - radius, radius * 2, radius * 2));
-	CGPoint center = CGPointMake(10, 10);
+	CGContextStrokeEllipseInRect(context, circle);
 	
 	if(number == max)
-		CGContextFillEllipseInRect(context, CGRectMake(10 - radius, 10 - radius, radius * 2, radius * 2));
+		CGContextFillEllipseInRect(context, circle);
 	else
-		CGContextAddArc(context, center.x, center.y, radius, DEGREES_TO_RADIANS(270 - (180 * number / max)), DEGREES_TO_RADIANS(270 + (180 * number / max)), 1);
+		CGContextAddArc(context, CGRectGetMidX(circle), CGRectGetMidY(circle), radius, DEGREES_TO_RADIANS(270.0 - (180.0 * number / max)), DEGREES_TO_RADIANS(270.0 + (180.0 * number / max)), 1);
 
     CGContextDrawPath(context, kCGPathFill);
 	UIImage *ret = UIGraphicsGetImageFromCurrentImageContext();
@@ -80,29 +83,6 @@ CRAlertViewDelegate *circletAVDelegate;
 %end
 
 %hook UIStatusBarSignalStrengthItemView
-BOOL kCRShouldOverrideSignal;
-
--(id)initWithItem:(id)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4{
-	NSLog(@"---- init");
-	UIStatusBarSignalStrengthItemView *view = %orig();
-	[[NSDistributedNotificationCenter defaultCenter] addObserver:view selector:@selector(cr_updateSignalForData) name:@"CRUpdateForData" object:nil];
-	return view;
-}
-
-%new -(void)cr_updateSignalForData{
-	NSLog(@"---- falskdjflkajsdf");
-	kCRShouldOverrideSignal = YES;
-	[self updateForNewData:nil actions:nil];
-}
-
--(BOOL)updateForNewData:(id)arg1 actions:(int)arg2{
-	if(kCRShouldOverrideSignal){
-		kCRShouldOverrideSignal = NO;
-		return YES;
-	}
-
-	return %orig();
-}
 
 -(_UILegibilityImageSet *)contentsImage{
 	CRNotificationListener *listener = [CRNotificationListener sharedListener];
@@ -114,8 +94,8 @@ BOOL kCRShouldOverrideSignal;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
 
-		UIImage *white = ALCRGetCircleForSignalStrength(bars, 5.0, listener.signalRadius, listener.signalWhiteColor);
-		UIImage *black = ALCRGetCircleForSignalStrength(bars, 5.0, listener.signalRadius, listener.signalBlackColor);
+		UIImage *white = ALCRGetCircleForSignalStrength(bars, 5, listener.signalRadius, listener.signalWhiteColor);
+		UIImage *black = ALCRGetCircleForSignalStrength(bars, 5, listener.signalRadius, listener.signalBlackColor);
 
 		ALCRReleaseCircle(white);
 		ALCRReleaseCircle(black);
@@ -139,13 +119,13 @@ BOOL kCRShouldOverrideSignal;
 		
 		UIImage *white, *black;
 		if(networkType == 5){
-			white = ALCRGetCircleForSignalStrength(wifiState, 3.0, listener.wifiRadius, listener.wifiWhiteColor);
-			black = ALCRGetCircleForSignalStrength(wifiState, 3.0, listener.wifiRadius, listener.wifiBlackColor);
+			white = ALCRGetCircleForSignalStrength(wifiState, 3, listener.wifiRadius, listener.wifiWhiteColor);
+			black = ALCRGetCircleForSignalStrength(wifiState, 3, listener.wifiRadius, listener.wifiBlackColor);
 		}
 
 		else{
-			white = ALCRGetCircleForSignalStrength(3.0, 3.0, listener.wifiRadius, listener.dataWhiteColor);
-			black = ALCRGetCircleForSignalStrength(3.0, 3.0, listener.wifiRadius, listener.dataBlackColor);
+			white = ALCRGetCircleForSignalStrength(3, 3, listener.wifiRadius, listener.dataWhiteColor);
+			black = ALCRGetCircleForSignalStrength(3, 3, listener.wifiRadius, listener.dataBlackColor);
 		}
 
 		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
@@ -172,13 +152,13 @@ BOOL kCRShouldOverrideSignal;
 		
 		UIImage *white, *black;
 		if(state != 0){
-			white = ALCRGetCircleForSignalStrength(level, 100.0, listener.batteryRadius, listener.chargingWhiteColor);
-			black = ALCRGetCircleForSignalStrength(level, 100.0, listener.batteryRadius, listener.chargingBlackColor);
+			white = ALCRGetCircleForSignalStrength(level, 100, listener.batteryRadius, listener.chargingWhiteColor);
+			black = ALCRGetCircleForSignalStrength(level, 100, listener.batteryRadius, listener.chargingBlackColor);
 		}
 
 		else{
-			white = ALCRGetCircleForSignalStrength(level, 100.0, listener.batteryRadius, listener.batteryWhiteColor);
-			black = ALCRGetCircleForSignalStrength(level, 100.0, listener.batteryRadius, listener.batteryBlackColor);
+			white = ALCRGetCircleForSignalStrength(level, 100, listener.batteryRadius, listener.batteryWhiteColor);
+			black = ALCRGetCircleForSignalStrength(level, 100, listener.batteryRadius, listener.batteryBlackColor);
 		}
 			
 		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];

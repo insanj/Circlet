@@ -3,6 +3,7 @@
 #import <Twitter/Twitter.h>
 #import <Preferences/PSSpecifier.h>
 #import <Preferences/PSListItemsController.h>
+#import <Preferences/PSTableCell.h>
 #import <MessageUI/MessageUI.h>
 #include <notify.h>
 
@@ -57,8 +58,6 @@
 		[self setPreferenceValue:@(5.0) specifier:batterySizeSpecifier];
 		[self reloadSpecifier:batterySizeSpecifier];
 	}
-
-	//[[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 -(void)viewWillDisappear:(BOOL)animated {
@@ -138,4 +137,24 @@
 -(void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error{
     [self dismissViewControllerAnimated:YES completion:nil];
 }
+@end
+
+
+@interface CRCreditsCell : PSTableCell
+@end
+
+@implementation CRCreditsCell
+
+-(id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier {
+	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier specifier:specifier];
+
+	if(self){
+		self.textLabel.numberOfLines = 0;
+	    self.textLabel.font = [UIFont systemFontOfSize:14.0];
+	    self.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
+   	}
+
+   	return self;
+}//end init
+
 @end

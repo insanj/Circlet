@@ -36,9 +36,8 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 }
 
 -(void)respring{
-	[self reloadPrefs];
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRUpdateForData" object:nil];
-//	[(SpringBoard *)[%c(SpringBoard) sharedApplication] _relaunchSpringBoardNow];
+	[self debugLog:@"User prompted for respring, relaunching SpringBoard now..."];
+	[(SpringBoard *)[%c(SpringBoard) sharedApplication] _relaunchSpringBoardNow];
 }
 
 -(BOOL)reloadPrefs{

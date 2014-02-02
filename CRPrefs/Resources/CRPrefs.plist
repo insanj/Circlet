@@ -139,7 +139,7 @@
 
 		<dict>
 			<key>cell</key>			<string>PSGroupCell</string>
-			<key>label</key>		<string>Data</string>
+			<key>label</key>		<string>Wifi and Data</string>
 			<key>footerText</key> 	<string>Simplify your data strength indicator.</string>
 		</dict>
 
@@ -643,7 +643,13 @@
 		<dict>
 			<key>cell</key>				<string>PSGroupCell</string>
 			<key>label</key> 			<string>Credits</string>
-			<key>footerText</key>		<string>Circlet (1.0) was created by Julian (insanj) Weiss. Special thanks to Aehmlo for major development support, magn2o for troubleshooting, and kirb for Settings tinting and letting me vent. Inspired primarily by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects') development, make sure to follow @insanj (link above). Enjoy!</string>
+		</dict>
+
+		<dict>
+			<key>cell</key> 			<string>PSTextViewCell</string>
+			<key>cellClass</key>		<string>CRCreditsCell</string>
+			<key>height</key> 			<integer>175</integer>
+			<key>label</key> 			<string>Circlet (1.0) was created by Julian (insanj) Weiss. Special thanks to Aehmlo for major development support, magn2o for troubleshooting, and kirb for Settings tinting and letting me vent. Inspired primarily by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects') development, make sure to follow @insanj (link above). Enjoy!</string>
 		</dict>
 
 		<dict>
