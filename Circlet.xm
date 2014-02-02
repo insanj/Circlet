@@ -43,12 +43,12 @@ static void ALCRReleaseCircle(UIImage *circle){
 /**************************** CRAVDelegate (used from LS) ****************************/
 
 @interface CRAlertViewDelegate : NSObject <UIAlertViewDelegate>
--(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 @end
 
 @implementation CRAlertViewDelegate
--(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-	if(buttonIndex != 0)
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+	if(buttonIndex)
 		[(SpringBoard *)[UIApplication sharedApplication] applicationOpenURL:[NSURL URLWithString:@"prefs:root=Circlet"] publicURLsOnly:NO];
 }
 @end
@@ -58,7 +58,7 @@ static void ALCRReleaseCircle(UIImage *circle){
 %hook SBUIController
 static BOOL kCRUnlocked;
 
--(void)_deviceLockStateChanged:(NSNotification *)changed{
+- (void)_deviceLockStateChanged:(NSNotification *)changed{
 	%orig();
 
 	NSNumber *state = changed.userInfo[@"kSBNotificationKeyState"];
@@ -70,32 +70,35 @@ static BOOL kCRUnlocked;
 %hook SBUIAnimationController
 CRAlertViewDelegate *circletAVDelegate;
 
--(void)endAnimation{
+- (void)endAnimation{
 	%orig();
 
 	if(kCRUnlocked && ![[NSUserDefaults standardUserDefaults] boolForKey:@"CRDidRun"]){
 		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"CRDidRun"];
 		
 		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
-		[[[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil] show];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
+		[alert show];
+		[alert release];
+		[circletAVDelegate release];
 	}
 }
 %end
 
 %hook UIStatusBarSignalStrengthItemView
 
--(_UILegibilityImageSet *)contentsImage{
-	CRNotificationListener *listener = [CRNotificationListener sharedListener];
-	BOOL shouldOverride = [listener enabledForClassname:@"UIStatusBarSignalStrengthItemView"];
-	[listener debugLog:[NSString stringWithFormat:@"Heard call to -contentsImage, looks like we %@ override.",shouldOverride?@"should":@"shouldn't"]];
+- (_UILegibilityImageSet *)contentsImage{
+	//CRNotificationListener *listener = [CRNotificationListener sharedListener];
+	//BOOL shouldOverride = [listener enabledForClassname:@"UIStatusBarSignalStrengthItemView"];
+	//[listener debugLog:[NSString stringWithFormat:@"Heard call to -contentsImage, looks like we %@ override.",shouldOverride?@"should":@"shouldn't"]];
 
-	if(shouldOverride){
+	if(YES){//shouldOverride){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
 
-		UIImage *white = ALCRGetCircleForSignalStrength(bars, 5, listener.signalRadius, listener.signalWhiteColor);
-		UIImage *black = ALCRGetCircleForSignalStrength(bars, 5, listener.signalRadius, listener.signalBlackColor);
+		UIImage *white = ALCRGetCircleForSignalStrength(bars, 5, 7, [UIColor whiteColor]);//listener.signalRadius, listener.signalWhiteColor);
+		UIImage *black = ALCRGetCircleForSignalStrength(bars, 5, 7, [UIColor blackColor]);//listener.signalRadius, listener.signalBlackColor);
 
 		ALCRReleaseCircle(white);
 		ALCRReleaseCircle(black);
@@ -109,9 +112,9 @@ CRAlertViewDelegate *circletAVDelegate;
 
 %hook UIStatusBarDataNetworkItemView
 
--(_UILegibilityImageSet *)contentsImage{
-	CRNotificationListener *listener = [CRNotificationListener sharedListener];
-	if([listener enabledForClassname:@"UIStatusBarDataNetworkItemView"]){
+- (_UILegibilityImageSet *)contentsImage{
+	//CRNotificationListener *listener = [CRNotificationListener sharedListener];
+	if(YES){//[listener enabledForClassname:@"UIStatusBarDataNetworkItemView"]){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
@@ -119,13 +122,13 @@ CRAlertViewDelegate *circletAVDelegate;
 		
 		UIImage *white, *black;
 		if(networkType == 5){
-			white = ALCRGetCircleForSignalStrength(wifiState, 3, listener.wifiRadius, listener.wifiWhiteColor);
-			black = ALCRGetCircleForSignalStrength(wifiState, 3, listener.wifiRadius, listener.wifiBlackColor);
+			white = ALCRGetCircleForSignalStrength(wifiState, 3, 7, [UIColor whiteColor]);//listener.wifiRadius, listener.wifiWhiteColor);
+			black = ALCRGetCircleForSignalStrength(wifiState, 3, 7, [UIColor blackColor]);//listener.wifiRadius, listener.wifiBlackColor);
 		}
 
 		else{
-			white = ALCRGetCircleForSignalStrength(3, 3, listener.wifiRadius, listener.dataWhiteColor);
-			black = ALCRGetCircleForSignalStrength(3, 3, listener.wifiRadius, listener.dataBlackColor);
+			white = ALCRGetCircleForSignalStrength(3, 3, 7, [UIColor whiteColor]);//listener.wifiRadius, listener.dataWhiteColor);
+			black = ALCRGetCircleForSignalStrength(3, 3, 7, [UIColor blackColor]);//listener.wifiRadius, listener.dataBlackColor);
 		}
 
 		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
@@ -143,8 +146,8 @@ CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarBatteryItemView
 
 -(_UILegibilityImageSet *)contentsImage{
-	CRNotificationListener *listener = [CRNotificationListener sharedListener];
-	if(YES){[listener enabledForClassname:@"UIStatusBarBatteryItemView"]){
+	//CRNotificationListener *listener = [CRNotificationListener sharedListener];
+	if(YES){//[listener enabledForClassname:@"UIStatusBarBatteryItemView"]){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int level = MSHookIvar<int>(self, "_capacity");
@@ -152,13 +155,13 @@ CRAlertViewDelegate *circletAVDelegate;
 		
 		UIImage *white, *black;
 		if(state != 0){
-			white = ALCRGetCircleForSignalStrength(level, 100, listener.batteryRadius, listener.chargingWhiteColor);
-			black = ALCRGetCircleForSignalStrength(level, 100, listener.batteryRadius, listener.chargingBlackColor);
+			white = ALCRGetCircleForSignalStrength(level, 100, 7, [UIColor whiteColor]);//listener.batteryRadius, listener.chargingWhiteColor);
+			black = ALCRGetCircleForSignalStrength(level, 100, 7, [UIColor blackColor]);//listener.batteryRadius, listener.chargingBlackColor);
 		}
 
 		else{
-			white = ALCRGetCircleForSignalStrength(level, 100, listener.batteryRadius, listener.batteryWhiteColor);
-			black = ALCRGetCircleForSignalStrength(level, 100, listener.batteryRadius, listener.batteryBlackColor);
+			white = ALCRGetCircleForSignalStrength(level, 100, 7, [UIColor whiteColor]);//listener.batteryRadius, listener.batteryWhiteColor);
+			black = ALCRGetCircleForSignalStrength(level, 100, 7, [UIColor blackColor]);//listener.batteryRadius, listener.batteryBlackColor);
 		}
 			
 		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
@@ -180,21 +183,21 @@ CRAlertViewDelegate *circletAVDelegate;
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
 	CGRect orig = %orig(arg1, arg2);
 
-	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarSignalStrengthItemView"])
-			return CGRectMake(orig.origin.x, orig.origin.y, [CRNotificationListener sharedListener].signalRadius * 2.0, orig.size.height);
+	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)])// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarSignalStrengthItemView"])
+			return CGRectMake(orig.origin.x, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].signalRadius * 2.0, orig.size.height);
 
 	//else if([arg1 isKindOfClass:%c(UIStatusBarServiceItemView)])
 	//	cg_serviceWidth = orig.size.width;
 
-	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarDataNetworkItemView"])
-		return CGRectMake(orig.origin.x, orig.origin.y, [CRNotificationListener sharedListener].wifiRadius * 2, orig.size.height);
+	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)])// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarDataNetworkItemView"])
+		return CGRectMake(orig.origin.x, orig.origin.y, 14, origi.size.height);//[CRNotificationListener sharedListener].wifiRadius * 2, orig.size.height);
 	
-	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarBatteryItemView"]){
+	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)])// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarBatteryItemView"]){
 		int state = MSHookIvar<int>(arg1, "_state");
 		if(state != 0)
 			[[[arg1 subviews] lastObject] setHidden:YES];
 
-		return CGRectMake(orig.origin.x, orig.origin.y, [CRNotificationListener sharedListener].batteryRadius * 2, orig.size.height);
+		return CGRectMake(orig.origin.x, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].batteryRadius * 2, orig.size.height);
 	}
 
 	return orig;

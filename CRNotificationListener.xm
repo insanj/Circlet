@@ -18,7 +18,7 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 
 @implementation CRNotificationListener
 
-+(CRNotificationListener *)sharedListener{
++ (CRNotificationListener *)sharedListener{
 	static dispatch_once_token t;
 	dispatch_once(&t, ^{
 		sharedListener = [[self alloc] init];
@@ -26,19 +26,19 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 	return sharedListener;
 }
 
--(CRNotificationListener *)init{
+- (CRNotificationListener *)init{
 	if((self = [super init]))
 		[self reloadPrefs];
 
 	return self;
 }
 
--(void)respring{
+- (void)respring{
 	[self debugLog:@"User prompted for respring, relaunching SpringBoard now..."];
 	[(SpringBoard *)[%c(SpringBoard) sharedApplication] _relaunchSpringBoardNow];
 }
 
--(BOOL)reloadPrefs{
+- (BOOL)reloadPrefs{
 	_settings = [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]];
 	debug = _settings[@"debugEnabled"] != nil && [_settings[@"debugEnabled"] boolValue];
 	[self debugLog:[NSString stringWithFormat:@"Reloading _settings, retrieved plist:%@ ", _settings]];
@@ -71,21 +71,21 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 	return _settings != nil;
 }
 
--(UIColor *)colorWithCaseNumber:(int)arg1 andDefault:(int)arg2{
+- (UIColor *)colorWithCaseNumber:(int)arg1 andDefault:(int)arg2{
 	return [colors objectAtIndex:(arg1==0)?arg2:(arg1-1)];
 }
 
 
--(BOOL)enabledForClassname:(NSString *)className{
+- (BOOL)enabledForClassname:(NSString *)className{
 	return (_settings != nil) && (([className isEqualToString:@"UIStatusBarSignalStrengthItemView"] && _signalEnabled) || ([className isEqualToString:@"UIStatusBarDataNetworkItemView"] && _wifiEnabled) || ([className isEqualToString:@"UIStatusBarBatteryItemView"] && _batteryEnabled));
 }
 
--(void)debugLog:(NSString*)str{
+- (void)debugLog:(NSString*)str{
 	if(debug)
 		NSLog(@"[Circlet] \e[1;31m%@\e[m ", str);
 }
 
--(void)dealloc{
+- (void)dealloc{
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 	[super dealloc];
 }
