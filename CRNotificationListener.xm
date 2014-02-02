@@ -19,7 +19,7 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 @implementation CRNotificationListener
 
 + (CRNotificationListener *)sharedListener{
-	static dispatch_once_token t;
+	static dispatch_once_t t;
 	dispatch_once(&t, ^{
 		sharedListener = [[self alloc] init];
 	});
