@@ -11,7 +11,7 @@
 
 #define DEGREES_TO_RADIANS(degrees) ((M_PI * degrees)/180.0)
 
-/**************************** StatusBar Image Replacment  ****************************/
+/**************************** StatusBar Image Replacment ****************************/
 
 static UIImage *ALCRGetCircleForSignalStrength(CGFloat number, CGFloat max, CGFloat radius, UIColor *color){
 	NSLog(@"-------- number: %f, max: %f, div: %f", number, max, number/max);
@@ -173,19 +173,18 @@ CRAlertViewDelegate *circletAVDelegate;
 
 %end
 
-/**************************** Foreground Layout Hooks  ****************************/
+/**************************** Foreground Layout  ****************************/
 
 %hook UIStatusBarLayoutManager
 
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
 	CGRect orig = %orig(arg1, arg2);
 
-	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarSignalStrengthItemView"]) 
-		return CGRectMake(orig.origin.x, orig.origin.y, [CRNotificationListener sharedListener].signalRadius * 2, orig.size.height);
+	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarSignalStrengthItemView"])
+			return CGRectMake(orig.origin.x, orig.origin.y, [CRNotificationListener sharedListener].signalRadius * 2.0, orig.size.height);
 
-	/*else if([className isEqualToString:@"UIStatusBarServiceItemView"])
-		signalWidth += %orig().size.width;
-	*/
+	//else if([arg1 isKindOfClass:%c(UIStatusBarServiceItemView)])
+	//	cg_serviceWidth = orig.size.width;
 
 	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarDataNetworkItemView"])
 		return CGRectMake(orig.origin.x, orig.origin.y, [CRNotificationListener sharedListener].wifiRadius * 2, orig.size.height);
