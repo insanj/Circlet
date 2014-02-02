@@ -188,7 +188,7 @@ CRAlertViewDelegate *circletAVDelegate;
 	//	cg_serviceWidth = orig.size.width;
 
 	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)])// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarDataNetworkItemView"])
-		return CGRectMake(orig.origin.x, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].wifiRadius * 2, orig.size.height);
+		return CGRectMake(orig.origin.x+1, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].wifiRadius * 2, orig.size.height);
 	
 	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)]){// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarBatteryItemView"]){
 		int state = MSHookIvar<int>(arg1, "_state");
@@ -213,7 +213,7 @@ CRAlertViewDelegate *circletAVDelegate;
 	CGRect orig = %orig(arg1, arg2);
 
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)])// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarSignalStrengthItemView"])
-			return CGRectMake(orig.origin.x-2, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].signalRadius * 2.0, orig.size.height);
+			return CGRectMake(orig.origin.x-3, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].signalRadius * 2.0, orig.size.height);
 
 	//else if([arg1 isKindOfClass:%c(UIStatusBarServiceItemView)])
 	//	cg_serviceWidth = orig.size.width;
