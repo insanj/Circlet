@@ -29,17 +29,16 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 }
 
 -(CRNotificationListener *)init{
-	if((self = [super init])){
-		[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(respring) name:@"CRPrefsChanged" object:nil];
+	if((self = [super init]))
 		[self reloadPrefs];
-	}
 
 	return self;
 }
 
 -(void)respring{
 	[self reloadPrefs];
-	[(SpringBoard *)[%c(SpringBoard) sharedApplication] _relaunchSpringBoardNow];
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRUpdateForData" object:nil];
+//	[(SpringBoard *)[%c(SpringBoard) sharedApplication] _relaunchSpringBoardNow];
 }
 
 -(BOOL)reloadPrefs{

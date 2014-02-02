@@ -16,7 +16,7 @@
 static UIImage *ALCRGetCircleForSignalStrength(CGFloat number, CGFloat max, CGFloat radius, UIColor *color){
 	UIGraphicsBeginImageContext(CGSizeMake(20.0, 20.0));
 	CGContextRef context = UIGraphicsGetCurrentContext();
-	CGContextSetShouldAntialias(context, NO);
+	CGContextSetShouldAntialias(context, YES);
 	CGContextSetFillColorWithColor(context, color.CGColor);
 	CGContextSetStrokeColorWithColor(context, color.CGColor);
 	CGContextStrokeEllipseInRect(context, CGRectMake(10.0 - radius, 10 - radius, radius * 2, radius * 2));
@@ -80,10 +80,36 @@ CRAlertViewDelegate *circletAVDelegate;
 %end
 
 %hook UIStatusBarSignalStrengthItemView
+BOOL kCRShouldOverrideSignal;
+
+-(id)initWithItem:(id)arg1 data:(id)arg2 actions:(int)arg3 style:(id)arg4{
+	NSLog(@"---- init");
+	UIStatusBarSignalStrengthItemView *view = %orig();
+	[[NSDistributedNotificationCenter defaultCenter] addObserver:view selector:@selector(cr_updateSignalForData) name:@"CRUpdateForData" object:nil];
+	return view;
+}
+
+%new -(void)cr_updateSignalForData{
+	NSLog(@"---- falskdjflkajsdf");
+	kCRShouldOverrideSignal = YES;
+	[self updateForNewData:nil actions:nil];
+}
+
+-(BOOL)updateForNewData:(id)arg1 actions:(int)arg2{
+	if(kCRShouldOverrideSignal){
+		kCRShouldOverrideSignal = NO;
+		return YES;
+	}
+
+	return %orig();
+}
 
 -(_UILegibilityImageSet *)contentsImage{
 	CRNotificationListener *listener = [CRNotificationListener sharedListener];
-	if([listener enabledForClassname:@"UIStatusBarSignalStrengthItemView"]){
+	BOOL shouldOverride = [listener enabledForClassname:@"UIStatusBarSignalStrengthItemView"];
+	[listener debugLog:[NSString stringWithFormat:@"Heard call to -contentsImage, looks like we %@ override.",shouldOverride?@"should":@"shouldn't"]];
+
+	if(shouldOverride){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
