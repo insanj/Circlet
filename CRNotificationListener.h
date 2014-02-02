@@ -8,8 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreGraphics/CoreGraphics.h>
-
-#import "Circlet.h"
+#import "CRHeaders.h"
 
 @interface CRNotificationListener : NSObject {
 	BOOL debug;
@@ -19,10 +18,8 @@
 @property (nonatomic, readonly) NSDictionary *images;
 
 @property (nonatomic, readwrite) BOOL signalEnabled, wifiEnabled, batteryEnabled;
-@property (nonatomic, readwrite) CGFloat signalPadding, wifiPadding, batteryPadding;
+@property (nonatomic, readwrite) CGFloat signalRadius, wifiRadius, batteryRadius;
 @property (nonatomic, retain) UIColor *signalWhiteColor, *signalBlackColor, *wifiWhiteColor, *wifiBlackColor, *dataWhiteColor, *dataBlackColor, *batteryWhiteColor, *batteryBlackColor, *chargingWhiteColor, *chargingBlackColor;
-
-@property (nonatomic, retain) CRView *signalCircle, *wifiCircle, *batteryCircle;
 
 +(CRNotificationListener *)sharedListener;
 -(CRNotificationListener *)init;
@@ -31,5 +28,3 @@
 -(BOOL)enabledForClassname:(NSString *)className;
 
 @end
-
-extern NSString *const CRImagesLoadedNotification;

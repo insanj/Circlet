@@ -32,9 +32,6 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 	if((self = [super init])){
 		[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(respring) name:@"CRPrefsChanged" object:nil];
 		[self reloadPrefs];
-		_signalCircle = [[CRView alloc] initWithRadius:_signalPadding];
-		_wifiCircle = [[CRView alloc] initWithRadius:_wifiPadding];
-		_batteryCircle = [[CRView alloc] initWithRadius:_batteryPadding];
 	}
 
 	return self;
@@ -42,10 +39,7 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 
 -(void)respring{
 	[self reloadPrefs];
-
-	SpringBoard *sb = (SpringBoard *)[%c(SpringBoard) sharedApplication];
-	[sb circlet_generateCirclesFresh:self];
-	[sb _relaunchSpringBoardNow];
+	[(SpringBoard *)[%c(SpringBoard) sharedApplication] _relaunchSpringBoardNow];
 }
 
 -(BOOL)reloadPrefs{
@@ -55,14 +49,14 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 
 	// Signal
 	_signalEnabled = _settings[@"signalEnabled"] == nil || [_settings[@"signalEnabled"] boolValue];
-	_signalPadding = (_settings[@"signalSize"] == nil)?12.0:[_settings[@"signalSize"] floatValue];
+	_signalRadius = (_settings[@"signalSize"] == nil)?5.0:[_settings[@"signalSize"] floatValue];
 
 	_signalWhiteColor = [self colorWithCaseNumber:[_settings[@"signalLightColor"] intValue] andDefault:16];
 	_signalBlackColor = [self colorWithCaseNumber:[_settings[@"signalDarkColor"] intValue] andDefault:1];
 	
 	// Data/Wifi
 	_wifiEnabled = _settings[@"wifiEnabled"] != nil && [_settings[@"wifiEnabled"] boolValue];
-	_wifiPadding = (_settings[@"wifiSize"] == nil)?12.0:[_settings[@"wifiSize"] floatValue];
+	_wifiRadius = (_settings[@"wifiSize"] == nil)?5.0:[_settings[@"wifiSize"] floatValue];
 
 	_wifiWhiteColor = [self colorWithCaseNumber:[_settings[@"wifiLightColor"] intValue] andDefault:16];
 	_wifiBlackColor = [self colorWithCaseNumber:[_settings[@"wifiDarkColor"] intValue] andDefault:1];
@@ -71,7 +65,7 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 
 	// Battery
 	_batteryEnabled = _settings[@"batteryEnabled"] != nil && [_settings[@"batteryEnabled"] boolValue];
-	_batteryPadding = (_settings[@"batterySize"] == nil)?12.0:[_settings[@"batterySize"] floatValue];
+	_batteryRadius = (_settings[@"batterySize"] == nil)?5.0:[_settings[@"batterySize"] floatValue];
 
 	_batteryWhiteColor = [self colorWithCaseNumber:[_settings[@"batteryLightColor"] intValue] andDefault:16];
 	_batteryBlackColor = [self colorWithCaseNumber:[_settings[@"batteryDarkColor"] intValue] andDefault:1];
@@ -85,13 +79,14 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 	return [colors objectAtIndex:(arg1==0)?arg2:(arg1-1)];
 }
 
--(void)debugLog:(NSString*)str{
-	if(debug)
-		NSLog(@"[Circlet] \e[1;31m%@\e[m ", str);
-}
 
 -(BOOL)enabledForClassname:(NSString *)className{
 	return (_settings != nil) && (([className isEqualToString:@"UIStatusBarSignalStrengthItemView"] && _signalEnabled) || ([className isEqualToString:@"UIStatusBarDataNetworkItemView"] && _wifiEnabled) || ([className isEqualToString:@"UIStatusBarBatteryItemView"] && _batteryEnabled));
+}
+
+-(void)debugLog:(NSString*)str{
+	if(debug)
+		NSLog(@"[Circlet] \e[1;31m%@\e[m ", str);
 }
 
 -(void)dealloc{

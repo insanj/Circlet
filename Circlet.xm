@@ -6,48 +6,27 @@
 //  Copyright (c) 2014 insanj. All rights reserved.
 //
 
-#import "Circlet.h"
+#import "CRHeaders.h"
+#import "CRNotificationListener.h"
 
-#define CRPathFrom(a) [@"/Library/PreferenceBundles/CRPrefs.bundle/Assets/" stringByAppendingString:a]
 #define DEGREES_TO_RADIANS(degrees) ((M_PI * degrees)/180)
-#define RADIUS 5
 
 /**************************** StatusBar Image Replacment  ****************************/
 
-static UIImage *ALCRGetBlackCircleForSignalStrength(int number, int max){
-	UIGraphicsBeginImageContext(CGSizeMake(20, 20));
+static UIImage *ALCRGetCircleForSignalStrength(CGFloat number, CGFloat max, CGFloat radius, UIColor *color){
+	UIGraphicsBeginImageContext(CGSizeMake(20.0, 20.0));
 	CGContextRef context = UIGraphicsGetCurrentContext();
-	CGContextSetShouldAntialias(context, YES);
-	CGContextSetFillColorWithColor(context, [UIColor blackColor].CGColor);
-	CGContextSetStrokeColorWithColor(context, [UIColor blackColor].CGColor);
-	CGContextStrokeEllipseInRect(context, CGRectMake(10-RADIUS, 10-RADIUS, RADIUS*2, RADIUS*2));
+	CGContextSetShouldAntialias(context, NO);
+	CGContextSetFillColorWithColor(context, color.CGColor);
+	CGContextSetStrokeColorWithColor(context, color.CGColor);
+	CGContextStrokeEllipseInRect(context, CGRectMake(10.0 - radius, 10 - radius, radius * 2, radius * 2));
 	CGPoint center = CGPointMake(10, 10);
 	
-	if(number==max)
-		CGContextFillEllipseInRect(context, CGRectMake(10-RADIUS, 10-RADIUS, RADIUS*2, RADIUS*2));
+	if(number == max)
+		CGContextFillEllipseInRect(context, CGRectMake(10 - radius, 10 - radius, radius * 2, radius * 2));
 	else
-		CGContextAddArc(context, center.x, center.y, RADIUS, DEGREES_TO_RADIANS(270-(180*number/max)), DEGREES_TO_RADIANS(270+(180*number/max)), 1);
+		CGContextAddArc(context, center.x, center.y, radius, DEGREES_TO_RADIANS(270 - (180 * number / max)), DEGREES_TO_RADIANS(270 + (180 * number / max)), 1);
 
-    CGContextDrawPath(context, kCGPathFill);
-	UIImage *ret = UIGraphicsGetImageFromCurrentImageContext();
-	CGContextRelease(context);
-	return ret;
-}
-
-static UIImage *ALCRGetWhiteCircleForSignalStrength(int number, int max){
-	UIGraphicsBeginImageContext(CGSizeMake(20, 20));
-	CGContextRef context = UIGraphicsGetCurrentContext();
-	CGContextSetShouldAntialias(context, YES);
-	CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
-	CGContextSetStrokeColorWithColor(context, [UIColor whiteColor].CGColor);
-	CGContextStrokeEllipseInRect(context, CGRectMake(10-RADIUS, 10-RADIUS, RADIUS*2, RADIUS*2));
-	
-	CGPoint center = CGPointMake(10, 10);
-	if(number==max)
-		CGContextFillEllipseInRect(context, CGRectMake(10-RADIUS, 10-RADIUS, RADIUS*2, RADIUS*2));
-	else
-		CGContextAddArc(context, center.x, center.y, RADIUS, DEGREES_TO_RADIANS(270-(180*number/max)), DEGREES_TO_RADIANS(270+(180*number/max)), 1);
-	
     CGContextDrawPath(context, kCGPathFill);
 	UIImage *ret = UIGraphicsGetImageFromCurrentImageContext();
 	CGContextRelease(context);
@@ -55,7 +34,7 @@ static UIImage *ALCRGetWhiteCircleForSignalStrength(int number, int max){
 }
 
 static void ALCRReleaseCircle(UIImage *circle){
-	return; //Not sure what UIGraphicsGetImageFromCurrentImageContext's return's retain count is - appears to be 0(?)
+	return;
 }
 
 /**************************** CRAVDelegate (used from LS) ****************************/
@@ -72,8 +51,6 @@ static void ALCRReleaseCircle(UIImage *circle){
 @end
 
 /**************************** Shared, SB and LS Hooks ****************************/
-
-%group Shared
 
 %hook SBUIController
 static BOOL kCRUnlocked;
@@ -105,16 +82,21 @@ CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarSignalStrengthItemView
 
 -(_UILegibilityImageSet *)contentsImage{
-	CGFloat w, a;
-	[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-	int bars = MSHookIvar<int>(self, "_signalStrengthBars") - 1;
+	CRNotificationListener *listener = [CRNotificationListener sharedListener];
+	if([listener enabledForClassname:@"UIStatusBarSignalStrengthItemView"]){
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
 
-	UIImage *white = ALCRGetWhiteCircleForSignalStrength(bars, 5);
-	UIImage *black = ALCRGetBlackCircleForSignalStrength(bars, 5);
+		UIImage *white = ALCRGetCircleForSignalStrength(bars, 5.0, listener.signalRadius, listener.signalWhiteColor);
+		UIImage *black = ALCRGetCircleForSignalStrength(bars, 5.0, listener.signalRadius, listener.signalBlackColor);
 
-	ALCRReleaseCircle(white);
-	ALCRReleaseCircle(black);
-	return (w >= 0.5f)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+		ALCRReleaseCircle(white);
+		ALCRReleaseCircle(black);
+		return (w >= 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+	}
+
+	return %orig();
 }
 
 %end
@@ -122,27 +104,32 @@ CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarDataNetworkItemView
 
 -(_UILegibilityImageSet *)contentsImage{
-	CGFloat w, a;
-	[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-	int networkType = MSHookIvar<int>(self, "_dataNetworkType");
-	int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars") - 1;
-	
-	UIImage *white, *black;
-	if(networkType == 5){
-		white = ALCRGetWhiteCircleForSignalStrength(wifiState, 3);
-		black = ALCRGetBlackCircleForSignalStrength(wifiState, 3);
+	CRNotificationListener *listener = [CRNotificationListener sharedListener];
+	if([listener enabledForClassname:@"UIStatusBarDataNetworkItemView"]){
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
+		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
+		
+		UIImage *white, *black;
+		if(networkType == 5){
+			white = ALCRGetCircleForSignalStrength(wifiState, 3.0, listener.wifiRadius, listener.wifiWhiteColor);
+			black = ALCRGetCircleForSignalStrength(wifiState, 3.0, listener.wifiRadius, listener.wifiBlackColor);
+		}
+
+		else{
+			white = ALCRGetCircleForSignalStrength(3.0, 3.0, listener.wifiRadius, listener.dataWhiteColor);
+			black = ALCRGetCircleForSignalStrength(3.0, 3.0, listener.wifiRadius, listener.dataBlackColor);
+		}
+
+		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+
+		ALCRReleaseCircle(white);
+		ALCRReleaseCircle(black);
+		return ret;
 	}
 
-	else{
-		white = ALCRGetWhiteCircleForSignalStrength(3, 3);
-		black = ALCRGetBlackCircleForSignalStrength(3, 3);
-	}
-
-	_UILegibilityImageSet *ret = (w > 0.5f)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
-
-	ALCRReleaseCircle(white);
-	ALCRReleaseCircle(black);
-	return ret;
+	return %orig();
 }
 
 %end
@@ -150,94 +137,62 @@ CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarBatteryItemView
 
 -(_UILegibilityImageSet *)contentsImage{
-	CGFloat w, a;
-	[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-	int level = ceilf((MSHookIvar<int>(self, "_capacity")) * 0.19f);
-	int state = MSHookIvar<int>(self, "_state");
-	
-	UIImage *white, *black;
-	if(state != 0){
-		white = ALCRGetWhiteCircleForSignalStrength(level+19, 20);
-		black = ALCRGetBlackCircleForSignalStrength(level+19, 20);
-	}
-
-	else{
-		white = ALCRGetWhiteCircleForSignalStrength(level, 20);
-		black = ALCRGetBlackCircleForSignalStrength(level, 20);
-	}
+	CRNotificationListener *listener = [CRNotificationListener sharedListener];
+	if([listener enabledForClassname:@"UIStatusBarBatteryItemView"]){
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		int level = MSHookIvar<int>(self, "_capacity");
+		int state = MSHookIvar<int>(self, "_state");
 		
-	_UILegibilityImageSet *ret = (a > 0.5f)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
-	
-	ALCRReleaseCircle(white);
-	ALCRReleaseCircle(black);
-	return ret;
-}
+		UIImage *white, *black;
+		if(state != 0){
+			white = ALCRGetCircleForSignalStrength(level, 100.0, listener.batteryRadius, listener.chargingWhiteColor);
+			black = ALCRGetCircleForSignalStrength(level, 100.0, listener.batteryRadius, listener.chargingBlackColor);
+		}
 
-%end
-
-%end
-
-/**************************** Background Layout Hook  ****************************/
-
-%group NonSpringBoard
-
-%hook UIStatusBarLayoutManager
-
--(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
-	CGRect orig = %orig(arg1, arg2);
-	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)])
-		return CGRectMake(orig.origin.x, orig.origin.y, RADIUS*2+4, orig.size.height);
-	
-	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)])
-		return CGRectMake(orig.origin.x, orig.origin.y, RADIUS*2+4, orig.size.height);
-	
-	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)]){
-		int state = MSHookIvar<int>(arg1, "_state");
-		if(state) [[[arg1 subviews] lastObject] setHidden:YES];
+		else{
+			white = ALCRGetCircleForSignalStrength(level, 100.0, listener.batteryRadius, listener.batteryWhiteColor);
+			black = ALCRGetCircleForSignalStrength(level, 100.0, listener.batteryRadius, listener.batteryBlackColor);
+		}
+			
+		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+		
+		ALCRReleaseCircle(white);
+		ALCRReleaseCircle(black);
+		return ret;
 	}
 
-	return orig;
+	return %orig();
 }
-
-%end
 
 %end
 
 /**************************** Foreground Layout Hooks  ****************************/
 
-%group SpringBoard
-
 %hook UIStatusBarLayoutManager
 
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
 	CGRect orig = %orig(arg1, arg2);
-	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]) 
-		return CGRectMake(orig.origin.x, orig.origin.y, RADIUS*2, orig.size.height);
+
+	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarSignalStrengthItemView"]) 
+		return CGRectMake(orig.origin.x, orig.origin.y, [CRNotificationListener sharedListener].signalRadius * 2, orig.size.height);
 
 	/*else if([className isEqualToString:@"UIStatusBarServiceItemView"])
 		signalWidth += %orig().size.width;
 	*/
 
-	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)])
-		return CGRectMake(orig.origin.x, orig.origin.y, RADIUS*2, orig.size.height);
+	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarDataNetworkItemView"])
+		return CGRectMake(orig.origin.x, orig.origin.y, [CRNotificationListener sharedListener].wifiRadius * 2, orig.size.height);
 	
-	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)]){
+	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarBatteryItemView"]){
 		int state = MSHookIvar<int>(arg1, "_state");
 		if(state != 0)
 			[[[arg1 subviews] lastObject] setHidden:YES];
+
+		return CGRectMake(orig.origin.x, orig.origin.y, [CRNotificationListener sharedListener].batteryRadius * 2, orig.size.height);
 	}
 
 	return orig;
 }
 
 %end
-
-%end
-
-%ctor{
-	if([[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"])
-		%init(SpringBoard);
-	else
-		%init(NonSpringBoard);
-	%init(Shared);
-}
