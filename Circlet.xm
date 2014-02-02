@@ -190,9 +190,9 @@ CRAlertViewDelegate *circletAVDelegate;
 	//	cg_serviceWidth = orig.size.width;
 
 	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)])// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarDataNetworkItemView"])
-		return CGRectMake(orig.origin.x, orig.origin.y, 14, origi.size.height);//[CRNotificationListener sharedListener].wifiRadius * 2, orig.size.height);
+		return CGRectMake(orig.origin.x, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].wifiRadius * 2, orig.size.height);
 	
-	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)])// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarBatteryItemView"]){
+	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)]){// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarBatteryItemView"]){
 		int state = MSHookIvar<int>(arg1, "_state");
 		if(state != 0)
 			[[[arg1 subviews] lastObject] setHidden:YES];
