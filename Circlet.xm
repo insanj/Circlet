@@ -53,6 +53,9 @@ static void ALCRReleaseCircle(UIImage *circle){
 }
 @end
 
+
+%group Shared
+
 /**************************** Shared, SB and LS Hooks ****************************/
 
 %hook SBUIController
@@ -151,18 +154,9 @@ CRAlertViewDelegate *circletAVDelegate;
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int level = MSHookIvar<int>(self, "_capacity");
-		int state = MSHookIvar<int>(self, "_state");
 		
-		UIImage *white, *black;
-		if(state != 0){
-			white = ALCRGetCircleForSignalStrength(level, 100, 7, [UIColor whiteColor]);//listener.batteryRadius, listener.chargingWhiteColor);
-			black = ALCRGetCircleForSignalStrength(level, 100, 7, [UIColor blackColor]);//listener.batteryRadius, listener.chargingBlackColor);
-		}
-
-		else{
-			white = ALCRGetCircleForSignalStrength(level, 100, 7, [UIColor whiteColor]);//listener.batteryRadius, listener.batteryWhiteColor);
-			black = ALCRGetCircleForSignalStrength(level, 100, 7, [UIColor blackColor]);//listener.batteryRadius, listener.batteryBlackColor);
-		}
+		UIImage *white = ALCRGetCircleForSignalStrength(level, 100, 7, [UIColor whiteColor]);//listener.batteryRadius, listener.batteryWhiteColor);
+		UIImage *black = ALCRGetCircleForSignalStrength(level, 100, 7, [UIColor blackColor]);//listener.batteryRadius, listener.batteryBlackColor);
 			
 		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
 		
@@ -176,7 +170,11 @@ CRAlertViewDelegate *circletAVDelegate;
 
 %end
 
+%end
+
 /**************************** Foreground Layout  ****************************/
+
+%group SpringBoard
 
 %hook UIStatusBarLayoutManager
 
@@ -184,7 +182,7 @@ CRAlertViewDelegate *circletAVDelegate;
 	CGRect orig = %orig(arg1, arg2);
 
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)])// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarSignalStrengthItemView"])
-			return CGRectMake(orig.origin.x, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].signalRadius * 2.0, orig.size.height);
+			return CGRectMake(orig.origin.x+2, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].signalRadius * 2.0, orig.size.height);
 
 	//else if([arg1 isKindOfClass:%c(UIStatusBarServiceItemView)])
 	//	cg_serviceWidth = orig.size.width;
@@ -204,3 +202,42 @@ CRAlertViewDelegate *circletAVDelegate;
 }
 
 %end
+
+%end
+
+%group NotSpringBoard
+
+%hook UIStatusBarLayoutManager
+
+-(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
+	CGRect orig = %orig(arg1, arg2);
+
+	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)])// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarSignalStrengthItemView"])
+			return CGRectMake(orig.origin.x-2, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].signalRadius * 2.0, orig.size.height);
+
+	//else if([arg1 isKindOfClass:%c(UIStatusBarServiceItemView)])
+	//	cg_serviceWidth = orig.size.width;
+
+	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)])// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarDataNetworkItemView"])
+		return CGRectMake(orig.origin.x, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].wifiRadius * 2, orig.size.height);
+	
+	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)]){// && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarBatteryItemView"]){
+		int state = MSHookIvar<int>(arg1, "_state");
+		if(state != 0)
+			[[[arg1 subviews] lastObject] setHidden:YES];
+
+		return CGRectMake(orig.origin.x+3, orig.origin.y, 14, orig.size.height);//[CRNotificationListener sharedListener].batteryRadius * 2, orig.size.height);
+	}
+
+	return orig;
+}
+
+%end
+
+%end
+
+%ctor{
+	%init(Shared);
+	if([[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"]) %init(SpringBoard);
+	else %init(NotSpringBoard);
+}
