@@ -79,7 +79,7 @@ CRAlertViewDelegate *circletAVDelegate;
 		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
 		[alert show];
-		//[alert release];
+		[alert release];
 		//[circletAVDelegate release];
 	}
 }
