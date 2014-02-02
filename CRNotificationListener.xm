@@ -89,5 +89,6 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 
 -(void)dealloc{
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
+	[super dealloc];
 }
 @end

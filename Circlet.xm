@@ -9,7 +9,7 @@
 #import "CRHeaders.h"
 #import "CRNotificationListener.h"
 
-#define DEGREES_TO_RADIANS(degrees) ((M_PI * degrees)/180.0)
+#define DEGREES_TO_RADIANS(degrees) ((M_PI * degrees)/180.0f)
 
 /**************************** StatusBar Image Replacment ****************************/
 
@@ -144,7 +144,7 @@ CRAlertViewDelegate *circletAVDelegate;
 
 -(_UILegibilityImageSet *)contentsImage{
 	CRNotificationListener *listener = [CRNotificationListener sharedListener];
-	if([listener enabledForClassname:@"UIStatusBarBatteryItemView"]){
+	if(YES){[listener enabledForClassname:@"UIStatusBarBatteryItemView"]){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int level = MSHookIvar<int>(self, "_capacity");
