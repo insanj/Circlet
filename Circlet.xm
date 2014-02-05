@@ -224,10 +224,12 @@ CRAlertViewDelegate *circletAVDelegate;
 	if(shouldOverride){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		
 		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
+		CGFloat radius = CRGetRadiusFromCircleNumber(0);
 
-		UIImage *white = ALCRGetCircleForSignalStrength(bars, 5, CRGetRadiusFromCircleNumber(0), CRGetColorFromCircleNumber(YES, 0));
-		UIImage *black = ALCRGetCircleForSignalStrength(bars, 5, CRGetRadiusFromCircleNumber(0), CRGetColorFromCircleNumber(NO, 0));
+		UIImage *white = ALCRGetCircleForSignalStrength(bars, 5, radius, CRGetColorFromCircleNumber(YES, 0));
+		UIImage *black = ALCRGetCircleForSignalStrength(bars, 5, radius, CRGetColorFromCircleNumber(NO, 0));
 
 		ALCRReleaseCircle(white);
 		ALCRReleaseCircle(black);
@@ -249,18 +251,20 @@ CRAlertViewDelegate *circletAVDelegate;
 	if(shouldOverride){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		
 		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
 		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
-		
+		CGFloat radius = CRGetRadiusFromCircleNumber(1);
+
 		UIImage *white, *black;
 		if(networkType == 5){
-			white = ALCRGetCircleForSignalStrength(wifiState, 3, CRGetRadiusFromCircleNumber(1), CRGetColorFromCircleNumber(YES, 1));
-			black = ALCRGetCircleForSignalStrength(wifiState, 3, CRGetRadiusFromCircleNumber(1), CRGetColorFromCircleNumber(NO, 1));
+			white = ALCRGetCircleForSignalStrength(wifiState, 3, radius, CRGetColorFromCircleNumber(YES, 1));
+			black = ALCRGetCircleForSignalStrength(wifiState, 3, radius, CRGetColorFromCircleNumber(NO, 1));
 		}
 
 		else{
-			white = ALCRGetCircleForSignalStrength(3, 3, CRGetRadiusFromCircleNumber(1), CRGetColorFromCircleNumber(YES, 2));
-			black = ALCRGetCircleForSignalStrength(3, 3, CRGetRadiusFromCircleNumber(1), CRGetColorFromCircleNumber(NO, 2));
+			white = ALCRGetCircleForSignalStrength(3, 3, radius, CRGetColorFromCircleNumber(YES, 2));
+			black = ALCRGetCircleForSignalStrength(3, 3, radius, CRGetColorFromCircleNumber(NO, 2));
 		}
 
 		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
@@ -285,18 +289,20 @@ CRAlertViewDelegate *circletAVDelegate;
 	if(shouldOverride){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		
 		int level = MSHookIvar<int>(self, "_capacity");
 		int state = MSHookIvar<int>(self, "_state");
+		CGFloat radius = CRGetRadiusFromCircleNumber(2);
 
 		UIImage *white, *black;
 		if(state != 0){
-			white = ALCRGetCircleForSignalStrength(level, 100, CRGetRadiusFromCircleNumber(2), CRGetColorFromCircleNumber(YES, 4));
-			black = ALCRGetCircleForSignalStrength(level, 100, CRGetRadiusFromCircleNumber(2), CRGetColorFromCircleNumber(NO, 4));
+			white = ALCRGetCircleForSignalStrength(level, 100, radius, CRGetColorFromCircleNumber(YES, 4));
+			black = ALCRGetCircleForSignalStrength(level, 100, radius, CRGetColorFromCircleNumber(NO, 4));
 		}
 		
 		else{
-			white = ALCRGetCircleForSignalStrength(level, 100, CRGetRadiusFromCircleNumber(2), CRGetColorFromCircleNumber(YES, 3));
-			black = ALCRGetCircleForSignalStrength(level, 100, CRGetRadiusFromCircleNumber(2), CRGetColorFromCircleNumber(NO, 3));
+			white = ALCRGetCircleForSignalStrength(level, 100, radius, CRGetColorFromCircleNumber(YES, 3));
+			black = ALCRGetCircleForSignalStrength(level, 100, radius, CRGetColorFromCircleNumber(NO, 3));
 		}
 			
 		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
