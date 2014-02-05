@@ -7,13 +7,14 @@
 //
 
 #import "CRHeaders.h"
-#import "CRNotificationListener.h"
 
 #define DEGREES_TO_RADIANS(degrees) ((M_PI * degrees)/180.0f)
+#define CRSettings [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.switcherblur.plist"]]
+
 
 /**************************** StatusBar Image Replacment ****************************/
 
-static UIImage *ALCRGetCircleForSignalStrength(CGFloat number, CGFloat max, CGFloat radius, UIColor *color){
+static UIImage * ALCRGetCircleForSignalStrength(CGFloat number, CGFloat max, CGFloat radius, UIColor *color){
 	NSLog(@"-------- number: %f, max: %f, div: %f", number, max, number/max);
 	CGRect circle = CGRectMake(10.0 - radius, 10.0 - radius, radius * 2.0, radius * 2.0);
 
@@ -38,6 +39,132 @@ static UIImage *ALCRGetCircleForSignalStrength(CGFloat number, CGFloat max, CGFl
 
 static void ALCRReleaseCircle(UIImage *circle){
 	return;
+}
+
+/**************************** Preferences Usage ****************************/
+
+static void CRLog(NSString *string){
+	NSDictionary *settings = CRSettings;
+	if(settings[@"debugEnabled"] != nil && [settings[@"debugEnabled"] boolValue])
+		NSLog(@"[Circlet] \e[1;31m%@\e[m ", string);
+}
+
+static CGFloat CRGetRadiusFromCircleNumber(int circle){
+	NSDictionary *settings = CRSettings;
+	NSString *key;
+	switch(circle){
+		case 0:
+			key = @"signalSize";
+			break;
+		case 1:
+			key = @"wifiSize";
+			break;
+		case 2:
+			key = @"batterySize";
+			break;
+	}
+
+
+	return (settings[key] == nil)?5.0:[settings[key] floatValue];
+}
+
+static UIColor * CRGetColorFromCaseNumber(BOOL white, int number){
+	int caseNumber = (white && number == 0) ? 17 : (!white && number == 0) ? 2 : number;
+
+	switch(caseNumber){
+		case 1:
+			return UIColorFromRGB(0x7FDBFF);
+		case 2:
+			return UIColorFromRGB(0x111111);	//default black
+		case 3:
+			return UIColorFromRGB(0x0074D9);
+		case 4:
+			return [UIColor clearColor];
+		case 5:
+			return UIColorFromRGB(0xF012BE);
+		case 6:
+			return UIColorFromRGB(0xAAAAAA);
+		case 7:
+			return UIColorFromRGB(0x2ECC40);
+		case 8:
+			return UIColorFromRGB(0x01FF70);
+		case 9:
+			return UIColorFromRGB(0x85144B);
+		case 10:
+			return UIColorFromRGB(0x001F3F);
+		case 11:
+			return UIColorFromRGB(0x3D9970);
+		case 12:
+			return UIColorFromRGB(0xFF851B);
+		case 13:
+			return UIColorFromRGB(0xB10DC9);
+		case 14:
+			return UIColorFromRGB(0xFF4136);
+		case 15:
+			return UIColorFromRGB(0xDDDDDD);
+		case 16:
+			return UIColorFromRGB(0x39CCCC);
+		case 17:								//default white
+			return UIColorFromRGB(0xFFFFFF);
+		case 18:
+			return UIColorFromRGB(0xFFDC00);
+	}
+
+	return white ? [UIColor whiteColor] : [UIColor blackColor];
+}
+
+static UIColor * CRGetColorFromCircleNumber(BOOL white, int circle){
+	NSString *key;
+	if(white){
+		switch(circle){
+			case 0:
+				key = @"signalLightColor";
+				break;
+			case 1:
+				key = @"wifiLightColor";
+				break;
+			case 2:
+				key = @"dataLightColor";
+				break;
+			case 3:
+				key = @"batteryLightColor";
+				break;
+			case 4:
+				key = @"chargingLightColor";
+				break;
+		}
+	}
+
+	else{
+		switch(circle){
+			case 0:
+				key = @"signalDarkColor";
+				break;
+			case 1:
+				key = @"wifiDarkColor";
+				break;
+			case 2:
+				key = @"dataDarkColor";
+				break;
+			case 3:
+				key = @"batteryDarkColor";
+				break;
+			case 4:
+				key = @"chargingDarkColor";
+				break;
+		}
+	}
+
+	return CRGetColorFromCaseNumber(white, [CRSettings[@"wifiLightColor"] intValue]);
+}
+
+static BOOL CREnabledForClassname(NSString *className){
+	NSDictionary *settings = CRSettings;
+	BOOL signalEnabled = settings[@"signalEnabled"] == nil || [settings[@"signalEnabled"] boolValue];
+	BOOL wifiEnabled = settings[@"wifiEnabled"] != nil && [settings[@"wifiEnabled"] boolValue];
+	BOOL batteryEnabled = settings[@"batteryEnabled"] != nil && [settings[@"batteryEnabled"] boolValue];
+
+	return (CRSettings != nil) && (([className isEqualToString:@"UIStatusBarSignalStrengthItemView"] && signalEnabled) || ([className isEqualToString:@"UIStatusBarDataNetworkItemView"] && wifiEnabled) || ([className isEqualToString:@"UIStatusBarBatteryItemView"] && batteryEnabled));
 }
 
 /**************************** CRAVDelegate (used from LS) ****************************/
@@ -91,17 +218,17 @@ CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarSignalStrengthItemView
 
 -(_UILegibilityImageSet *)contentsImage{
-	CRNotificationListener *listener = [CRNotificationListener sharedListener];
-	BOOL shouldOverride = [listener enabledForClassname:@"UIStatusBarSignalStrengthItemView"];
-	[listener debugLog:[NSString stringWithFormat:@"Heard call to -contentsImage, looks like we %@ override.",shouldOverride?@"should":@"shouldn't"]];
+
+	BOOL shouldOverride = CREnabledForClassname(@"UIStatusBarSignalStrengthItemView");
+	CRLog([NSString stringWithFormat:@"Heard call to signalStrength -contentsImage, looks like we %@ override.",shouldOverride?@"should":@"shouldn't"]);
 
 	if(shouldOverride){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
 
-		UIImage *white = ALCRGetCircleForSignalStrength(bars, 5, listener.signalRadius, listener.signalWhiteColor);
-		UIImage *black = ALCRGetCircleForSignalStrength(bars, 5, listener.signalRadius, listener.signalBlackColor);
+		UIImage *white = ALCRGetCircleForSignalStrength(bars, 5, CRGetRadiusFromCircleNumber(0), CRGetColorFromCircleNumber(YES, 0));
+		UIImage *black = ALCRGetCircleForSignalStrength(bars, 5, CRGetRadiusFromCircleNumber(0), CRGetColorFromCircleNumber(NO, 0));
 
 		ALCRReleaseCircle(white);
 		ALCRReleaseCircle(black);
@@ -116,8 +243,11 @@ CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarDataNetworkItemView
 
 -(_UILegibilityImageSet *)contentsImage{
-	CRNotificationListener *listener = [CRNotificationListener sharedListener];
-	if([listener enabledForClassname:@"UIStatusBarDataNetworkItemView"]){
+
+	BOOL shouldOverride = CREnabledForClassname(@"UIStatusBarDataNetworkItemView");
+	CRLog([NSString stringWithFormat:@"Heard call to dataNetwork -contentsImage, looks like we %@ override.",shouldOverride?@"should":@"shouldn't"]);
+
+	if(shouldOverride){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
@@ -125,13 +255,13 @@ CRAlertViewDelegate *circletAVDelegate;
 		
 		UIImage *white, *black;
 		if(networkType == 5){
-			white = ALCRGetCircleForSignalStrength(wifiState, 3, listener.wifiRadius, listener.wifiWhiteColor);
-			black = ALCRGetCircleForSignalStrength(wifiState, 3, listener.wifiRadius, listener.wifiBlackColor);
+			white = ALCRGetCircleForSignalStrength(wifiState, 3, CRGetRadiusFromCircleNumber(1), CRGetColorFromCircleNumber(YES, 1));
+			black = ALCRGetCircleForSignalStrength(wifiState, 3, CRGetRadiusFromCircleNumber(1), CRGetColorFromCircleNumber(NO, 1));
 		}
 
 		else{
-			white = ALCRGetCircleForSignalStrength(3, 3, listener.wifiRadius, listener.dataWhiteColor);
-			black = ALCRGetCircleForSignalStrength(3, 3, listener.wifiRadius, listener.dataBlackColor);
+			white = ALCRGetCircleForSignalStrength(3, 3, CRGetRadiusFromCircleNumber(1), CRGetColorFromCircleNumber(YES, 2));
+			black = ALCRGetCircleForSignalStrength(3, 3, CRGetRadiusFromCircleNumber(1), CRGetColorFromCircleNumber(NO, 2));
 		}
 
 		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
@@ -149,14 +279,26 @@ CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarBatteryItemView
 
 -(_UILegibilityImageSet *)contentsImage{
-	CRNotificationListener *listener = [CRNotificationListener sharedListener];
-	if([listener enabledForClassname:@"UIStatusBarBatteryItemView"]){
+	
+	BOOL shouldOverride = CREnabledForClassname(@"UIStatusBarBatteryItemView");
+	CRLog([NSString stringWithFormat:@"Heard call to batteryItem -contentsImage, looks like we %@ override.",shouldOverride?@"should":@"shouldn't"]);
+
+	if(shouldOverride){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 		int level = MSHookIvar<int>(self, "_capacity");
+		int state = MSHookIvar<int>(self, "_state");
+
+		UIImage *white, *black;
+		if(state != 0){
+			white = ALCRGetCircleForSignalStrength(level, 100, CRGetRadiusFromCircleNumber(2), CRGetColorFromCircleNumber(YES, 4));
+			black = ALCRGetCircleForSignalStrength(level, 100, CRGetRadiusFromCircleNumber(2), CRGetColorFromCircleNumber(NO, 4));
+		}
 		
-		UIImage *white = ALCRGetCircleForSignalStrength(level, 100, listener.batteryRadius, listener.batteryWhiteColor);
-		UIImage *black = ALCRGetCircleForSignalStrength(level, 100, listener.batteryRadius, listener.batteryBlackColor);
+		else{
+			white = ALCRGetCircleForSignalStrength(level, 100, CRGetRadiusFromCircleNumber(2), CRGetColorFromCircleNumber(YES, 3));
+			black = ALCRGetCircleForSignalStrength(level, 100, CRGetRadiusFromCircleNumber(2), CRGetColorFromCircleNumber(NO, 3));
+		}
 			
 		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
 		
@@ -181,18 +323,18 @@ CRAlertViewDelegate *circletAVDelegate;
 -(CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2{
 	CGRect orig = %orig(arg1, arg2);
 
-	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarSignalStrengthItemView"])
-			return CGRectMake(orig.origin.x, orig.origin.y, [CRNotificationListener sharedListener].signalRadius * 2.0, orig.size.height);
+	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && CREnabledForClassname(@"UIStatusBarSignalStrengthItemView"))
+			return CGRectMake(orig.origin.x, orig.origin.y, CRGetRadiusFromCircleNumber(0) * 2.0, orig.size.height);
 
-	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarDataNetworkItemView"])
-		return CGRectMake(orig.origin.x + 1.0, orig.origin.y, [CRNotificationListener sharedListener].wifiRadius * 2.0, orig.size.height);
+	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && CREnabledForClassname(@"UIStatusBarDataNetworkItemView"))
+		return CGRectMake(orig.origin.x + 1.0, orig.origin.y, CRGetRadiusFromCircleNumber(1) * 2.0, orig.size.height);
 	
-	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarBatteryItemView"]){
+	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && CREnabledForClassname(@"UIStatusBarBatteryItemView")){
 		int state = MSHookIvar<int>(arg1, "_state");
 		if(state != 0)
 			[[[arg1 subviews] lastObject] setHidden:YES];
 
-		return CGRectMake(orig.origin.x, orig.origin.y, [CRNotificationListener sharedListener].batteryRadius * 2.0, orig.size.height);
+		return CGRectMake(orig.origin.x, orig.origin.y, CRGetRadiusFromCircleNumber(2) * 2.0, orig.size.height);
 	}
 
 	return orig;
@@ -211,8 +353,8 @@ CGFloat cg_dataPoint;
 	CGRect orig = %orig(arg1, arg2);
 
 	if([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]){
-		if([[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarSignalStrengthItemView"]){
-			CGFloat radius = [CRNotificationListener sharedListener].signalRadius;
+		if(CREnabledForClassname(@"UIStatusBarSignalStrengthItemView")){
+			CGFloat radius = CRGetRadiusFromCircleNumber(0);
 			cg_dataPoint = orig.origin.x + (radius * 2.0);
 			return CGRectMake(orig.origin.x - 4.0, orig.origin.y, radius * 2.0, orig.size.height);
 		}
@@ -223,17 +365,18 @@ CGFloat cg_dataPoint;
 	else if([arg1 isKindOfClass:%c(UIStatusBarServiceItemView)])
 		cg_dataPoint += orig.size.width;
 
-	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarDataNetworkItemView"]){
-		CGFloat radius = [CRNotificationListener sharedListener].wifiRadius;
+	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && CREnabledForClassname(@"UIStatusBarDataNetworkItemView")){
+		CGFloat radius = CRGetRadiusFromCircleNumber(1);
 		return CGRectMake(cg_dataPoint, orig.origin.y, radius * 2.0, orig.size.height);
 	}
 	
-	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && [[CRNotificationListener sharedListener] enabledForClassname:@"UIStatusBarBatteryItemView"]){
+	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && CREnabledForClassname(@"UIStatusBarBatteryItemView")){
 		int state = MSHookIvar<int>(arg1, "_state");
 		if(state != 0)
 			[[[arg1 subviews] lastObject] setHidden:YES];
 
-		return CGRectMake(orig.origin.x + 3.0, orig.origin.y, [CRNotificationListener sharedListener].batteryRadius * 2.0, orig.size.height);
+		CGFloat radius = CRGetRadiusFromCircleNumber(2);
+		return CGRectMake(orig.origin.x + 3.0, orig.origin.y, radius * 2.0, orig.size.height);
 	}
 
 	return orig;
