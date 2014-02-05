@@ -5,21 +5,21 @@
 #include <notify.h>
 
 #define URL_ENCODE(string) [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)(string), NULL, CFSTR(":/=,!$& '()*+;[]@#?"), kCFStringEncodingUTF8) autorelease]
+#define CRTINTCOLOR [UIColor blackColor]
 
 @interface CRListItemsController : PSListItemsController
 @end
 
 @implementation CRListItemsController
--(void)viewWillAppear:(BOOL)animated {
-	UIColor *tintColor = [UIColor blackColor];
-	self.view.tintColor = tintColor;
-    self.navigationController.navigationBar.tintColor = tintColor;
+-(void)viewWillAppear:(BOOL)animated{
+	//self.view.tintColor = CRTINTCOLOR;
+    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
 }
 
--(void)viewWillDisappear:(BOOL)animated {
+-(void)viewWillDisappear:(BOOL)animated{
 	[super viewWillDisappear:animated];
 
-	self.view.tintColor = nil;
+	//self.view.tintColor = nil;
 	self.navigationController.navigationBar.tintColor = nil;
 }
 @end
@@ -29,12 +29,30 @@
 
 @implementation CRPrefsListController
 
+-(void)viewDidLoad{
+	[super viewDidLoad];
+	[UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = CRTINTCOLOR;
+	[UISegmentedControl appearanceWhenContainedIn:self.class, nil].tintColor = CRTINTCOLOR;
+}
+
+
+-(void)loadView{
+	[super loadView];
+	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped:)];
+}
+
+-(NSArray *)specifiers{
+	if(!_specifiers)
+		_specifiers = [[self loadSpecifiersFromPlistName:@"CRPrefs" target:self] retain];
+
+	return _specifiers;
+}
+
 -(void)viewWillAppear:(BOOL)animated{
     [(UITableView *)self.view deselectRowAtIndexPath:((UITableView *)self.view).indexPathForSelectedRow animated:YES];
 
-	UIColor *tintColor = [UIColor blackColor];
-	self.view.tintColor = tintColor;
-    self.navigationController.navigationBar.tintColor = tintColor;
+	self.view.tintColor = CRTINTCOLOR;
+    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
 
 	NSDictionary *settings = [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]];
 	
@@ -62,18 +80,6 @@
 
 	self.view.tintColor = nil;
 	self.navigationController.navigationBar.tintColor = nil;
-}
-
--(void)loadView{
-	[super loadView];
-	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped:)];
-}
-
--(NSArray *)specifiers{
-	if(!_specifiers)
-		_specifiers = [[self loadSpecifiersFromPlistName:@"CRPrefs" target:self] retain];
-
-	return _specifiers;
 }
 
 -(void)shareTapped:(UIBarButtonItem *)sender{
@@ -112,7 +118,7 @@
 
 	else 
 		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://mobile.twitter.com/insanj"]];
-}//end twitter
+}
 
 -(void)mail{
 	NSURL *helpurl = [NSURL URLWithString:@"mailto:me%40insanj.com?subject=Circlet%20(1.0)%20Support"];
@@ -122,14 +128,14 @@
 		[composeViewController setToRecipients:@[@"me@insanj.com"]];
 		[composeViewController setSubject:@"Circlet (1.0) Support"];
 		[self presentViewController:composeViewController animated:YES completion:nil];
-	}//end if
+	}
 		
 	else if ([[UIApplication sharedApplication] canOpenURL:helpurl])
 		[[UIApplication sharedApplication] openURL:helpurl];
 		
 	else
 		[[[UIAlertView alloc] initWithTitle:@"Contact Developer" message:@"Shoot an email to me@insanj.com, or talk to me on twitter (@insanj) if you have any problems, requests, or ideas!" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"Dismiss", nil] show];
-}//end method
+}
 
 -(void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error{
     [self dismissViewControllerAnimated:YES completion:nil];
