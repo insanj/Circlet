@@ -4,23 +4,6 @@
 #import <MessageUI/MessageUI.h>
 #include <notify.h>
 
-@interface PSListItemsController : UIViewController
-@end
-@interface PSListController : UIViewController{
-	NSArray *_specifiers;
-}
-- (NSArray *)loadSpecifiersFromPlistName:(NSString *)name target:(id)target;
-- (id)specifierForID:(NSString *)id;
-- (void)setPreferenceValue:(id)value specifier:(id)specifier;
-- (void)reloadSpecifier:(id)specifier;
-
-@end
-@interface PSSpecifier : NSObject
-@end
-@interface PSTableCell : UITableViewCell
-- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier;
-@end
-
 #define URL_ENCODE(string) [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)(string), NULL, CFSTR(":/=,!$& '()*+;[]@#?"), kCFStringEncodingUTF8) autorelease]
 
 @interface CRListItemsController : PSListItemsController
@@ -110,8 +93,8 @@
 	}
 }
 
--(void)apply:(PSSpecifier *)specifier{
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPrefsChanged" object:nil];
+-(void)respring{
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPromptRespring" object:nil];
 }
 
 -(void)twitter{

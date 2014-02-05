@@ -331,3 +331,23 @@ struct _rawData{
 
 @interface NSDistributedNotificationCenter : NSNotificationCenter
 @end
+
+@interface PSListItemsController : UIViewController
+@end
+
+@interface PSListController : UIViewController{
+	NSArray *_specifiers;
+}
+
+-(NSArray *)loadSpecifiersFromPlistName:(NSString *)name target:(id)target;
+-(id)specifierForID:(NSString *)id;
+-(void)setPreferenceValue:(id)value specifier:(id)specifier;
+-(void)reloadSpecifier:(id)specifier;
+@end
+
+@interface PSSpecifier : NSObject
+@end
+
+@interface PSTableCell : UITableViewCell
+-(PSTableCell *)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier;
+@end

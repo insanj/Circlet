@@ -605,9 +605,9 @@
 		</dict>
 
 		<dict>
-			<key>cell</key>			<string>PSButtonCell</string>
-			<key>label</key>		<string>Apply and Respring Now</string>
-			<key>action</key>  		<string>apply:</string>
+			<key>cell</key>				<string>PSButtonCell</string>
+			<key>label</key>			<string>Apply and Respring Now</string>
+			<key>action</key> 			<string>respring</string>
 		</dict>
 
 		<dict>

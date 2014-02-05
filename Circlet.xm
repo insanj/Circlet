@@ -11,11 +11,16 @@
 #define DEGREES_TO_RADIANS(degrees) ((M_PI * degrees)/180.0f)
 #define CRSettings [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.switcherblur.plist"]]
 
+static void CRLog(NSString *string){
+	NSDictionary *settings = CRSettings;
+	if(settings[@"debugEnabled"] != nil && [settings[@"debugEnabled"] boolValue])
+		NSLog(@"[Circlet] \e[1;31m%@\e[m ", string);
+}
 
 /**************************** StatusBar Image Replacment ****************************/
 
 static UIImage * ALCRGetCircleForSignalStrength(CGFloat number, CGFloat max, CGFloat radius, UIColor *color){
-	NSLog(@"-------- number: %f, max: %f, div: %f", number, max, number/max);
+	CRLog([NSString stringWithFormat:@"Generating circle with strength %f for max %f (fill amount: %f), radius %f, and color %@.", number, max, number/max, radius, color]);
 	CGRect circle = CGRectMake(10.0 - radius, 10.0 - radius, radius * 2.0, radius * 2.0);
 
 	UIGraphicsBeginImageContextWithOptions(CGSizeMake(20.0, 20.0), NO, 2.0);
@@ -42,12 +47,6 @@ static void ALCRReleaseCircle(UIImage *circle){
 }
 
 /**************************** Preferences Usage ****************************/
-
-static void CRLog(NSString *string){
-	NSDictionary *settings = CRSettings;
-	if(settings[@"debugEnabled"] != nil && [settings[@"debugEnabled"] boolValue])
-		NSLog(@"[Circlet] \e[1;31m%@\e[m ", string);
-}
 
 static CGFloat CRGetRadiusFromCircleNumber(int circle){
 	NSDictionary *settings = CRSettings;
@@ -392,4 +391,9 @@ CGFloat cg_dataPoint;
 		%init(SpringBoard);
 	else
 		%init(NotSpringBoard);
+
+	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRPromptRespring" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+		CRLog(@"User prompted for respring, relaunching SpringBoard now...");
+		[(SpringBoard *)[%c(SpringBoard) sharedApplication] _relaunchSpringBoardNow];
+	}];
 }
