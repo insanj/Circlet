@@ -1,12 +1,11 @@
 #import "../CRHeaders.h"
-#import <UIKit/UIActivityViewController.h>
-#import <Twitter/Twitter.h>
+#import <libhbangcommon/HBRootListController.h>
 #import <MessageUI/MessageUI.h>
 #include <notify.h>
 
-#define URL_ENCODE(string) [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)(string), NULL, CFSTR(":/=,!$& '()*+;[]@#?"), kCFStringEncodingUTF8) autorelease]
 #define CRTINTCOLOR [UIColor blackColor]
 
+// TODO: add some hack for this in libhbangprefs
 @interface CRListItemsController : PSListItemsController
 @end
 
@@ -24,38 +23,39 @@
 }
 @end
 
-@interface CRPrefsListController : PSListController <MFMailComposeViewControllerDelegate>
+@interface CRPrefsListController : HBRootListController <MFMailComposeViewControllerDelegate>
 @end
 
 @implementation CRPrefsListController
 
--(void)viewDidLoad{
-	[super viewDidLoad];
-	[UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = CRTINTCOLOR;
-	[UISegmentedControl appearanceWhenContainedIn:self.class, nil].tintColor = CRTINTCOLOR;
++(UIColor *)hb_tintColor {
+	return CRTINTCOLOR;
 }
 
-
--(void)loadView{
-	[super loadView];
-	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped:)];
++(NSString *)hb_shareText {
+	return @"Life has never been simpler than with #Circlet by @insanj.";
 }
 
--(NSArray *)specifiers{
-	if(!_specifiers)
++(NSURL *)hb_shareURL {
+	return [NSURL URLWithString:@"http://insanj.com/circlet"];
+}
+
+-(instancetype)init {
+	self = [super init];
+
+	if (self) {
 		_specifiers = [[self loadSpecifiersFromPlistName:@"CRPrefs" target:self] retain];
+	}
 
-	return _specifiers;
+	return self;
 }
 
 -(void)viewWillAppear:(BOOL)animated{
-    [(UITableView *)self.view deselectRowAtIndexPath:((UITableView *)self.view).indexPathForSelectedRow animated:YES];
+	[super viewWillAppear:animated];
 
-	self.view.tintColor = CRTINTCOLOR;
-    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
-
+	// TODO: find out why this is here?
 	NSDictionary *settings = [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]];
-	
+
 	if(![settings objectForKey:@"signalSize"]){
 		PSSpecifier *signalSizeSpecifier = [self specifierForID:@"SignalSize"];
 		[self setPreferenceValue:@(5.0) specifier:signalSizeSpecifier];
@@ -75,30 +75,6 @@
 	}
 }
 
--(void)viewWillDisappear:(BOOL)animated {
-	[super viewWillDisappear:animated];
-
-	self.view.tintColor = nil;
-	self.navigationController.navigationBar.tintColor = nil;
-}
-
--(void)shareTapped:(UIBarButtonItem *)sender{
-	NSString *text = @"Life has never been simpler than with #Circlet by @insanj.";
-	NSURL *url = [NSURL URLWithString:@"http://insanj.com/circlet"];
-
-	if(%c(UIActivityViewController)){
-		UIActivityViewController *viewController = [[[%c(UIActivityViewController) alloc] initWithActivityItems:[NSArray arrayWithObjects:text, url, nil] applicationActivities:nil] autorelease];
-		[self.navigationController presentViewController:viewController animated:YES completion:NULL];
-	} else if (%c(TWTweetComposeViewController) && [TWTweetComposeViewController canSendTweet]) {
-		TWTweetComposeViewController *viewController = [[[TWTweetComposeViewController alloc] init] autorelease];
-		viewController.initialText = text;
-		[viewController addURL:url];
-		[self.navigationController presentViewController:viewController animated:YES completion:NULL];
-	} else {
-		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://twitter.com/intent/tweet?text=%@%%20%@", URL_ENCODE(text), URL_ENCODE(url.absoluteString)]]];
-	}
-}
-
 -(void)respring{
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPromptRespring" object:nil];
 }
@@ -107,16 +83,16 @@
 	if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetbot:"]])
 		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tweetbot:///user_profile/insanj"]];
 
-	else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitterrific:"]]) 
+	else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitterrific:"]])
 		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"twitterrific:///profile?screen_name=insanj"]];
 
-	else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetings:"]]) 
+	else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetings:"]])
 		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tweetings:///user?screen_name=insanj"]];
 
-	else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitter:"]]) 
+	else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitter:"]])
 		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"twitter://user?screen_name=insanj"]];
 
-	else 
+	else
 		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://mobile.twitter.com/insanj"]];
 }
 
@@ -129,10 +105,10 @@
 		[composeViewController setSubject:@"Circlet (1.0) Support"];
 		[self presentViewController:composeViewController animated:YES completion:nil];
 	}
-		
+
 	else if ([[UIApplication sharedApplication] canOpenURL:helpurl])
 		[[UIApplication sharedApplication] openURL:helpurl];
-		
+
 	else
 		[[[UIAlertView alloc] initWithTitle:@"Contact Developer" message:@"Shoot an email to me@insanj.com, or talk to me on twitter (@insanj) if you have any problems, requests, or ideas!" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"Dismiss", nil] show];
 }
@@ -148,7 +124,7 @@
 
 @implementation CRCreditsCell
 
--(id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier {
+-(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier {
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier specifier:specifier];
 
 	if(self){

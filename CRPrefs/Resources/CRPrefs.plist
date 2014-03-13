@@ -19,7 +19,7 @@
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
 		</dict>
-		
+
 		<dict>
 			<key>cell</key>  		<string>PSSegmentCell</string>
 			<key>defaults</key> 	<string>com.insanj.circlet</string>
@@ -151,7 +151,7 @@
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
 		</dict>
-		
+
 		<dict>
 			<key>cell</key>  		<string>PSSegmentCell</string>
 			<key>defaults</key> 	<string>com.insanj.circlet</string>
@@ -383,7 +383,7 @@
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
 		</dict>
-		
+
 		<dict>
 			<key>cell</key>  		<string>PSSegmentCell</string>
 			<key>defaults</key> 	<string>com.insanj.circlet</string>
@@ -606,6 +606,7 @@
 
 		<dict>
 			<key>cell</key>				<string>PSButtonCell</string>
+            <key>cellClass</key>    <string>HBTintedTableCell</string>
 			<key>label</key>			<string>Apply and Respring Now</string>
 			<key>action</key> 			<string>respring</string>
 		</dict>
@@ -628,6 +629,7 @@
 
 		<dict>
 			<key>cell</key> 		<string>PSButtonCell</string>
+            <key>cellClass</key>    <string>HBTintedTableCell</string>
 			<key>label</key> 		<string>Support &amp; Feedback</string>
 			<key>icon</key> 		<string>mail.png</string>
 			<key>action</key> 		<string>mail</string>
@@ -635,6 +637,7 @@
 
 		<dict>
 			<key>cell</key>			<string>PSButtonCell</string>
+            <key>cellClass</key>    <string>HBTintedTableCell</string>
 			<key>label</key>		<string>@insanj</string>
 			<key>icon</key> 		<string>twitter.png</string>
 			<key>action</key>  		<string>twitter</string>
