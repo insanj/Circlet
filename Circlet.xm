@@ -9,7 +9,7 @@
 #import "CRHeaders.h"
 
 #define DEGREES_TO_RADIANS(degrees) ((M_PI * degrees)/180.0f)
-#define CRSettings [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.switcherblur.plist"]]
+#define CRSettings [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]]
 
 static void CRLog(NSString *string){
 	NSDictionary *settings = CRSettings;
