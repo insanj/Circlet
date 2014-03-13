@@ -404,17 +404,20 @@ CGFloat cg_dataPoint;
 %ctor {
 	%init(Shared);
 
-	if ([[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"])
+	if ([[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"]) {
 		%init(SpringBoard);
-	else
+
+		[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRPromptRespring" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+			CRLog(@"Popping alertView to check for respring confirmation now...");
+			circletAVDelegate = [[CRAlertViewDelegate alloc] init];
+
+			UIAlertView *respringPrompt = [[UIAlertView alloc] initWithTitle:@"Warning" message:@"Applying Circlet's settings will respring your device, are you sure you want to do so now?" delegate:circletAVDelegate cancelButtonTitle:@"No" otherButtonTitles:@"Yes", nil];
+			[respringPrompt show];
+			[respringPrompt release];
+		}];
+	}
+
+	else {
 		%init(NotSpringBoard);
-
-	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRPromptRespring" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-		CRLog(@"Popping alertView to check for respring confirmation now...");
-		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
-
-		UIAlertView *respringPrompt = [[UIAlertView alloc] initWithTitle:@"Warning" message:@"Applying Circlet's settings will respring your device, are you sure you want to do so now?" delegate:circletAVDelegate cancelButtonTitle:@"No" otherButtonTitles:@"Yes", nil];
-		[respringPrompt show];
-		[respringPrompt release];
-	}];
+	}
 }
