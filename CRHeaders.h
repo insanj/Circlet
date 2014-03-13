@@ -24,33 +24,33 @@
 @end
 
 struct _rawData{
-	BOOL itemIsEnabled[25]; 
-	BOOL timeString[64]; 
-	int gsmSignalStrengthRaw; 
-	int gsmSignalStrengthBars; 
-	BOOL serviceString[100]; 
-	BOOL serviceCrossfadeString[100]; 
-	BOOL serviceImages[2][100]; 
-	BOOL operatorDirectory[1024]; 
-	unsigned int serviceContentType; 
-	int wifiSignalStrengthRaw; 
-	int wifiSignalStrengthBars; 
-	unsigned int dataNetworkType; 
-	int batteryCapacity; 
-	unsigned int batteryState; 
-	BOOL batteryDetailString[150]; 
-	int bluetoothBatteryCapacity; 
-	int thermalColor; 
-	unsigned int thermalSunlightMode : 1; 
-	unsigned int slowActivity : 1; 
-	unsigned int syncActivity : 1; 
-	BOOL activityDisplayId[256]; 
-	unsigned int bluetoothConnected : 1; 
-	unsigned int displayRawGSMSignal : 1; 
-	unsigned int displayRawWifiSignal : 1; 
-	unsigned int locationIconType : 1; 
-	unsigned int quietModeInactive : 1; 
-	unsigned int tetheringConnectionCount; 
+	BOOL itemIsEnabled[25];
+	BOOL timeString[64];
+	int gsmSignalStrengthRaw;
+	int gsmSignalStrengthBars;
+	BOOL serviceString[100];
+	BOOL serviceCrossfadeString[100];
+	BOOL serviceImages[2][100];
+	BOOL operatorDirectory[1024];
+	unsigned int serviceContentType;
+	int wifiSignalStrengthRaw;
+	int wifiSignalStrengthBars;
+	unsigned int dataNetworkType;
+	int batteryCapacity;
+	unsigned int batteryState;
+	BOOL batteryDetailString[150];
+	int bluetoothBatteryCapacity;
+	int thermalColor;
+	unsigned int thermalSunlightMode : 1;
+	unsigned int slowActivity : 1;
+	unsigned int syncActivity : 1;
+	BOOL activityDisplayId[256];
+	unsigned int bluetoothConnected : 1;
+	unsigned int displayRawGSMSignal : 1;
+	unsigned int displayRawWifiSignal : 1;
+	unsigned int locationIconType : 1;
+	unsigned int quietModeInactive : 1;
+	unsigned int tetheringConnectionCount;
 };
 
 @interface UIStatusBarComposedData : NSObject
@@ -335,19 +335,6 @@ struct _rawData{
 @interface PSListItemsController : UIViewController
 @end
 
-@interface PSListController : UIViewController{
-	NSArray *_specifiers;
-}
-
--(NSArray *)loadSpecifiersFromPlistName:(NSString *)name target:(id)target;
--(id)specifierForID:(NSString *)id;
--(void)setPreferenceValue:(id)value specifier:(id)specifier;
--(void)reloadSpecifier:(id)specifier;
-@end
-
-@interface PSSpecifier : NSObject
-@end
-
 @interface PSTableCell : UITableViewCell
--(PSTableCell *)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier;
+-(PSTableCell *)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(id)specifier;
 @end
