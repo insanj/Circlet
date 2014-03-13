@@ -30,7 +30,7 @@ static UIImage * ALCRGetCircleForSignalStrength(CGFloat number, CGFloat max, CGF
 	CGContextSetFillColorWithColor(context, color.CGColor);
 	CGContextSetStrokeColorWithColor(context, color.CGColor);
 	CGContextStrokeEllipseInRect(context, circle);
-	
+
 	if(number == max)
 		CGContextFillEllipseInRect(context, circle);
 	else
@@ -174,8 +174,17 @@ static BOOL CREnabledForClassname(NSString *className){
 
 @implementation CRAlertViewDelegate
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-	if(buttonIndex)
-		[(SpringBoard *)[UIApplication sharedApplication] applicationOpenURL:[NSURL URLWithString:@"prefs:root=Circlet"] publicURLsOnly:NO];
+	if(buttonIndex != 1)
+		return;
+
+	NSURL *url;
+
+	if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer2.dylib"])
+		url = [NSURL URLWithString:@"prefs:root=Cydia&path=Circlet"];
+	else
+		url = [NSURL URLWithString:@"prefs:root=Circlet"];
+
+	[[UIApplication sharedApplication] openURL:url];
 }
 @end
 
@@ -204,7 +213,7 @@ CRAlertViewDelegate *circletAVDelegate;
 
 	if(kCRUnlocked && ![[NSUserDefaults standardUserDefaults] boolForKey:@"CRDidRun"]){
 		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"CRDidRun"];
-		
+
 		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
 		[alert show];
@@ -224,7 +233,7 @@ CRAlertViewDelegate *circletAVDelegate;
 	if(shouldOverride){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		
+
 		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
 		CGFloat radius = CRGetRadiusFromCircleNumber(0);
 
@@ -251,7 +260,7 @@ CRAlertViewDelegate *circletAVDelegate;
 	if(shouldOverride){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		
+
 		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
 		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
 		CGFloat radius = CRGetRadiusFromCircleNumber(1);
@@ -282,14 +291,14 @@ CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarBatteryItemView
 
 -(_UILegibilityImageSet *)contentsImage{
-	
+
 	BOOL shouldOverride = CREnabledForClassname(@"UIStatusBarBatteryItemView");
 	CRLog([NSString stringWithFormat:@"Heard call to batteryItem -contentsImage, looks like we %@ override.",shouldOverride?@"should":@"shouldn't"]);
 
 	if(shouldOverride){
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		
+
 		int level = MSHookIvar<int>(self, "_capacity");
 		int state = MSHookIvar<int>(self, "_state");
 		CGFloat radius = CRGetRadiusFromCircleNumber(2);
@@ -299,14 +308,14 @@ CRAlertViewDelegate *circletAVDelegate;
 			white = ALCRGetCircleForSignalStrength(level, 100, radius, CRGetColorFromCircleNumber(YES, 4));
 			black = ALCRGetCircleForSignalStrength(level, 100, radius, CRGetColorFromCircleNumber(NO, 4));
 		}
-		
+
 		else{
 			white = ALCRGetCircleForSignalStrength(level, 100, radius, CRGetColorFromCircleNumber(YES, 3));
 			black = ALCRGetCircleForSignalStrength(level, 100, radius, CRGetColorFromCircleNumber(NO, 3));
 		}
-			
+
 		_UILegibilityImageSet *ret = (w > 0.5)?[%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
-		
+
 		ALCRReleaseCircle(white);
 		ALCRReleaseCircle(black);
 		return ret;
@@ -333,7 +342,7 @@ CRAlertViewDelegate *circletAVDelegate;
 
 	else if([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && CREnabledForClassname(@"UIStatusBarDataNetworkItemView"))
 		return CGRectMake(orig.origin.x + 1.0, orig.origin.y, CRGetRadiusFromCircleNumber(1) * 2.0, orig.size.height);
-	
+
 	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && CREnabledForClassname(@"UIStatusBarBatteryItemView")){
 		int state = MSHookIvar<int>(arg1, "_state");
 		if(state != 0)
@@ -374,7 +383,7 @@ CGFloat cg_dataPoint;
 		CGFloat radius = CRGetRadiusFromCircleNumber(1);
 		return CGRectMake(cg_dataPoint, orig.origin.y, radius * 2.0, orig.size.height);
 	}
-	
+
 	else if([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && CREnabledForClassname(@"UIStatusBarBatteryItemView")){
 		int state = MSHookIvar<int>(arg1, "_state");
 		if(state != 0)
