@@ -23,13 +23,13 @@
 	CGFloat pending = given * 2.0;
 	CCBorderWidth = 1.0;
 	CCReactiveBorderWidth = CCBorderWidth/2.0;
-	
+
 	if((self = [super initWithFrame:CGRectMake(0.0, 0.0, pending, pending)])){
 		self.layer.cornerRadius = given;
 		radius = given;
 		diameter = pending;
 		state = -1;
-		
+
 		self.backgroundColor = [UIColor clearColor];
 		fake = [[UIButton alloc] initWithFrame:CGRectMake(0.0, 0.0, diameter, diameter)];
 		[fake setBackgroundColor:[UIColor clearColor]];
@@ -38,29 +38,29 @@
 		fake.layer.cornerRadius = given;
 		fake.layer.masksToBounds = NO;
 		[self addSubview:fake];
-		
+
 		holder = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, diameter, diameter)];
 		holder.center = fake.center;
 		holder.backgroundColor = [UIColor clearColor];
 		holder.clipsToBounds = YES;
 		holder.layer.cornerRadius = given;
 		[self insertSubview:holder belowSubview:fake];
-		
+
 		inside = [[UIView alloc] initWithFrame:holder.frame];
 		inside.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0];
 		inside.clipsToBounds = YES;
 		[holder addSubview:inside];
-		
+
 		__unsafe_unretained CRView *weakSelf = self;
 		levelHandler = ^void(CMAccelerometerData *accelerometerData, NSError *error){
 			CGFloat x = accelerometerData.acceleration.x;
 			weakSelf.holder.transform = CGAffineTransformIdentity;
 			weakSelf.holder.transform = CGAffineTransformMakeRotation(-x * 0.5);
 		};
-		
+
 		shouldUpdateManager = NO;
 	}
-	
+
 	return self;
 }
 
@@ -103,12 +103,12 @@
 
 	if(shouldUpdateManager && given)
 		return;
-	
+
 	if(shouldUpdateManager && !given){
 		shouldUpdateManager = NO;
 		[self resetLevel];
 	}
-	
+
 	else{
 		shouldUpdateManager = YES;
 		[manager startAccelerometerUpdatesToQueue:[NSOperationQueue mainQueue] withHandler:levelHandler];
@@ -150,7 +150,7 @@
 	UIBezierPath *path = [UIBezierPath bezierPath];
 	[path moveToPoint:CGPointMake(0.0, 0.0)];
 	[path addLineToPoint:CGPointMake(diameter, diameter)];
-	
+
 	line = [CAShapeLayer layer];
 	line.path = [path CGPath];
 	line.strokeColor = fake.layer.borderColor;
@@ -166,11 +166,11 @@
 
 -(void)setInsideHeight:(CGFloat)height{
 	[manager stopAccelerometerUpdates];
-	
+
 	CGRect insideFrame = holder.frame;
 	insideFrame.size.height = height;
 	insideFrame.origin.y = (diameter - height);
-	
+
 	[UIView animateWithDuration:0.1 animations:^{
 		[inside setFrame:insideFrame];
 	} completion:^(BOOL finished){
@@ -180,7 +180,7 @@
 
 -(void)resetLevel{
 	[manager stopAccelerometerUpdates];
-	
+
 	holder.transform = CGAffineTransformIdentity;
 	holder.transform = CGAffineTransformMakeRotation(0.0);
 }

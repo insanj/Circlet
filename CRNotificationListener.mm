@@ -35,7 +35,7 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 
 - (void)respring{
 	[self debugLog:@"User prompted for respring, relaunching SpringBoard now..."];
-	[(SpringBoard *)[%c(SpringBoard) sharedApplication] _relaunchSpringBoardNow];
+	[(SpringBoard *)[UIApplication sharedApplication] _relaunchSpringBoardNow];
 }
 
 - (BOOL)reloadPrefs{
@@ -49,7 +49,7 @@ static NSArray *colors = @[UIColorFromRGB(0x7FDBFF),   UIColorFromRGB(0x111111),
 
 	_signalWhiteColor = [self colorWithCaseNumber:[_settings[@"signalLightColor"] intValue] andDefault:16];
 	_signalBlackColor = [self colorWithCaseNumber:[_settings[@"signalDarkColor"] intValue] andDefault:1];
-	
+
 	// Data/Wifi
 	_wifiEnabled = _settings[@"wifiEnabled"] != nil && [_settings[@"wifiEnabled"] boolValue];
 	_wifiRadius = (_settings[@"wifiSize"] == nil)?5.0:[_settings[@"wifiSize"] floatValue];
