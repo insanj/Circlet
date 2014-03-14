@@ -324,17 +324,9 @@ struct _rawData{
 -(id)hitTest:(CGRect)arg1 withEvent:(id)arg2;
 @end
 
-
 @interface UIStatusBarStyleAttributes : NSObject
 -(int)style;
 @end
 
 @interface NSDistributedNotificationCenter : NSNotificationCenter
-@end
-
-@interface PSListItemsController : UIViewController
-@end
-
-@interface PSTableCell : UITableViewCell
--(PSTableCell *)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(id)specifier;
 @end

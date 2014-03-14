@@ -1,5 +1,8 @@
 #include "../CRHeaders.h"
 #include <libhbangcommon/prefs/HBRootListController.h>
+#include <Preferences/PSListItemsController.h>
+#include <Preferences/PSListController.h>
+#include <Preferences/PSTableCell.h>
 #import <MessageUI/MessageUI.h>
 #include <notify.h>
 
@@ -18,6 +21,45 @@
 - (void)viewWillDisappear:(BOOL)animated {
 	[super viewWillDisappear:animated];
 	self.navigationController.navigationBar.tintColor = nil;
+}
+
+- (id)tableView:(id)arg1 cellForRowAtIndexPath:(id)arg2{
+	PSTableCell *cell = [super tableView:arg1 cellForRowAtIndexPath:arg2];
+
+	NSDictionary *labelToColor =  @{@"Aqua"			  : UIColorFromRGB(0x7FDBFF),
+									@"Black"   		  : UIColorFromRGB(0x111111),
+									@"Black (Default)"   : UIColorFromRGB(0x111111),
+									@"Blue"		  	: UIColorFromRGB(0x0074D9),
+									@"Clear"   		  : [UIColor clearColor],
+									@"Fuchsia" 		  : UIColorFromRGB(0xF012BE),
+									@"Grey"			  : UIColorFromRGB(0xAAAAAA),
+									@"Green"   		  : UIColorFromRGB(0x2ECC40),
+									@"Lime"			  : UIColorFromRGB(0x01FF70),
+									@"Maroon"  		  : UIColorFromRGB(0x85144B),
+									@"Navy"			  : UIColorFromRGB(0x001F3F),
+									@"Olive"   		  : UIColorFromRGB(0x3D9970),
+									@"Orange" 		   : UIColorFromRGB(0xFF851B),
+									@"Purple"  	  	: UIColorFromRGB(0xB10DC9),
+									@"Red"			   : UIColorFromRGB(0xFF4136),
+									@"Silver" 		   : UIColorFromRGB(0xDDDDDD),
+									@"Teal"		  	: UIColorFromRGB(0x39CCCC),
+									@"White (Default)"   : UIColorFromRGB(0xFFFFFF),
+									@"Yellow" 		   : UIColorFromRGB(0xFFDC00) };
+
+	UIView *colorThumb = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 20.0, 20.0)];
+	colorThumb.backgroundColor = [labelToColor objectForKey:[[cell titleLabel] text]];
+	colorThumb.layer.masksToBounds = YES;
+	colorThumb.layer.cornerRadius = 10.0;
+	colorThumb.layer.borderColor = [UIColor lightGrayColor].CGColor;
+	colorThumb.layer.borderWidth = 1.0;
+
+	UIGraphicsBeginImageContextWithOptions(colorThumb.bounds.size, NO, 0.0);
+	[colorThumb.layer renderInContext:UIGraphicsGetCurrentContext()];
+	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+
+	[cell.imageView setImage:image];
+	return cell;
 }
 
 @end
