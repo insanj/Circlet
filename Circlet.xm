@@ -180,8 +180,13 @@ static BOOL CREnabledForClassname(NSString *className) {
 		}
 
 		else {
-			NSURL *url = [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer2.dylib"] ? [NSURL URLWithString:@"prefs:root=Cydia&path=Circlet"] : [NSURL URLWithString:@"prefs:root=Circlet"];
-			[[UIApplication sharedApplication] openURL:url];
+			if([[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer.dylib"] || [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer2.dylib"]) {
+				[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Cydia&path=Circlet"];
+			}
+
+			else {
+				[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Circlet"];
+			}
 		}
 	}
 }
@@ -216,7 +221,7 @@ static BOOL kCRUnlocked;
 		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"CRDidRun"];
 
 		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for two dollars, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
 		[alert show];
 		[alert release];
 	}
