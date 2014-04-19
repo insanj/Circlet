@@ -196,39 +196,6 @@ static BOOL CREnabledForClassname(NSString *className) {
 
 %group Shared
 
-static CRAlertViewDelegate *circletAVDelegate;
-static BOOL kCRUnlocked;
-
-%hook SBUIController
-
-- (void)_deviceLockStateChanged:(NSNotification *)changed {
-	%orig();
-
-	NSNumber *state = changed.userInfo[@"kSBNotificationKeyState"];
-	if (!state.boolValue) {
-		kCRUnlocked = YES;
-	}
-}
-
-%end
-
-%hook SBUIAnimationController
-
-- (void)endAnimation {
-	%orig();
-
-	if (kCRUnlocked && ![[NSUserDefaults standardUserDefaults] boolForKey:@"CRDidRun"]) {
-		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"CRDidRun"];
-
-		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for two dollars, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
-		[alert show];
-		[alert release];
-	}
-}
-
-%end
-
 %hook UIStatusBarSignalStrengthItemView
 
 - (_UILegibilityImageSet *)contentsImage {
@@ -337,6 +304,39 @@ static BOOL kCRUnlocked;
 /**************************** Foreground Layout  ****************************/
 
 %group SpringBoard
+
+static CRAlertViewDelegate *circletAVDelegate;
+static BOOL kCRUnlocked;
+
+%hook SBUIController
+
+- (void)_deviceLockStateChanged:(NSNotification *)changed {
+	%orig();
+
+	NSNumber *state = changed.userInfo[@"kSBNotificationKeyState"];
+	if (!state.boolValue) {
+		kCRUnlocked = YES;
+	}
+}
+
+%end
+
+%hook SBUIAnimationController
+
+- (void)endAnimation {
+	%orig();
+
+	if (kCRUnlocked && ![[NSUserDefaults standardUserDefaults] boolForKey:@"CRDidRun"]) {
+		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"CRDidRun"];
+
+		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for two dollars, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
+		[alert show];
+		[alert release];
+	}
+}
+
+%end
 
 %hook UIStatusBarLayoutManager
 
