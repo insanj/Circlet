@@ -13,12 +13,6 @@
 #define CRVALUE(key) [[NSDictionary dictionaryWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"] objectForKey:key]
 #define CRDEFAULTRADIUS 5.0
 
-#ifdef DEBUG
-	#define CRLOG(fmt, ...) NSLog((@"[Circlet] %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
-#else
-	#define CRLOG(fmt, ...) 
-#endif
-
 typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionSignal = 0,
     CircletPositionWifi, // == 1
@@ -331,6 +325,9 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 %group SpringBoard
 
+// TODO: find a way to properly mem-manage the delegate. Using -autorelease won't work
+// properly, there's no way to release from inside of itsef, and UIAlertView+Blocks
+// seems excessive.
 static CRAlertViewDelegate *circletAVDelegate;
 static BOOL kCRUnlocked;
 
@@ -355,7 +352,7 @@ static BOOL kCRUnlocked;
 	if (kCRUnlocked && ![[NSUserDefaults standardUserDefaults] boolForKey:@"CRDidRun"]) {
 		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"CRDidRun"];
 
-		circletAVDelegate = [[[CRAlertViewDelegate alloc] init] autorelease];
+		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
 		[alert show];
 		[alert release];
@@ -364,6 +361,8 @@ static BOOL kCRUnlocked;
 
 %end
 
+// TODO: Fix stupid issue where everything is shifted to right (probably my fault)
+// and just intelligently frame based on (maybe) original / 5.0 (or similar).
 %hook UIStatusBarLayoutManager
 
 - (CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2 {
@@ -448,7 +447,7 @@ static CGFloat cg_dataPoint;
 
 		[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRPromptRespring" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
 			CRLOG(@"Popping alertView to check for respring confirmation now...");
-			circletAVDelegate = [[[CRAlertViewDelegate alloc] init] autorelease];
+			circletAVDelegate = [[CRAlertViewDelegate alloc] init];
 
 			UIAlertView *respringPrompt = [[UIAlertView alloc] initWithTitle:@"Warning" message:@"Applying Circlet's settings will respring your device, are you sure you would like to do so now?" delegate:circletAVDelegate cancelButtonTitle:@"No" otherButtonTitles:@"Yes", nil];
 			[respringPrompt show];

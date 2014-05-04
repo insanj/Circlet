@@ -26,6 +26,9 @@
 	CGPoint center = CGPointMake(bounds.size.width / 2.0, bounds.size.height / 2.0);
 	CGColorRef colorRef = color.CGColor; // Light color
 	
+	// TODO: Fix issue where pretty much all generations can fail to display the proper information
+	CRLOG(@"color:%@, radius:%f, percentage:%f, style:%i. thickness:%f, bounds:%@, center:%@", color, radius, percentage, style, thickness, NSStringFromCGRect(bounds), NSStringFromCGPoint(center));
+
 	UIGraphicsBeginImageContextWithOptions(bounds.size, NO, [UIScreen mainScreen].scale);
 	CGContextRef context = UIGraphicsGetCurrentContext();
 	
