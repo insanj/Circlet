@@ -27,7 +27,7 @@
 -(void)applicationOpenURL:(id)url withApplication:(id)application sender:(id)sender publicURLsOnly:(BOOL)only animating:(BOOL)animating needsPermission:(BOOL)permission additionalActivationFlags:(id)flags activationHandler:(id)handler;
 @end
 
-struct _rawData{
+struct _rawData {
 	BOOL itemIsEnabled[25];
 	BOOL timeString[64];
 	int gsmSignalStrengthRaw;
@@ -58,7 +58,7 @@ struct _rawData{
 };
 
 @interface UIStatusBarComposedData : NSObject
--(_rawData *)rawData;
+-(void *)rawData; //Fuck da police, ily casting
 @end
 
 

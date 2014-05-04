@@ -29,6 +29,7 @@
             <key>id</key>           <string>SignalStyle</string>
             <key>key</key>          <string>signalStyle</string>
             <key>label</key>        <string>Style</string>
+            <key>cellClass</key>        <string>CRSegmentTableCell</string>
             <key>validTitles</key> <array>
                 <string>Radial</string>
                 <string>Fill</string>
@@ -61,6 +62,7 @@
             <key>id</key>           <string>SignalSize</string>
             <key>key</key>          <string>signalSize</string>
             <key>label</key>        <string>Size</string>
+            <key>cellClass</key>        <string>CRSegmentTableCell</string>
             <key>validTitles</key> <array>
                 <string>Small</string>
                 <string>Medium</string>
@@ -199,6 +201,7 @@
             <key>id</key>           <string>WifiStyle</string>
             <key>key</key>          <string>wifiStyle</string>
             <key>label</key>        <string>Style</string>
+            <key>cellClass</key>        <string>CRSegmentTableCell</string>
             <key>validTitles</key> <array>
                 <string>Radial</string>
                 <string>Fill</string>
@@ -231,6 +234,7 @@
 			<key>id</key> 		   <string>WifiSize</string>
 			<key>key</key> 		  <string>wifiSize</string>
 			<key>label</key> 		<string>Size</string>
+            <key>cellClass</key>        <string>CRSegmentTableCell</string>
 			<key>validTitles</key> <array>
 				<string>Small</string>
 				<string>Medium</string>
@@ -467,6 +471,7 @@
             <key>id</key>           <string>BatteryStyle</string>
             <key>key</key>          <string>batteryStyle</string>
             <key>label</key>        <string>Style</string>
+            <key>cellClass</key>        <string>CRSegmentTableCell</string>
             <key>validTitles</key> <array>
                 <string>Radial</string>
                 <string>Fill</string>
@@ -499,6 +504,7 @@
 			<key>id</key> 		 	<string>BatterySize</string>
 			<key>key</key> 			<string>batterySize</string>
 			<key>label</key> 		  <string>Size</string>
+            <key>cellClass</key>        <string>CRSegmentTableCell</string>
 			<key>validTitles</key> <array>
 				<string>Small</string>
 				<string>Medium</string>

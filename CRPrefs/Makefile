@@ -7,7 +7,7 @@ BUNDLE_NAME = CRPrefs
 CRPrefs_FILES = CRPrefs.xm
 CRPrefs_INSTALL_PATH = /Library/PreferenceBundles
 CRPrefs_FRAMEWORKS = UIKit MessageUI Twitter
-CRPrefs_PRIVATE_FRAMEWORKS = Preferences
+CRPrefs_PRIVATE_FRAMEWORKS = Preferences CoreGraphics
 
 include $(THEOS_MAKE_PATH)/bundle.mk
 
