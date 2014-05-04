@@ -257,29 +257,42 @@
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier specifier:specifier];
 
 	if (self) {
-		// self.textView.userInteractionEnabled = YES;
-		self.textView.frame = self.frame;
-		[self.textView setScrollingEnabled:NO];
-		[self.textView setEditable:NO];
+		_plainTextView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.frame.size.width, 104.0)];
+		self.clipsToBounds = _plainTextView.clipsToBounds = NO;
+		_plainTextView.backgroundColor = [UIColor clearColor];
+		_plainTextView.userInteractionEnabled = YES;
+		_plainTextView.scrollEnabled = NO;
+		_plainTextView.editable = NO;
+		_plainTextView.delegate = self;
+	
+		NSMutableAttributedString *clickable = [[NSMutableAttributedString alloc] initWithString:@"Circlet (1.0) was created by Julian Weiss with lots of help from Benno (@bensge) and the entire Hashbang Crew. Inspired primarily by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects') development, make sure to follow me on Twitter. Enjoy!" attributes:@{ NSFontAttributeName : [UIFont systemFontOfSize:[UIFont smallSystemFontSize]]}];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://insanj.com/"]} range:[clickable.string rangeOfString:@"Julian Weiss"]];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://bensge.com/"]} range:[clickable.string rangeOfString:@"Benno"]];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://hbang.ws/"]} range:[clickable.string rangeOfString:@"Hashbang Crew"]];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://reddit.com/r/jailbreak"]} range:[clickable.string rangeOfString:@"/r/jailbreak"]];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://twitter.com/insanj"]} range:[clickable.string rangeOfString:@"on Twitter"]];
+	
+		_plainTextView.dataDetectorTypes = UIDataDetectorTypeLink;
+		_plainTextView.linkTextAttributes = @{ NSForegroundColorAttributeName : [UIColor colorWithRed:68/255.0 green:132/255.0 blue:231/255.0 alpha:1.0] };
+		_plainTextView.attributedText = clickable;
+		[clickable release];
 
-    	NSMutableAttributedString *clickable = [[[NSMutableAttributedString alloc] initWithString:@"Circlet (1.0) was created by Julian Weiss with lots of help from Benno (@bensge) and the entire Hashbang Crew. Inspired primarily by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects') development, make sure to follow me on Twitter. Enjoy!" attributes:@{ NSFontAttributeName : [UIFont systemFontOfSize:[UIFont smallSystemFontSize]]}] autorelease];
-		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://insanj.com/"], NSUnderlineStyleAttributeName : @(NSUnderlineStyleNone) } range:[clickable.string rangeOfString:@"Julian Weiss"]];
-		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://bensge.com/"], NSUnderlineStyleAttributeName : @(NSUnderlineStyleNone)} range:[clickable.string rangeOfString:@"Benno"]];
-		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://hbang.ws/"], NSUnderlineStyleAttributeName : @(NSUnderlineStyleNone)} range:[clickable.string rangeOfString:@"Hashbang Crew"]];
-		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://reddit.com/r/jailbreak"], NSUnderlineStyleAttributeName : @(NSUnderlineStyleNone)} range:[clickable.string rangeOfString:@"/r/jailbreak"]];
-		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://twitter.com/insanj"], NSUnderlineStyleAttributeName : @(NSUnderlineStyleNone)} range:[clickable.string rangeOfString:@"on Twitter"]];
-
-		// self.textView.delegate = self;
-		[self.textView setAttributedText:clickable];
-		[self.textView setDelegate:self];
-		//[self.textView ]
+		[self addSubview:_plainTextView];
+		// _plainTextView.frame = (CGRect){self.frame.origin, [clickable boundingRectWithSize:CGSizeMake(self.frame.size.width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size};
 	}
 
 	return self;
 }
 
-- (BOOL)textContentView:(UITextContentView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange {
+- (BOOL)textView:(UITextView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange {
 	return YES;
+}
+
+- (void)dealloc {
+	_plainTextView = nil;
+	[_plainTextView release];
+
+	[super dealloc];
 }
 
 @end

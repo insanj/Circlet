@@ -63,7 +63,7 @@
 		
 		// ◔
 		else if (style == CircletStyleRadial ) {
-			CGFloat startAngle = 0.0, endAngle = (M_PI_2 * percent);
+			CGFloat startAngle = 0.0, endAngle = (2 * M_PI * percent);
 			CGPoint endPoint = CGPointMake(center.x + radius * cos(startAngle), center.y + radius * sin(startAngle));
 			UIBezierPath *arc = [UIBezierPath bezierPath];
 			[arc moveToPoint:center];
@@ -75,7 +75,7 @@
 		
 		// ◕
 		else if (style == CircletStyleRadialInverse) {
-			CGFloat startAngle = (M_PI_2 * percent), endAngle = 0.0;
+			CGFloat startAngle = (2 * M_PI * percent), endAngle = 0.0;
 			CGPoint endPoint = CGPointMake(center.x + radius * cos(startAngle), center.y + radius * sin(startAngle));
 			UIBezierPath *arc = [UIBezierPath bezierPath];
 			[arc moveToPoint:center];

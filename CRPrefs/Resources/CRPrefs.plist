@@ -121,9 +121,9 @@
 		</dict>
 
 		<dict>
-			<key>cell</key> 			<string>PSTextViewTableCell</string>
+			<key>cell</key> 			<string>PSStaticTextCell</string>
 			<key>cellClass</key>		<string>CRCreditsCell</string>
-			<key>height</key> 	  	    <integer>150</integer>
+			<key>height</key> 	  	    <integer>104</integer>
 		</dict>
 
 	</array>
