@@ -22,7 +22,6 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [(UITableView *)self.view deselectRowAtIndexPath:((UITableView *)self.view).indexPathForSelectedRow animated:YES];
 	self.view.tintColor = CRTINTCOLOR;
 	self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
 
@@ -75,6 +74,10 @@
 	self.navigationController.navigationBar.tintColor = nil;
 }
 
+- (void)tableView:(id)arg1 didSelectRowAtIndexPath:(id)arg2 {
+ 	[super tableView:arg1 didSelectRowAtIndexPath:arg2];
+	[arg1 deselectRowAtIndexPath:arg2 animated:YES];
+}
 
 - (void)respring {
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPromptRespring" object:nil];
