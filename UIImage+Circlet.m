@@ -25,10 +25,7 @@
 	CGRect bounds = (CGRect){CGPointZero, CGSizeMake(diameter + thickness, diameter + thickness)};
 	CGPoint center = CGPointMake(bounds.size.width / 2.0, bounds.size.height / 2.0);
 	CGColorRef colorRef = color.CGColor; // Light color
-	
-	// TODO: Fix issue where pretty much all generations can fail to display the proper information
-	CRLOG(@"color:%@, radius:%f, percentage:%f, style:%i. thickness:%f, bounds:%@, center:%@", color, radius, percent, (int)style, thickness, NSStringFromCGRect(bounds), NSStringFromCGPoint(center));
-
+		
 	UIGraphicsBeginImageContextWithOptions(bounds.size, NO, [UIScreen mainScreen].scale);
 	CGContextRef context = UIGraphicsGetCurrentContext();
 	
@@ -47,53 +44,58 @@
 		CGContextSetFillColorWithColor(context, colorRef);
 		CGContextStrokePath(context);
 		
-		// Applies inversion settings, or properly deducts percentage amount
-		if (style <= CircletStyleConcentric) {
-			percent = 1.0 - percent;
-		}
-		
-		else {
-			percent -= 1.0;
-		}
-		
-		// ●
-		if (percent <= 0.05) {
+		if (percent >= 0.98) {
 			CGContextFillEllipseInRect(context, frame);
 		}
 		
-		// ◔
-		else if (style == CircletStyleRadial ) {
-			CGFloat startAngle = 0.0, endAngle = (2 * M_PI * percent);
-			CGPoint endPoint = CGPointMake(center.x + radius * cos(startAngle), center.y + radius * sin(startAngle));
-			UIBezierPath *arc = [UIBezierPath bezierPath];
-			[arc moveToPoint:center];
-			[arc addLineToPoint:endPoint];
-			[arc addArcWithCenter:center radius:radius startAngle:startAngle endAngle:endAngle clockwise:YES];
-			[arc addLineToPoint:center];
-			[arc fill];
-		}
-		
-		// ◕
-		else if (style == CircletStyleRadialInverse) {
-			CGFloat startAngle = (2 * M_PI * percent), endAngle = 0.0;
-			CGPoint endPoint = CGPointMake(center.x + radius * cos(startAngle), center.y + radius * sin(startAngle));
-			UIBezierPath *arc = [UIBezierPath bezierPath];
-			[arc moveToPoint:center];
-			[arc addLineToPoint:endPoint];
-			[arc addArcWithCenter:center radius:radius startAngle:startAngle endAngle:endAngle clockwise:NO];
-			[arc addLineToPoint:center];
-			[arc fill];
-		}
-		
-		// ◒ or ◓
-		else if (style == CircletStyleFill || style == CircletStyleFillInverse) {
-			CGContextAddArc(context, center.x, center.y, radius, (M_PI / 2.0) * (3 - (2 * percent)), (M_PI / 2.0) * (3 + (2 * percent)), YES);
-		}
-		
-		// ⦿
 		else {
-			CGRect minor = CGRectInset(frame, percent * radius, percent * radius);
-			CGContextAddEllipseInRect(context, minor);
+			// Applies inversion settings, or properly deducts percentage amount
+			if (style == CircletStyleFill && percent < 1.0) {
+				percent = 1.0 - percent;
+			}
+			
+			else if (style == CircletStyleConcentric) {
+				percent = 1.0 - percent;
+			}
+			
+			else if (style != CircletStyleRadial) {
+				percent -= 1.0;
+			}
+			
+			// ◔
+			if (style == CircletStyleRadial) {
+				CGFloat startAngle = -M_PI_2, endAngle = -M_PI_2 + (2 * M_PI * percent);
+				CGPoint endPoint = CGPointMake(center.x + radius * cos(startAngle), center.y + radius * sin(startAngle));
+				UIBezierPath *arc = [UIBezierPath bezierPath];
+				[arc moveToPoint:center];
+				[arc addLineToPoint:endPoint];
+				[arc addArcWithCenter:center radius:radius startAngle:startAngle endAngle:endAngle clockwise:YES];
+				[arc addLineToPoint:center];
+				[arc fill];
+			}
+			
+			// ◕
+			else if (style == CircletStyleRadialInverse) {
+				CGFloat startAngle = -M_PI_2, endAngle = -M_PI_2 + ((2 * M_PI) * percent);
+				CGPoint endPoint = CGPointMake(center.x + radius * cos(startAngle), center.y + radius * sin(startAngle));
+				UIBezierPath *arc = [UIBezierPath bezierPath];
+				[arc moveToPoint:center];
+				[arc addLineToPoint:endPoint];
+				[arc addArcWithCenter:center radius:radius startAngle:startAngle endAngle:endAngle clockwise:NO];
+				[arc addLineToPoint:center];
+				[arc fill];
+			}
+			
+			// ◒ or ◓
+			else if (style == CircletStyleFill || style == CircletStyleFillInverse) {
+				CGContextAddArc(context, center.x, center.y, radius, M_PI_2 * (3 - (2 * percent)), M_PI_2 * (3 + (2 * percent)), YES);
+			}
+			
+			// ⦿
+			else {
+				CGRect minor = CGRectInset(frame, percent * radius, percent * radius);
+				CGContextAddEllipseInRect(context, minor);
+			}
 		}
 	}
 	
