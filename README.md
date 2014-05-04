@@ -1,9 +1,7 @@
 Circlet
 =======================
 
-A simpler status bar, one circle at a time.
-
-Commercial, closed-source tweak.
+A simpler status bar, one circle at a time. The first @insanj and @bensge project.
 
 ---------------------------------------	
 [Creative Commons Attribution-NonCommercial 3.0 United States License](http://creativecommons.org/licenses/by-nc/3.0/us/) as of 2014:

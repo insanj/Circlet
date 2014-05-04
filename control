@@ -1,11 +1,11 @@
 Package: com.insanj.circlet
 Name: Circlet
 Pre-Depends: firmware (>= 7.0)
-Depends: mobilesubstrate, ws.hbang.common
+Depends: mobilesubstrate
 Version: 0.1
 Architecture: iphoneos-arm
 Description: A simpler status bar, one circle at a time.
-Maintainer: insanj <me@insanj.com>
+Maintainer: insanj <insanjmail@gmail.com>
 Author: Julian (insanj) Weiss
 Section: Tweaks
-Icon: file:///Library/PreferenceBundles/CRPrefs.bundle/full@2x.png
+Icon: file:///Library/PreferenceBundles/CRPrefs.bundle/icon@2x.png
