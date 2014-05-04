@@ -422,7 +422,7 @@ static BOOL kCRUnlocked;
 	}
 
 	else if ([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && circletEnabledForClassname(@"UIStatusBarDataNetworkItemView")) {
-		return CGRectMake(frame.origin.x + 1.0, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
+		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
 	}
 
 	else if ([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && circletEnabledForClassname(@"UIStatusBarBatteryItemView")) {

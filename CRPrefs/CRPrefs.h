@@ -3,7 +3,9 @@
 #include <Preferences/PSListController.h>
 #include <Preferences/PSTableCell.h>
 #include <Preferences/PSSegmentTableCell.h>
+#include <Preferences/PSTextViewTableCell.h>
 #include <UIKit/UIActivityViewController.h>
+#include <UIKit/UITextContentViewDelegate.h>
 #include <Twitter/Twitter.h>
 #include <notify.h>
 
@@ -22,7 +24,7 @@
 @interface CRListItemsController : PSListItemsController
 @end
 
-@interface CRCreditsCell : PSTableCell
+@interface CRCreditsCell : PSTextViewTableCell <UITextContentViewDelegate>
 @end
 
 @interface CRSegmentTableCell : PSSegmentTableCell

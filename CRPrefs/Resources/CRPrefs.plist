@@ -121,10 +121,9 @@
 		</dict>
 
 		<dict>
-			<key>cell</key> 			<string>PSTextViewCell</string>
+			<key>cell</key> 			<string>PSTextViewTableCell</string>
 			<key>cellClass</key>		<string>CRCreditsCell</string>
 			<key>height</key> 	  	    <integer>150</integer>
-			<key>label</key> 		    <string>Circlet (1.0) was created by Julian (insanj) Weiss with lots of help from Benno (@bensge) and the entire Hashbang Crew (@hbangws). Inspired primarily by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects') development, make sure to follow me on Twitter. Enjoy!</string>
 		</dict>
 
 	</array>

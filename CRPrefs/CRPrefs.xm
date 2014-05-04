@@ -257,12 +257,29 @@
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier specifier:specifier];
 
 	if (self) {
-		self.textLabel.numberOfLines = 0;
-	    self.textLabel.font = [UIFont systemFontOfSize:14.0];
-	    self.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
+		// self.textView.userInteractionEnabled = YES;
+		self.textView.frame = self.frame;
+		[self.textView setScrollingEnabled:NO];
+		[self.textView setEditable:NO];
+
+    	NSMutableAttributedString *clickable = [[[NSMutableAttributedString alloc] initWithString:@"Circlet (1.0) was created by Julian Weiss with lots of help from Benno (@bensge) and the entire Hashbang Crew. Inspired primarily by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects') development, make sure to follow me on Twitter. Enjoy!" attributes:@{ NSFontAttributeName : [UIFont systemFontOfSize:[UIFont smallSystemFontSize]]}] autorelease];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://insanj.com/"], NSUnderlineStyleAttributeName : @(NSUnderlineStyleNone) } range:[clickable.string rangeOfString:@"Julian Weiss"]];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://bensge.com/"], NSUnderlineStyleAttributeName : @(NSUnderlineStyleNone)} range:[clickable.string rangeOfString:@"Benno"]];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://hbang.ws/"], NSUnderlineStyleAttributeName : @(NSUnderlineStyleNone)} range:[clickable.string rangeOfString:@"Hashbang Crew"]];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://reddit.com/r/jailbreak"], NSUnderlineStyleAttributeName : @(NSUnderlineStyleNone)} range:[clickable.string rangeOfString:@"/r/jailbreak"]];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://twitter.com/insanj"], NSUnderlineStyleAttributeName : @(NSUnderlineStyleNone)} range:[clickable.string rangeOfString:@"on Twitter"]];
+
+		// self.textView.delegate = self;
+		[self.textView setAttributedText:clickable];
+		[self.textView setDelegate:self];
+		//[self.textView ]
 	}
 
 	return self;
+}
+
+- (BOOL)textContentView:(UITextContentView *)textView shouldInteractWithURL:(NSURL *)URL inRange:(NSRange)characterRange {
+	return YES;
 }
 
 @end
