@@ -21,8 +21,9 @@ typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionCharging, // == 4
 };
 
-/**************************** Static C Functions ****************************/
-
+/***************************************************************************************/
+/***************************** Static C-irclet Functions *******************************/
+/***************************************************************************************/
 
 // Retrieves saved radius value (or default radius, CRDEFAULTRADIUS)
 static CGFloat circletRadiusFromPosition(CircletPosition posit) {
@@ -189,7 +190,9 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	return NO;
 }
 
-/**************************** CRAVDelegate (used from LS) ****************************/
+/***************************************************************************************/
+/**************************** CRAVDelegate (used from LS) ******************************/
+/***************************************************************************************/
 
 @interface CRAlertViewDelegate : NSObject <UIAlertViewDelegate>
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
@@ -230,9 +233,9 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 @end
 
-/**************************** Shared, SB and LS Hooks ****************************/
-
-%group Shared
+/***************************************************************************************/
+/****************************** Shared, SB and LS Hooks  *******************************/
+/***************************************************************************************/
 
 %hook UIStatusBarSignalStrengthItemView
 
@@ -330,13 +333,6 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 %end
 
-%end // %group NotSpringBoard
-
-/**************************** Foreground Layout  ****************************/
-
-%group SpringBoard
-
-
 static CRAlertViewDelegate *circletAVDelegate;
 static BOOL kCRUnlocked;
 
@@ -371,8 +367,10 @@ static BOOL kCRUnlocked;
 
 %end
 
-// TODO: Fix stupid issue where everything is shifted to right (probably my fault)
-// and just intelligently frame based on (maybe) original / 5.0 (or similar).
+/***************************************************************************************/
+/********************************* Foreground Layout  **********************************/
+/***************************************************************************************/
+
 %hook UIStatusBarLayoutManager
 
 - (CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2 {
@@ -401,59 +399,14 @@ static BOOL kCRUnlocked;
 
 %end
 
-%end // %group SpringBoard
 
-%group NotSpringBoard
-
-%hook UIStatusBarLayoutManager
-static CGFloat cg_dataPoint;
-
-- (CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2 {
-	CGRect frame = %orig(arg1, arg2);
-	CRLOG(@"%@", NSStringFromCGRect(frame));
-
-	if ([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)]) {
-		if (circletEnabledForClassname(@"UIStatusBarSignalStrengthItemView")) {
-			CGFloat radius = circletRadiusFromPosition(CircletPositionSignal);
-			cg_dataPoint = frame.origin.x + (radius * 2.0);
-			return CGRectMake(frame.origin.x - 4.0, frame.origin.y, radius * 2.0, frame.size.height);
-		}
-
-		cg_dataPoint = frame.origin.x + frame.size.width;
-	}
-
-	else if ([arg1 isKindOfClass:%c(UIStatusBarServiceItemView)]) {
-		cg_dataPoint += frame.size.width;
-	}
-
-	else if ([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && circletEnabledForClassname(@"UIStatusBarDataNetworkItemView")) {
-		CGFloat radius = circletRadiusFromPosition(CircletPositionWifi);
-		return CGRectMake(cg_dataPoint, frame.origin.y, radius * 2.0, frame.size.height);
-	}
-
-	else if ([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && circletEnabledForClassname(@"UIStatusBarBatteryItemView")) {
-		int state = MSHookIvar<int>(arg1, "_state");
-		if(state != 0) {
-			[[[arg1 subviews] lastObject] setHidden:YES];
-		}
-
-		CGFloat radius = circletRadiusFromPosition(CircletPositionBattery);
-		return CGRectMake(frame.origin.x + 3.0, frame.origin.y, radius * 2.0, frame.size.height);
-	}
-
-	return frame;
-}
-
-%end
-
-%end // %group Shared
+/***************************************************************************************/
+/****************************** Pulling it all togctor   *******************************/
+/***************************************************************************************/
 
 %ctor {
-	%init(Shared);
-
 	if ([[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"]) {
-		CRLOG(@"Loaded into SpringBoard process, initializing group and adding observer...");
-		%init(SpringBoard);
+		CRLOG(@"Loaded into SpringBoard process, adding observer...");
 
 		[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRPromptRespring" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
 			CRLOG(@"Popping alertView to check for respring confirmation now...");
@@ -464,10 +417,5 @@ static CGFloat cg_dataPoint;
 			[respringPrompt release];
 			[circletAVDelegate release];
 		}];
-	}
-
-	else {
-		CRLOG(@"Loaded into non-SpringBoard process, initializing group...");
-		%init(NotSpringBoard);
 	}
 }

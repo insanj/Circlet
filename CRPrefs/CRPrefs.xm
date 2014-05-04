@@ -199,13 +199,15 @@
 
 @implementation CRSegmentTableCell
 
--(void)layoutSubviews {
+- (void)layoutSubviews {
 	[super layoutSubviews];
-	//Break the deadlock
-	self.control.frame = CGRectInset(self.control.frame,8,0);
+
+	// Break the deadlock
+	self.control.frame = CGRectInset(self.control.frame, 8.0, 0.0);
+	// self.control.center = CGPointMake(self.control.center.x, self.center.y / 2.0);
 }
 
--(void)setSeparatorStyle:(int)style {
+- (void)setSeparatorStyle:(int)style {
 	[super setSeparatorStyle:1];
 }
 
