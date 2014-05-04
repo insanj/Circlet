@@ -197,6 +197,15 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 @implementation CRAlertViewDelegate
 
+
+- (id)init {
+	if (self = [super init]){
+		//This class manages the memory management itself
+		[self retain];
+	}
+	return self;
+}
+
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
 	if (buttonIndex == [alertView cancelButtonIndex]) {
 		return;
@@ -215,6 +224,8 @@ static BOOL circletEnabledForClassname(NSString *className) {
 			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Circlet"]];
 		}
 	}
+	//Die already
+	[self release];
 }
 
 @end
@@ -325,9 +336,7 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 %group SpringBoard
 
-// TODO: find a way to properly mem-manage the delegate. Using -autorelease won't work
-// properly, there's no way to release from inside of itsef, and UIAlertView+Blocks
-// seems excessive.
+
 static CRAlertViewDelegate *circletAVDelegate;
 static BOOL kCRUnlocked;
 
@@ -356,6 +365,7 @@ static BOOL kCRUnlocked;
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
 		[alert show];
 		[alert release];
+		[circletAVDelegate release];
 	}
 }
 
@@ -452,6 +462,7 @@ static CGFloat cg_dataPoint;
 			UIAlertView *respringPrompt = [[UIAlertView alloc] initWithTitle:@"Warning" message:@"Applying Circlet's settings will respring your device, are you sure you would like to do so now?" delegate:circletAVDelegate cancelButtonTitle:@"No" otherButtonTitles:@"Yes", nil];
 			[respringPrompt show];
 			[respringPrompt release];
+			[circletAVDelegate release];
 		}];
 	}
 
