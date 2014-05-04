@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>items</key>
+    <array>
+        <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+            <key>label</key>        <string>Style</string>
+            <key>footerText</key>   <string>Radial fills right-to-left like a clock (◔), Fill fills from bottom to top (◒), and Concentric expands and contracts an inner-circle (⦿). Inverting flips how the circle fills (empties from left to right, fills from top to bottom, expands and contracts a hollow circle).</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>         <string>PSSegmentCell</string>
+            <key>defaults</key>     <string>com.insanj.circlet</string>
+            <key>id</key>           <string>WifiStyle</string>
+            <key>key</key>          <string>wifiStyle</string>
+            <key>label</key>        <string>Style</string>
+            <key>cellClass</key>    <string>CRSegmentTableCell</string>
+            <key>validTitles</key> <array>
+                <string>Radial</string>
+                <string>Fill</string>
+                <string>Concentric</string>
+            </array>
+            <key>validValues</key> <array>
+                <integer>0</integer>
+                <integer>1</integer>
+                <integer>2</integer>
+            </array>
+        </dict>
+
+        <dict>
+            <key>cell</key>             <string>PSSwitchCell</string>
+            <key>defaults</key>         <string>com.insanj.circlet</string>
+            <key>label</key>            <string>Invert Style</string>
+            <key>key</key>              <string>wifiInvert</string>
+            <key>enabled</key>          <true/>
+            <key>default</key>          <false/>
+        </dict>
+
+        <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+            <key>footerText</key>   <string>Make sure to tap Apply Settings in the main area to see your changes.</string>
+        </dict>
+
+		<dict>
+			<key>cell</key>  		<string>PSSegmentCell</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
+			<key>id</key> 		    <string>WifiSize</string>
+			<key>key</key> 		    <string>wifiSize</string>
+			<key>label</key> 		<string>Size</string>
+            <key>cellClass</key>    <string>CRSegmentTableCell</string>
+			<key>validTitles</key>  <array>
+				<string>Small</string>
+				<string>Medium</string>
+				<string>Large</string>
+			</array>
+			<key>validValues</key> <array>
+				<real>3.0</real>
+				<real>5.0</real>
+				<real>7.0</real>
+			</array>
+		</dict>
+
+		<dict>
+			<key>cell</key>  		<string>PSLinkListCell</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
+			<key>detail</key> 		<string>CRListItemsController</string>
+			<key>key</key> 			<string>wifiLightColor</string>
+			<key>label</key> 		<string>Wifi Light Color</string>
+			<key>validTitles</key>  <array>
+                <string>Aqua</string>
+                <string>Black</string>
+                <string>Blue</string>
+                <string>Clear</string>
+                <string>Fuchsia</string>
+                <string>Grey</string>
+                <string>Green</string>
+                <string>Lime</string>
+                <string>Maroon</string>
+                <string>Navy</string>
+                <string>Olive</string>
+                <string>Orange</string>
+                <string>Purple</string>
+                <string>Red</string>
+                <string>Silver</string>
+                <string>Teal</string>
+                <string>White (Default)</string>
+                <string>Yellow</string>
+			</array>
+
+			<key>validValues</key> <array>
+                <integer>1</integer>
+                <integer>2</integer>
+                <integer>3</integer>
+                <integer>4</integer>
+                <integer>5</integer>
+                <integer>6</integer>
+                <integer>7</integer>
+                <integer>8</integer>
+                <integer>9</integer>
+                <integer>10</integer>
+                <integer>11</integer>
+                <integer>12</integer>
+                <integer>13</integer>
+                <integer>14</integer>
+                <integer>15</integer>
+                <integer>16</integer>
+                <integer>17</integer>
+                <integer>18</integer>
+			</array>
+    	</dict>
+
+		<dict>
+			<key>cell</key>  		<string>PSLinkListCell</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
+			<key>detail</key> 		<string>CRListItemsController</string>
+			<key>key</key> 			<string>wifiDarkColor</string>
+			<key>label</key> 		<string>Wifi Dark Color</string>
+			<key>validTitles</key>  <array>
+                <string>Aqua</string>
+                <string>Black (Default)</string>
+                <string>Blue</string>
+                <string>Clear</string>
+                <string>Fuchsia</string>
+                <string>Grey</string>
+                <string>Green</string>
+                <string>Lime</string>
+                <string>Maroon</string>
+                <string>Navy</string>
+                <string>Olive</string>
+                <string>Orange</string>
+                <string>Purple</string>
+                <string>Red</string>
+                <string>Silver</string>
+                <string>Teal</string>
+                <string>White</string>
+                <string>Yellow</string>
+			</array>
+
+			<key>validValues</key> <array>
+                <integer>1</integer>
+                <integer>2</integer>
+                <integer>3</integer>
+                <integer>4</integer>
+                <integer>5</integer>
+                <integer>6</integer>
+                <integer>7</integer>
+                <integer>8</integer>
+                <integer>9</integer>
+                <integer>10</integer>
+                <integer>11</integer>
+                <integer>12</integer>
+                <integer>13</integer>
+                <integer>14</integer>
+                <integer>15</integer>
+                <integer>16</integer>
+                <integer>17</integer>
+                <integer>18</integer>
+			</array>
+		</dict>
+
+		<dict>
+			<key>cell</key>  		<string>PSLinkListCell</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
+			<key>detail</key> 		<string>CRListItemsController</string>
+			<key>key</key> 			<string>dataLightColor</string>
+			<key>label</key> 		<string>Data Light Color</string>
+			<key>validTitles</key>  <array>
+                <string>Aqua</string>
+                <string>Black</string>
+                <string>Blue</string>
+                <string>Clear</string>
+                <string>Fuchsia</string>
+                <string>Grey</string>
+                <string>Green</string>
+                <string>Lime</string>
+                <string>Maroon</string>
+                <string>Navy</string>
+                <string>Olive</string>
+                <string>Orange</string>
+                <string>Purple</string>
+                <string>Red</string>
+                <string>Silver</string>
+                <string>Teal</string>
+                <string>White (Default)</string>
+                <string>Yellow</string>
+			</array>
+
+			<key>validValues</key> <array>
+                <integer>1</integer>
+                <integer>2</integer>
+                <integer>3</integer>
+                <integer>4</integer>
+                <integer>5</integer>
+                <integer>6</integer>
+                <integer>7</integer>
+                <integer>8</integer>
+                <integer>9</integer>
+                <integer>10</integer>
+                <integer>11</integer>
+                <integer>12</integer>
+                <integer>13</integer>
+                <integer>14</integer>
+                <integer>15</integer>
+                <integer>16</integer>
+                <integer>17</integer>
+                <integer>18</integer>
+			</array>
+		</dict>
+
+		<dict>
+			<key>cell</key>  		<string>PSLinkListCell</string>
+			<key>defaults</key> 	<string>com.insanj.circlet</string>
+			<key>detail</key> 		<string>CRListItemsController</string>
+			<key>key</key> 			<string>dataDarkColor</string>
+			<key>label</key> 		<string>Data Dark Color</string>
+			<key>validTitles</key>  <array>
+                <string>Aqua</string>
+                <string>Black (Default)</string>
+                <string>Blue</string>
+                <string>Clear</string>
+                <string>Fuchsia</string>
+                <string>Grey</string>
+                <string>Green</string>
+                <string>Lime</string>
+                <string>Maroon</string>
+                <string>Navy</string>
+                <string>Olive</string>
+                <string>Orange</string>
+                <string>Purple</string>
+                <string>Red</string>
+                <string>Silver</string>
+                <string>Teal</string>
+                <string>White</string>
+                <string>Yellow</string>
+			</array>
+
+            <key>validValues</key> <array>
+                <integer>1</integer>
+                <integer>2</integer>
+                <integer>3</integer>
+                <integer>4</integer>
+                <integer>5</integer>
+                <integer>6</integer>
+                <integer>7</integer>
+                <integer>8</integer>
+                <integer>9</integer>
+                <integer>10</integer>
+                <integer>11</integer>
+                <integer>12</integer>
+                <integer>13</integer>
+                <integer>14</integer>
+                <integer>15</integer>
+                <integer>16</integer>
+                <integer>17</integer>
+                <integer>18</integer>
+			</array>
+		</dict>
+
+    </array>
+    <key>title</key>    <string>Wifi and Data</string>
+</dict>
+
+</plist>

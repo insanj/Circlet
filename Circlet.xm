@@ -304,7 +304,7 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 		CRLOG(@"networkType:%i, wifiState:%i, percentage:%f", networkType, wifiState, percentage);
 		UIImage *white, *black;
-		if (networkType == 5) {
+		if (networkType != 5) {
 			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius percentage:1.0 style:style];
 			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius percentage:1.0 style:style];
 		}

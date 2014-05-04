@@ -132,14 +132,80 @@
 
 @end
 
+@implementation CRSignalPrefsListController
+
+- (NSArray *)specifiers{
+	if(!_specifiers)
+		_specifiers = [[self loadSpecifiersFromPlistName:@"CRSignalPrefs" target:self] retain];
+
+	return _specifiers;
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+	self.view.tintColor = CRTINTCOLOR;
+	self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
+}
+
+- (void)tableView:(id)arg1 didSelectRowAtIndexPath:(id)arg2 {
+	[super tableView:arg1 didSelectRowAtIndexPath:arg2];
+	[arg1 deselectRowAtIndexPath:arg2 animated:YES];
+}
+
+@end
+
+@implementation CRWifiPrefsListController
+
+- (NSArray *)specifiers{
+	if(!_specifiers)
+		_specifiers = [[self loadSpecifiersFromPlistName:@"CRWifiPrefs" target:self] retain];
+
+	return _specifiers;
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+	self.view.tintColor = CRTINTCOLOR;
+	self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
+}
+
+- (void)tableView:(id)arg1 didSelectRowAtIndexPath:(id)arg2 {
+	[super tableView:arg1 didSelectRowAtIndexPath:arg2];
+	[arg1 deselectRowAtIndexPath:arg2 animated:YES];
+}
+
+@end
+
+@implementation CRBatteryPrefsListController
+
+- (NSArray *)specifiers{
+	if(!_specifiers)
+		_specifiers = [[self loadSpecifiersFromPlistName:@"CRBatteryPrefs" target:self] retain];
+
+	return _specifiers;
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+	self.view.tintColor = CRTINTCOLOR;
+	self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
+}
+
+- (void)tableView:(id)arg1 didSelectRowAtIndexPath:(id)arg2 {
+	[super tableView:arg1 didSelectRowAtIndexPath:arg2];
+	[arg1 deselectRowAtIndexPath:arg2 animated:YES];
+}
+
+@end
+
 @implementation CRListItemsController
 
 - (void)viewWillAppear:(BOOL)animated {
+	self.view.tintColor = CRTINTCOLOR;
     self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
 	[super viewWillDisappear:animated];
+
+	self.view.tintColor = nil;
 	self.navigationController.navigationBar.tintColor = nil;
 }
 
@@ -216,3 +282,4 @@
 }
 
 @end
+

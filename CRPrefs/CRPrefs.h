@@ -10,6 +10,15 @@
 @interface CRPrefsListController : PSListController
 @end
 
+@interface CRSignalPrefsListController : PSListController
+@end
+
+@interface CRWifiPrefsListController : PSListController
+@end
+
+@interface CRBatteryPrefsListController : PSListController
+@end
+
 @interface CRListItemsController : PSListItemsController
 @end
 
