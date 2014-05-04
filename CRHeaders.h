@@ -1,11 +1,10 @@
 #include <stdlib.h>
-#import <objc/runtime.h>
-
-#import <QuartzCore/QuartzCore.h>
-#import <UIKit/UIKit.h>
+#include <objc/runtime.h>
+#include <QuartzCore/QuartzCore.h>
+#include <UIKit/UIKit.h>
+#include <Foundation/NSDistributedNotificationCenter.h>
 #import "substrate.h"
 
-#define NSStringFromBool(boolValue) boolValue?@"YES":@"NO"
 #define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 
 @interface SBUIController
@@ -328,5 +327,3 @@ struct _rawData{
 -(int)style;
 @end
 
-@interface NSDistributedNotificationCenter : NSNotificationCenter
-@end

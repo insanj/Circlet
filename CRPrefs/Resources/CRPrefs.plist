@@ -601,47 +601,43 @@
 
 		<dict>
 			<key>cell</key>			 	<string>PSButtonCell</string>
-            <key>cellClass</key>            <string>HBTintedTableCell</string>
-			<key>label</key>		    	<string>Apply and Respring Now</string>
+			<key>label</key>		    	<string>Apply Settings</string>
 			<key>action</key> 		  	<string>respring</string>
 		</dict>
 
 		<dict>
-			<key>cell</key>				 <string>PSSwitchCell</string>
-			<key>defaults</key>			 <string>com.insanj.circlet</string>
-			<key>label</key>			    <string>Debug Logs</string>
-			<key>key</key> 				 <string>debugEnabled</string>
-			<key>enabled</key> 			 <true/>
-			<key>default</key> 			 <false/>
-		</dict>
-
-		<dict>
 			<key>cell</key>				  <string>PSGroupCell</string>
-            <key>label</key>                 <string>Contact</string>
+            <key>label</key>                 <string>About</string>
 			<key>footerAlignment</key> 	  <integer>1</integer>
 			<key>footerText</key>		    <string>Thanks for using Circlet! Please send all support emails directly from Cydia.</string>
 		</dict>
 
 		<dict>
 			<key>cell</key>			<string>PSButtonCell</string>
-            <key>cellClass</key>       <string>HBTintedTableCell</string>
-			<key>label</key>		   <string>@insanj</string>
+			<key>label</key>		   <string>Developer</string>
 			<key>icon</key> 		   <string>twitter.png</string>
 			<key>action</key>  		<string>twitter</string>
 		</dict>
 
+                <dict>
+            <key>cell</key>         <string>PSButtonCell</string>
+            <key>label</key>           <string>Source</string>
+            <key>icon</key>            <string>github.png</string>
+            <key>action</key>       <string>github</string>
+        </dict>
+
+
 		<dict>
 			<key>cell</key>				<string>PSGroupCell</string>
 			<key>label</key> 			  <string>Credits</string>
-            <key>footerAlignment</key> 	<integer>1</integer>
             <key>footerText</key>          <string>© 2014 Julian Weiss</string>
 		</dict>
 
 		<dict>
 			<key>cell</key> 			<string>PSTextViewCell</string>
 			<key>cellClass</key>		<string>CRCreditsCell</string>
-			<key>height</key> 	  	<integer>175</integer>
-			<key>label</key> 		   <string>Circlet (1.0) was created by Julian Weiss (@insanj) with lots of help from Adam D (@thekirbylover). Special thanks to Aehmlo for additional development support, magn2o for troubleshooting. Inspired primarily by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects') development, make sure to follow me on Twitter (link above). Enjoy!</string>
+			<key>height</key> 	  	<integer>150</integer>
+			<key>label</key> 		   <string>Circlet (1.0) was created by Julian Weiss (@insanj) with lots of help from Benno (@bensge) Hashbang Productions (@hbangws). Inspired primarily by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects') development, make sure to follow me on Twitter. Enjoy!</string>
 		</dict>
 
 	</array>

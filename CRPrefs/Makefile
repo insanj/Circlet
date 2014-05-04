@@ -1,13 +1,13 @@
 TARGET=:clang
-ARCHS = armv7 arm64
+ARCHS = armv7 armv7s arm64
+
 include theos/makefiles/common.mk
 
 BUNDLE_NAME = CRPrefs
-CRPrefs_FILES = $(wildcard *.xm)
+CRPrefs_FILES = CRPrefs.xm
 CRPrefs_INSTALL_PATH = /Library/PreferenceBundles
-CRPrefs_FRAMEWORKS = UIKit MessageUI
+CRPrefs_FRAMEWORKS = UIKit MessageUI Twitter
 CRPrefs_PRIVATE_FRAMEWORKS = Preferences
-CRPrefs_LIBRARIES = hbangprefs
 
 include $(THEOS_MAKE_PATH)/bundle.mk
 
