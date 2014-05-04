@@ -46,6 +46,28 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 	return value ? [value floatValue]: CRDEFAULTRADIUS;
 }
 
+static CGFloat circletWidthFromPosition(CircletPosition posit) {
+	NSNumber *radius;
+	switch (posit) {
+		default:
+		case CircletPositionSignal:
+			radius = CRVALUE(@"signalSize");
+			break;
+		case CircletPositionWifi:
+		case CircletPositionData:
+			radius = CRVALUE(@"wifiSize");
+			break;
+		case CircletPositionBattery:
+		case CircletPositionCharging:
+			radius = CRVALUE(@"batterySize");
+			break;
+	}
+
+	CGFloat diameter = [radius floatValue] * 2.0;
+	CGFloat thickness = diameter / 10.0;
+	return diameter + thickness;
+}
+
 static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 	NSNumber *value, *invert;
 	switch (posit) {
@@ -300,6 +322,31 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 %hook UIStatusBarBatteryItemView
 
+- (id)_accessoryImage {
+	CRLOG(@"%@", %orig);
+	
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
+	if (shouldOverride) {
+		UIImage *image = %orig();
+		UIGraphicsBeginImageContextWithOptions(CGSizeMake(1.0, 1.0), NO, image.scale);
+		UIImage *tiny = UIGraphicsGetImageFromCurrentImageContext();
+		UIGraphicsEndImageContext();
+
+		return tiny;
+	}
+
+	return %orig();
+}
+
+/*- (BOOL)updateForNewData:(UIStatusBarComposedData *)arg1 actions:(int)arg2 {
+	//CRLOG(@"%@, %i, %@", arg1, arg2, %orig ? @"YES" : @"NO");
+	// [self updateForNewData:batteryState[13] actions:9]
+	//	_rawData *raw = arg1.rawData;
+	// CRLOG(@"arg1: %@, arg2: %i, int batteryCapacity: %i, unsigned int batteryState: %i, BOOL batteryDetailString[150] : %@", arg1, arg2, raw->batteryCapacity, raw->batteryState, &(raw->batteryDetailString) ? @"YES" : @"NO");
+
+	return %orig();
+}*/
+
 - (_UILegibilityImageSet *)contentsImage {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
 	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
@@ -309,13 +356,14 @@ static BOOL circletEnabledForClassname(NSString *className) {
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 
 		int level = MSHookIvar<int>(self, "_capacity");
-		int state = MSHookIvar<int>(self, "_state");
+		// int state = MSHookIvar<int>(self, "_state");
+		BOOL needsBolt = [self _needsAccessoryImage];
 		CGFloat radius = circletRadiusFromPosition(CircletPositionBattery);
 		CGFloat percentage = level / 100.0;
 		CircletStyle style = circletStyleFromPosition(CircletPositionBattery);
 
 		UIImage *white, *black;
-		if (state != 0) {
+		if (needsBolt) {
 			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionCharging) radius:radius percentage:percentage style:style];
 			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionCharging) radius:radius percentage:percentage style:style];
 		}
@@ -378,27 +426,21 @@ static BOOL kCRUnlocked;
 	CRLOG(@"%@", NSStringFromCGRect(frame));
 
 	if ([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && circletEnabledForClassname(@"UIStatusBarSignalStrengthItemView")) {
-		return CGRectMake(frame.origin.x, frame.origin.y, circletRadiusFromPosition(CircletPositionSignal) * 2.0, frame.size.height);
+		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionSignal), frame.size.height);
 	}
 
 	else if ([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && circletEnabledForClassname(@"UIStatusBarDataNetworkItemView")) {
-		return CGRectMake(frame.origin.x + 1.0, frame.origin.y, circletRadiusFromPosition(CircletPositionWifi) * 2.0, frame.size.height);
+		return CGRectMake(frame.origin.x + 1.0, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
 	}
 
 	else if ([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && circletEnabledForClassname(@"UIStatusBarBatteryItemView")) {
-		int state = MSHookIvar<int>(arg1, "_state");
-		if (state != 0) {
-			[[[arg1 subviews] lastObject] setHidden:YES];
-		}
-
-		return CGRectMake(frame.origin.x, frame.origin.y, circletRadiusFromPosition(CircletPositionBattery) * 2.0, frame.size.height);
+		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery), frame.size.height);
 	}
 
 	return frame;
 }
 
 %end
-
 
 /***************************************************************************************/
 /****************************** Pulling it all togctor   *******************************/

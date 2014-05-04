@@ -58,7 +58,8 @@ struct _rawData {
 };
 
 @interface UIStatusBarComposedData : NSObject
--(void *)rawData; //Fuck da police, ily casting
+@property(readonly) _rawData* rawData;
+- (_rawData *)rawData; // Fuck da police, ily casting
 @end
 
 
@@ -331,4 +332,3 @@ struct _rawData {
 @interface UIStatusBarStyleAttributes : NSObject
 -(int)style;
 @end
-
