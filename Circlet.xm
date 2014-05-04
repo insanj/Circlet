@@ -89,10 +89,11 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 	}
 
 	CircletStyle style = value ? [value integerValue] : CircletStyleFill;
-	if ([invert boolValue]) {
+	if (invert && [invert boolValue]) {
 		style += 3;
 	}
 
+	CRLOG(@"value: %@, invert: %@, style: %i", value, invert,(int) style);
 	return style;
 }
 
@@ -301,10 +302,11 @@ static BOOL circletEnabledForClassname(NSString *className) {
 		CGFloat percentage = wifiState / 3.0;
 		CircletStyle style = circletStyleFromPosition(CircletPositionWifi);
 
+		CRLOG(@"networkType:%i, wifiState:%i, percentage:%f", networkType, wifiState, percentage);
 		UIImage *white, *black;
 		if (networkType == 5) {
-			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius percentage:percentage style:style];
-			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius percentage:percentage style:style];
+			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius percentage:1.0 style:style];
+			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius percentage:1.0 style:style];
 		}
 
 		else {
@@ -338,15 +340,6 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	return %orig();
 }
 
-/*- (BOOL)updateForNewData:(UIStatusBarComposedData *)arg1 actions:(int)arg2 {
-	//CRLOG(@"%@, %i, %@", arg1, arg2, %orig ? @"YES" : @"NO");
-	// [self updateForNewData:batteryState[13] actions:9]
-	//	_rawData *raw = arg1.rawData;
-	// CRLOG(@"arg1: %@, arg2: %i, int batteryCapacity: %i, unsigned int batteryState: %i, BOOL batteryDetailString[150] : %@", arg1, arg2, raw->batteryCapacity, raw->batteryState, &(raw->batteryDetailString) ? @"YES" : @"NO");
-
-	return %orig();
-}*/
-
 - (_UILegibilityImageSet *)contentsImage {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
 	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
@@ -356,7 +349,6 @@ static BOOL circletEnabledForClassname(NSString *className) {
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 
 		int level = MSHookIvar<int>(self, "_capacity");
-		// int state = MSHookIvar<int>(self, "_state");
 		BOOL needsBolt = [self _needsAccessoryImage];
 		CGFloat radius = circletRadiusFromPosition(CircletPositionBattery);
 		CGFloat percentage = level / 100.0;

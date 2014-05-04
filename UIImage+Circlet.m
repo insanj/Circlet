@@ -57,7 +57,7 @@
 		}
 		
 		// ●
-		if (percent > 0.95) {
+		if (percent <= 0.05) {
 			CGContextFillEllipseInRect(context, frame);
 		}
 		
