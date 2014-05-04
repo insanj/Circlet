@@ -1,7 +1,7 @@
 #import "CRPrefs.h"
 
 #define URL_ENCODE(string) [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)(string), NULL, CFSTR(":/=,!$& '()*+;[]@#?"), kCFStringEncodingUTF8) autorelease]
-#define CRTINTCOLOR [UIColor colorWithWhite:0.1 alpha:1.0]
+#define CRTINTCOLOR [UIColor colorWithRed:52/255.0 green:53/255.0 blue:46/255.0 alpha:1.0]
 
 @implementation CRPrefsListController
 
@@ -28,6 +28,24 @@
 
 	// This is here to check for first-run (never set) specifiers.
 	NSDictionary *settings = [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]];
+
+	if (![settings objectForKey:@"signalStyle"]) {
+		PSSpecifier *signalStyleSpecifier = [self specifierForID:@"SignalStyle"];
+		[self setPreferenceValue:@(1) specifier:signalStyleSpecifier];
+		[self reloadSpecifier:signalStyleSpecifier];
+	}
+
+	if (![settings objectForKey:@"wifiStyle"]) {
+		PSSpecifier *wifiStyleSpecifier = [self specifierForID:@"WifiStyle"];
+		[self setPreferenceValue:@(1) specifier:wifiStyleSpecifier];
+		[self reloadSpecifier:wifiStyleSpecifier];
+	}
+
+	if (![settings objectForKey:@"batteryStyle"]) {
+		PSSpecifier *batteryStyleSpecifier = [self specifierForID:@"BatteryStyle"];
+		[self setPreferenceValue:@(1) specifier:batteryStyleSpecifier];
+		[self reloadSpecifier:batteryStyleSpecifier];
+	}
 
 	if (![settings objectForKey:@"signalSize"]) {
 		PSSpecifier *signalSizeSpecifier = [self specifierForID:@"SignalSize"];

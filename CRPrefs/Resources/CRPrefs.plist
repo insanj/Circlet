@@ -8,7 +8,6 @@
 		<dict>
 			<key>cell</key>		 	<string>PSGroupCell</string>
 			<key>label</key>		    <string>Signal</string>
-			<key>footerText</key> 	  <string>Simplify your signal strength indicator.</string>
 		</dict>
 
 		<dict>
@@ -17,26 +16,62 @@
 			<key>label</key>			   <string>Enabled</string>
 			<key>key</key> 				<string>signalEnabled</string>
 			<key>enabled</key> 			<true/>
-			<key>default</key> 			<false/>
+			<key>default</key> 			<true/>
 		</dict>
 
-		<dict>
-			<key>cell</key>  	  	<string>PSSegmentCell</string>
-			<key>defaults</key> 	   <string>com.insanj.circlet</string>
-			<key>id</key> 		 	<string>SignalSize</string>
-			<key>key</key> 			<string>signalSize</string>
-			<key>label</key> 	  	<string>Size</string>
-			<key>validTitles</key> <array>
-				<string>Small</string>
-				<string>Medium</string>
-				<string>Large</string>
-			</array>
-			<key>validValues</key> <array>
-				<real>3.0</real>
-				<real>5.0</real>
-				<real>7.0</real>
-			</array>
-		</dict>
+        <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>         <string>PSSegmentCell</string>
+            <key>defaults</key>        <string>com.insanj.circlet</string>
+            <key>id</key>           <string>SignalStyle</string>
+            <key>key</key>          <string>signalStyle</string>
+            <key>label</key>        <string>Style</string>
+            <key>validTitles</key> <array>
+                <string>Radial</string>
+                <string>Fill</string>
+                <string>Concentric</string>
+            </array>
+            <key>validValues</key> <array>
+                <integer>0</integer>
+                <integer>1</integer>
+                <integer>2</integer>
+            </array>
+        </dict>
+
+        <dict>
+            <key>cell</key>             <string>PSSwitchCell</string>
+            <key>defaults</key>         <string>com.insanj.circlet</string>
+            <key>label</key>            <string>Invert Style</string>
+            <key>key</key>              <string>signalInvert</string>
+            <key>enabled</key>          <true/>
+            <key>default</key>          <false/>
+        </dict>
+
+        <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+            <key>footerText</key>     <string>Simplify your signal strength indicator.</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>         <string>PSSegmentCell</string>
+            <key>defaults</key>        <string>com.insanj.circlet</string>
+            <key>id</key>           <string>SignalSize</string>
+            <key>key</key>          <string>signalSize</string>
+            <key>label</key>        <string>Size</string>
+            <key>validTitles</key> <array>
+                <string>Small</string>
+                <string>Medium</string>
+                <string>Large</string>
+            </array>
+            <key>validValues</key> <array>
+                <real>3.0</real>
+                <real>5.0</real>
+                <real>7.0</real>
+            </array>
+        </dict>
 
 		<dict>
 			<key>cell</key>  		<string>PSLinkListCell</string>
@@ -136,10 +171,13 @@
 			</array>
 		</dict>
 
+        <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+        </dict>
+
 		<dict>
 			<key>cell</key>			<string>PSGroupCell</string>
 			<key>label</key>		   <string>Wifi and Data</string>
-			<key>footerText</key> 	 <string>Simplify your data strength indicator.</string>
 		</dict>
 
 		<dict>
@@ -150,6 +188,42 @@
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
 		</dict>
+
+        <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>         <string>PSSegmentCell</string>
+            <key>defaults</key>        <string>com.insanj.circlet</string>
+            <key>id</key>           <string>WifiStyle</string>
+            <key>key</key>          <string>wifiStyle</string>
+            <key>label</key>        <string>Style</string>
+            <key>validTitles</key> <array>
+                <string>Radial</string>
+                <string>Fill</string>
+                <string>Concentric</string>
+            </array>
+            <key>validValues</key> <array>
+                <integer>0</integer>
+                <integer>1</integer>
+                <integer>2</integer>
+            </array>
+        </dict>
+
+        <dict>
+            <key>cell</key>             <string>PSSwitchCell</string>
+            <key>defaults</key>         <string>com.insanj.circlet</string>
+            <key>label</key>            <string>Invert Style</string>
+            <key>key</key>              <string>wifiInvert</string>
+            <key>enabled</key>          <true/>
+            <key>default</key>          <false/>
+        </dict>
+
+        <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+            <key>footerText</key>    <string>Simplify your data strength indicator.</string>
+        </dict>
 
 		<dict>
 			<key>cell</key>  		<string>PSSegmentCell</string>
@@ -365,20 +439,59 @@
 			</array>
 		</dict>
 
+        <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+        </dict>
+
 		<dict>
 			<key>cell</key>		 	<string>PSGroupCell</string>
-			<key>label</key>		    <string>Battery</string>
-			<key>footerText</key> 	  <string>Simplify your battery life indicator.</string>
+			<key>label</key>		<string>Battery</string>
 		</dict>
 
 		<dict>
 			<key>cell</key>				<string>PSSwitchCell</string>
 			<key>defaults</key>			<string>com.insanj.circlet</string>
-			<key>label</key>			   <string>Enabled</string>
+			<key>label</key>			<string>Enabled</string>
 			<key>key</key> 				<string>batteryEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
 		</dict>
+
+        <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>         <string>PSSegmentCell</string>
+            <key>defaults</key>     <string>com.insanj.circlet</string>
+            <key>id</key>           <string>BatteryStyle</string>
+            <key>key</key>          <string>batteryStyle</string>
+            <key>label</key>        <string>Style</string>
+            <key>validTitles</key> <array>
+                <string>Radial</string>
+                <string>Fill</string>
+                <string>Concentric</string>
+            </array>
+            <key>validValues</key> <array>
+                <integer>0</integer>
+                <integer>1</integer>
+                <integer>2</integer>
+            </array>
+        </dict>
+
+        <dict>
+            <key>cell</key>             <string>PSSwitchCell</string>
+            <key>defaults</key>         <string>com.insanj.circlet</string>
+            <key>label</key>            <string>Invert Style</string>
+            <key>key</key>              <string>batteryInvert</string>
+            <key>enabled</key>          <true/>
+            <key>default</key>          <false/>
+        </dict>
+
+        <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+            <key>footerText</key>     <string>Simplify your battery life indicator.</string>
+        </dict>
 
 		<dict>
 			<key>cell</key>  	  	<string>PSSegmentCell</string>
@@ -594,14 +707,17 @@
         	</array>
 		</dict>
 
-
 		<dict>
 			<key>cell</key>		     	<string>PSGroupCell</string>
 		</dict>
 
+        <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+        </dict>
+
 		<dict>
 			<key>cell</key>			 	<string>PSButtonCell</string>
-			<key>label</key>		    	<string>Apply Settings</string>
+			<key>label</key>		    <string>Apply Settings</string>
 			<key>action</key> 		  	<string>respring</string>
 		</dict>
 
@@ -619,13 +735,12 @@
 			<key>action</key>  		<string>twitter</string>
 		</dict>
 
-                <dict>
+        <dict>
             <key>cell</key>         <string>PSButtonCell</string>
             <key>label</key>           <string>Source</string>
             <key>icon</key>            <string>github.png</string>
             <key>action</key>       <string>github</string>
         </dict>
-
 
 		<dict>
 			<key>cell</key>				<string>PSGroupCell</string>
@@ -637,7 +752,7 @@
 			<key>cell</key> 			<string>PSTextViewCell</string>
 			<key>cellClass</key>		<string>CRCreditsCell</string>
 			<key>height</key> 	  	<integer>150</integer>
-			<key>label</key> 		   <string>Circlet (1.0) was created by Julian Weiss (@insanj) with lots of help from Benno (@bensge) Hashbang Productions (@hbangws). Inspired primarily by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects') development, make sure to follow me on Twitter. Enjoy!</string>
+			<key>label</key> 		   <string>Circlet (1.0) was created by Julian (insanj) Weiss with lots of help from Benno (@bensge) and the entire Hashbang Crew (@hbangws). Inspired primarily by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects') development, make sure to follow me on Twitter. Enjoy!</string>
 		</dict>
 
 	</array>
