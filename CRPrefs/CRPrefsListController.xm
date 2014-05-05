@@ -175,4 +175,8 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 	[super dealloc];
 }
 
+- (BOOL)canBeShownFromSuspendedState {
+	return NO;
+}
+
 @end

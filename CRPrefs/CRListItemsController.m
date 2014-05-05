@@ -8,6 +8,19 @@
 	[super loadView];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+	self.view.tintColor = CRTINTCOLOR;
+    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
+    [super viewWillAppear:animated];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+	[super viewWillDisappear:animated];
+
+	self.view.tintColor = nil;
+	self.navigationController.navigationBar.tintColor = nil;
+}
+
 - (id)tableView:(UITableView *)arg1 cellForRowAtIndexPath:(NSIndexPath *)arg2 {
 	PSTableCell *cell = [super tableView:arg1 cellForRowAtIndexPath:arg2];
 
@@ -18,7 +31,7 @@
 		if (!colorString) {
 			color = [UIColor clearColor];
 		}
-		
+
 		else {
 			CIColor *customColor = [CIColor colorWithString:colorString];
 			color = [UIColor colorWithRed:customColor.red green:customColor.green blue:customColor.blue alpha:customColor.alpha];
@@ -62,19 +75,6 @@
 		[settings writeToFile:CRPATH atomically:YES];
 		[[self table] reloadData];
 	}
-}
-		
-
-- (void)viewWillAppear:(BOOL)animated {
-	self.view.tintColor = CRTINTCOLOR;
-    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-	[super viewWillDisappear:animated];
-
-	self.view.tintColor = nil;
-	self.navigationController.navigationBar.tintColor = nil;
 }
 
 @end
