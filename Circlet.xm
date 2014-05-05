@@ -440,36 +440,9 @@ static BOOL kCRUnlocked;
 %ctor {
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
 		CRLOG(@"Fixing up statusBar now...");
-
+		
 		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
-		UIView *fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
-		[statusBar.superview addSubview:fakeStatusBar];
-		
-		CGRect upwards = statusBar.frame;
-		upwards.origin.y -= upwards.size.height;
-		statusBar.frame = upwards;
-		
 		[statusBar setShowsOnlyCenterItems:YES];
 		[statusBar setShowsOnlyCenterItems:NO];
-		
-		CGFloat shrinkAmount = 5.0;
-		
-		[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
-			NSLog(@"Animating out...");
-			
-			CGRect shrinkFrame = fakeStatusBar.frame;
-			shrinkFrame.origin.x += shrinkAmount;
-			shrinkFrame.origin.y += shrinkAmount;
-			shrinkFrame.size.width -= shrinkAmount;
-			shrinkFrame.size.height -= shrinkAmount;
-			fakeStatusBar.frame = shrinkFrame;
-			fakeStatusBar.alpha = 0.0;
-			
-			CGRect downwards = statusBar.frame;
-			downwards.origin.y += downwards.size.height;
-			statusBar.frame = downwards;
-		} completion: ^(BOOL finished) {
-			[fakeStatusBar release];
-		}];
 	}];
 }

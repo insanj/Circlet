@@ -130,12 +130,40 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 }
 
 - (void)replenish {
+	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+	UIView *fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
+	[statusBar.superview addSubview:fakeStatusBar];
+
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
+
+	CGRect upwards = statusBar.frame;
+	upwards.origin.y -= upwards.size.height;
+	statusBar.frame = upwards;
+
+	CGFloat shrinkAmount = 5.0;
+
+	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
+		NSLog(@"Animating out...");
+		
+		CGRect shrinkFrame = fakeStatusBar.frame;
+		shrinkFrame.origin.x += shrinkAmount;
+		shrinkFrame.origin.y += shrinkAmount;
+		shrinkFrame.size.width -= shrinkAmount;
+		shrinkFrame.size.height -= shrinkAmount;
+		fakeStatusBar.frame = shrinkFrame;
+		fakeStatusBar.alpha = 0.0;
+		
+		CGRect downwards = statusBar.frame;
+		downwards.origin.y += downwards.size.height;
+		statusBar.frame = downwards;
+	} completion: ^(BOOL finished) {
+		[fakeStatusBar removeFromSuperview];
+	}];
 }
 
 - (void)shareTapped:(UIBarButtonItem *)sender {
 	NSString *text = @"Life has never been simpler than with #Circlet by @insanj.";
-	NSURL *url = [NSURL URLWithString:@"http://github.com/insanj/Circlet"];
+	NSURL *url = [NSURL URLWithString:@"http://insanj.com/circlet"];
 
 	if (%c(UIActivityViewController)) {
 		UIActivityViewController *viewController = [[[%c(UIActivityViewController) alloc] initWithActivityItems:[NSArray arrayWithObjects:text, url, nil] applicationActivities:nil] autorelease];
@@ -333,7 +361,7 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier specifier:specifier];
 
 	if (self) {
-		_plainTextView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.frame.size.width, 86.0)];
+		_plainTextView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.frame.size.width, 88.0)];
 		self.clipsToBounds = _plainTextView.clipsToBounds = NO;
 		_plainTextView.backgroundColor = [UIColor clearColor];
 		_plainTextView.userInteractionEnabled = YES;

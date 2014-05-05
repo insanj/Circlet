@@ -74,7 +74,6 @@
 
         <dict>
             <key>cell</key>             <string>PSGroupCell</string>
-			<key>label</key> 			<string>About</string>
 			<key>footerText</key>		<string>No respring required.</string>
         </dict>
 
@@ -86,6 +85,7 @@
 
 		<dict>
 			<key>cell</key>				  <string>PSGroupCell</string>
+			<key>label</key> 			<string>About</string>
 			<key>footerAlignment</key> 	  <integer>1</integer>
 			<key>footerText</key>		  <string>Thanks for using Circlet! Please send all feedback and support directly from Cydia.</string>
 		</dict>
@@ -112,7 +112,7 @@
 		<dict>
 			<key>cell</key> 			<string>PSStaticTextCell</string>
 			<key>cellClass</key>		<string>CRCreditsCell</string>
-			<key>height</key> 	  	    <integer>86</integer>
+			<key>height</key> 	  	    <integer>88</integer>
 		</dict>
 
 	</array>
