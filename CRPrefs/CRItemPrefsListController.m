@@ -21,10 +21,11 @@
 }
 
 - (NSArray *)lightColorTitles:(id)target {
-	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[_titleToColor allKeys]];
+	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[[_titleToColor allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
+	[titles insertObject:@"Custom" atIndex:0];
 	[titles removeObject:@"Black (Default)"];
 	[titles removeObject:@"White"];
-	return [titles sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+	return titles;
 }
 
 - (NSArray *)lightColorValues:(id)target {
@@ -32,10 +33,11 @@
 }
 
 - (NSArray *)darkColorTitles:(id)target {
-	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[_titleToColor allKeys]];
+	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[[_titleToColor allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
+	[titles insertObject:@"Custom" atIndex:0];
 	[titles removeObject:@"Black"];
 	[titles removeObject:@"White (Default)"];
-	return [titles sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+	return titles;
 }
 
 - (NSArray *)darkColorValues:(id)target {

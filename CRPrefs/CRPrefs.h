@@ -28,7 +28,7 @@
 @interface CRBatteryPrefsListController : CRItemPrefsListController
 @end
 
-@interface CRListItemsController : PSListItemsController {
+@interface CRListItemsController : PSListItemsController <UIAlertViewDelegate> {
 	NSDictionary *_safeTitleToColor;
 }
 @end

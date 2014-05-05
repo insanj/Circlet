@@ -98,14 +98,15 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 }
 
 // Returns color value based on preferences saved value
-static UIColor * circletColorForValue(BOOL light, NSString *key) {
+static UIColor * circletColorForKey(BOOL light, NSString *key) {
 	NSString *value = CRVALUE(key);
 	NSDictionary *titleToColor = CRTITLETOCOLOR;
 	UIColor *valueInDict = titleToColor[value];
 
 	if (value && !valueInDict) {
 		CRLOG(@"CUSTOM COLOR: %@", value);
-		CIColor *customColor = [CIColor colorWithString:value];
+		NSString *colorString = CRVALUE([key stringByAppendingString:@"Custom"]);
+		CIColor *customColor = [CIColor colorWithString:colorString];
 		return [UIColor colorWithRed:customColor.red green:customColor.green blue:customColor.blue alpha:customColor.alpha];
 	}
 
@@ -160,7 +161,7 @@ static UIColor * circletColorForPosition(BOOL light, CircletPosition posit){
 		}
 	}
 
-	return circletColorForValue(light, key);
+	return circletColorForKey(light, key);
 }
 
 // Returns whether or not the class is enabled in settings

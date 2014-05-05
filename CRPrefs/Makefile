@@ -6,8 +6,8 @@ include theos/makefiles/common.mk
 BUNDLE_NAME = CRPrefs
 CRPrefs_FILES = CRPrefsListController.xm $(wildcard *.m)
 CRPrefs_INSTALL_PATH = /Library/PreferenceBundles
-CRPrefs_FRAMEWORKS = UIKit MessageUI Twitter
-CRPrefs_PRIVATE_FRAMEWORKS = Preferences CoreGraphics
+CRPrefs_FRAMEWORKS = UIKit MessageUI Twitter CoreGraphics CoreImage
+CRPrefs_PRIVATE_FRAMEWORKS = Preferences
 
 include $(THEOS_MAKE_PATH)/bundle.mk
 
