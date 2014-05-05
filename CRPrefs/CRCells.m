@@ -6,7 +6,7 @@
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier specifier:specifier];
 
 	if (self) {
-		CGFloat padding = 5.0, savedHeight = 92.0;
+		CGFloat padding = 5.0, savedHeight = 102.0;
 
 		_plainTextView = [[UITextView alloc] initWithFrame:CGRectMake(padding, 0.0, self.frame.size.width - (padding * 2.0), savedHeight)];
 		self.clipsToBounds = _plainTextView.clipsToBounds = NO;
@@ -16,11 +16,12 @@
 		_plainTextView.editable = NO;
 		_plainTextView.delegate = self;
 	
-		NSMutableAttributedString *clickable = [[[NSMutableAttributedString alloc] initWithString:@"Circlet (1.0) was created by Julian Weiss with lots of love from Benno, A³Tweaks, and the entire Hashbang crew. Inspired by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects), make sure to follow me on Twitter. Enjoy!" attributes:@{ NSFontAttributeName : [UIFont systemFontOfSize:[UIFont smallSystemFontSize]]}] autorelease];
+		NSMutableAttributedString *clickable = [[[NSMutableAttributedString alloc] initWithString:@"Circlet (1.0) was created by Julian Weiss with lots of love from Benno, A³Tweaks, and the entire Hashbang crew. Uses NKOColorPickerView for custom colors. Inspired by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects), make sure to follow me on Twitter. Enjoy!" attributes:@{ NSFontAttributeName : [UIFont systemFontOfSize:[UIFont smallSystemFontSize]]}] autorelease];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://insanj.com/"]} range:[clickable.string rangeOfString:@"Julian Weiss"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://bensge.com/"]} range:[clickable.string rangeOfString:@"Benno"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://www.a3tweaks.com/"]} range:[clickable.string rangeOfString:@"A³Tweaks"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://hbang.ws/"]} range:[clickable.string rangeOfString:@"Hashbang Crew"]];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"https://github.com/FWCarlos/NKO-Color-Picker-View-iOS"]} range:[clickable.string rangeOfString:@"NKOColorPickerView"]];		
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://reddit.com/r/jailbreak"]} range:[clickable.string rangeOfString:@"/r/jailbreak"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://twitter.com/insanj"]} range:[clickable.string rangeOfString:@"on Twitter"]];
 	

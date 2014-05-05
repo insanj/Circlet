@@ -1,5 +1,6 @@
 #import "CRPrefs.h"
 #import "../UIImage+Circlet.h"
+#import "NKOColorPickerView.h"
 
 @implementation CRListItemsController
 
@@ -52,27 +53,32 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	[super tableView:tableView didSelectRowAtIndexPath:indexPath];
 
-	if (indexPath.row == 0) {
-		UIAlertView *picker = [[UIAlertView alloc] initWithTitle:@"Custom Color" message:@"What custom color would you like to use? Make sure your follow the RED, GREEN, BLUE, ALPHA, format!" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
-		picker.alertViewStyle = UIAlertViewStylePlainTextInput;
+	if (indexPath.row == 0) {	
+		NSString *key = [[self specifier] propertyForKey:@"key"];
+		NSString *colorString = CRVALUE([key stringByAppendingString:@"Custom"]);
+		CIColor *customColor = [CIColor colorWithString:colorString];
+		NKOColorPickerView *pickerView = [[NKOColorPickerView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width - 50.0, self.view.frame.size.height / 2.0) color:[UIColor colorWithRed:customColor.red green:customColor.green blue:customColor.blue alpha:customColor.alpha] andDidChangeColorBlock:nil];
 
-		UITextField *pickerField = [picker textFieldAtIndex:0];
-		pickerField.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
-	    pickerField.placeholder = @"0.1 0.2 0.3 1.0";
-	    [picker show];
-	    [picker release];
+		UIAlertView *pickerAlertView = [[UIAlertView alloc] initWithTitle:@"Custom Color" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
+		[pickerAlertView setValue:pickerView forKey:@"accessoryView"];
+		[pickerAlertView show];
+		[pickerAlertView release];
 	}
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
 	if (buttonIndex != [alertView cancelButtonIndex]) {
+		NKOColorPickerView *picker = (NKOColorPickerView *)[alertView valueForKey:@"accessoryView"];
+		CIColor *color = [CIColor colorWithCGColor:picker.color.CGColor];
+
 		NSMutableDictionary *settings = [[NSMutableDictionary alloc] initWithDictionary:CRSETTINGS];
 		NSString *key = [[self specifier] propertyForKey:@"key"];
 		NSString *colorKey = [key stringByAppendingString:@"Custom"];
 
-		UITextField *pickerField = [alertView textFieldAtIndex:0];
-		[settings setObject:pickerField.text forKey:colorKey];
+		[settings setObject:[color stringRepresentation] forKey:colorKey];
 		[settings writeToFile:CRPATH atomically:YES];
+		[settings release];
+
 		[[self table] reloadData];
 	}
 }

@@ -8,6 +8,7 @@ CRPrefs_FILES = CRPrefsListController.xm $(wildcard *.m)
 CRPrefs_INSTALL_PATH = /Library/PreferenceBundles
 CRPrefs_FRAMEWORKS = UIKit MessageUI Twitter CoreGraphics CoreImage
 CRPrefs_PRIVATE_FRAMEWORKS = Preferences
+NKOColorPickerView.m_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/bundle.mk
 
