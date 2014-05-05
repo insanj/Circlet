@@ -43,7 +43,7 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 			break;
 	}
 
-	return value ? [value floatValue]: CRDEFAULTRADIUS;
+	return value ? [value floatValue] : CRDEFAULTRADIUS;
 }
 
 static CGFloat circletWidthFromPosition(CircletPosition posit) {
@@ -93,7 +93,6 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 		style += 3;
 	}
 
-	CRLOG(@"value: %@, invert: %@, style: %i", value, invert,(int) style);
 	return style;
 }
 
@@ -439,17 +438,30 @@ static BOOL kCRUnlocked;
 /***************************************************************************************/
 
 %ctor {
-	if ([[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"]) {
-		CRLOG(@"Loaded into SpringBoard process, adding observer...");
+	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+		CRLOG(@"Fixing up statusBar now...");
 
-		[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRPromptRespring" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-			CRLOG(@"Popping alertView to check for respring confirmation now...");
-			circletAVDelegate = [[CRAlertViewDelegate alloc] init];
+		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+		[UIView animateWithDuration:0.1 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^(void){
+			CRLOG(@"Animating out...");
 
-			UIAlertView *respringPrompt = [[UIAlertView alloc] initWithTitle:@"Warning" message:@"Applying Circlet's settings will respring your device, are you sure you would like to do so now?" delegate:circletAVDelegate cancelButtonTitle:@"No" otherButtonTitles:@"Yes", nil];
-			[respringPrompt show];
-			[respringPrompt release];
-			[circletAVDelegate release];
+			CGRect swingUp = statusBar.frame;
+			swingUp.origin.y -= swingUp.size.height;
+			statusBar.frame = swingUp;
+			statusBar.alpha = 0.0;
+		} completion:^(BOOL finished) {
+			CRLOG(@"Completed animation out...");
+			[statusBar setShowsOnlyCenterItems:YES];
+
+			[UIView animateWithDuration:0.1 delay:0.1 options:UIViewAnimationOptionCurveEaseIn animations:^(void){
+				CRLOG(@"Animating in...");
+				[statusBar setShowsOnlyCenterItems:NO];
+
+				CGRect swingDown = statusBar.frame;
+				swingDown.origin.y += swingDown.size.height;
+				statusBar.frame = swingDown;
+				statusBar.alpha = 1.0;
+			} completion:nil];
 		}];
-	}
+	}];
 }

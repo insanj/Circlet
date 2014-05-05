@@ -80,7 +80,7 @@
 }
 
 - (void)respring {
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRPromptRespring" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
 }
 
 - (void)shareTapped:(UIBarButtonItem *)sender {

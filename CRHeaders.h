@@ -20,6 +20,11 @@
 -(void)endAnimation;
 @end
 
+@interface UIApplication (Private)
+- (void)setStatusBarHidden:(BOOL)arg1 duration:(double)arg2;
+- (id)statusBar;
+@end
+
 @interface SpringBoard
 -(void)_relaunchSpringBoardNow;
 -(void)applicationOpenURL:(id)url publicURLsOnly:(BOOL)only;
@@ -297,6 +302,12 @@ struct _rawData {
 -(id)initWithFrame:(CGRect)arg1 showForegroundView:(BOOL)arg2 inProcessStateProvider:(id)arg3;
 -(id)initWithFrame:(CGRect)arg1 showForegroundView:(BOOL)arg2;
 -(id)initWithFrame:(CGRect)arg1;
+
+- (void)_crossfadeToNewBackgroundView;
+- (void)_crossfadeToNewForegroundViewWithAlpha:(float)arg1;
+- (void)crossfadeTime:(BOOL)arg1 duration:(double)arg2;
+- (void)setShowsOnlyCenterItems:(BOOL)arg1;
+
 @end
 
 @interface UIStatusBarWindow : UIWindow  {
