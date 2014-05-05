@@ -9,9 +9,6 @@
 #import "CRHeaders.h"
 #import "UIImage+Circlet.h"
 
-#define CRSETTINGS [NSDictionary dictionaryWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"]
-#define CRVALUE(key) [[NSDictionary dictionaryWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"] objectForKey:key]
-#define CRDEFAULTRADIUS 5.0
 
 typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionSignal = 0,
@@ -47,25 +44,30 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 }
 
 static CGFloat circletWidthFromPosition(CircletPosition posit) {
-	NSNumber *radius;
-	switch (posit) {
-		default:
-		case CircletPositionSignal:
-			radius = CRVALUE(@"signalSize");
-			break;
-		case CircletPositionWifi:
-		case CircletPositionData:
-			radius = CRVALUE(@"wifiSize");
-			break;
-		case CircletPositionBattery:
-		case CircletPositionCharging:
-			radius = CRVALUE(@"batterySize");
-			break;
+	CGFloat width = 0.0;
+	if (posit == CircletPositionSignal) {
+		NSNumber *value = CRVALUE(@"signalSize");
+		CGFloat diameter = value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
+		width = diameter + (diameter / 10.0);
 	}
 
-	CGFloat diameter = [radius floatValue] * 2.0;
-	CGFloat thickness = diameter / 10.0;
-	return diameter + thickness;
+	else if (posit == CircletPositionWifi || posit == CircletPositionData) {
+		NSNumber *value = CRVALUE(@"wifiSize");
+		if (value) {
+			CGFloat diameter = [value floatValue] * 2.0;
+			width = diameter + (diameter / 10.0);
+		}
+	}
+	
+	else {
+		NSNumber *value =  CRVALUE(@"batterySize");
+		if (value) {
+			CGFloat diameter = [value floatValue] * 2.0;
+			width = diameter + (diameter / 10.0);
+		}
+	}
+
+	return width;
 }
 
 static CircletStyle circletStyleFromPosition(CircletPosition posit) {
@@ -96,72 +98,45 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 	return style;
 }
 
-// Returns color value based on arbitrary case number (used by following function)
-static UIColor * circletColorForCase(BOOL light, int number) {
-	int caseNumber = (light && number == 0) ? 17 : (!light && number == 0) ? 2 : number;
+// Returns color value based on preferences saved value
+static UIColor * circletColorForValue(BOOL light, NSString *key) {
+	NSString *value = CRVALUE(key);
+	NSDictionary *titleToColor = CRTITLETOCOLOR;
+	UIColor *valueInDict = titleToColor[value];
 
-	switch (caseNumber) {
-		case 1:
-			return UIColorFromRGB(0x7FDBFF);
-		case 2:
-			return UIColorFromRGB(0x111111);	// default black
-		case 3:
-			return UIColorFromRGB(0x0074D9);
-		case 4:
-			return [UIColor clearColor];
-		case 5:
-			return UIColorFromRGB(0xF012BE);
-		case 6:
-			return UIColorFromRGB(0xAAAAAA);
-		case 7:
-			return UIColorFromRGB(0x2ECC40);
-		case 8:
-			return UIColorFromRGB(0x01FF70);
-		case 9:
-			return UIColorFromRGB(0x85144B);
-		case 10:
-			return UIColorFromRGB(0x001F3F);
-		case 11:
-			return UIColorFromRGB(0x3D9970);
-		case 12:
-			return UIColorFromRGB(0xFF851B);
-		case 13:
-			return UIColorFromRGB(0xB10DC9);
-		case 14:
-			return UIColorFromRGB(0xFF4136);
-		case 15:
-			return UIColorFromRGB(0xDDDDDD);
-		case 16:
-			return UIColorFromRGB(0x39CCCC);
-		case 17:								// default white
-			return UIColorFromRGB(0xFFFFFF);
-		case 18:
-			return UIColorFromRGB(0xFFDC00);
+	if (value && !valueInDict) {
+		CRLOG(@"CUSTOM COLOR: %@", value);
+		CIColor *customColor = [CIColor colorWithString:value];
+		return [UIColor colorWithRed:customColor.red green:customColor.green blue:customColor.blue alpha:customColor.alpha];
 	}
 
-	return light ? [UIColor whiteColor] : [UIColor blackColor];
+	if (!value || !valueInDict) {
+		return light ? [UIColor whiteColor] : [UIColor colorWithRed:17.0/255.0 green:17.0/255.0 blue:17.0/255.0 alpha:1.0];
+	}
+
+	return valueInDict;
 }
 
 // Retrieves saved color value based on position given
 static UIColor * circletColorForPosition(BOOL light, CircletPosition posit){
-	NSNumber *value;
+	NSString *key;
 	if (light) {
 		switch (posit) {
 			default:
 			case CircletPositionSignal:
-				value = CRVALUE(@"signalLightColor");
+				key = @"signalLightColor";
 				break;
 			case CircletPositionWifi:
-				value = CRVALUE(@"wifiLightColor");
+				key = @"wifiLightColor";
 				break;
 			case CircletPositionData:
-				value = CRVALUE(@"dataLightColor");
+				key = @"dataLightColor";
 				break;
 			case CircletPositionBattery:
-				value = CRVALUE(@"batteryLightColor");
+				key = @"batteryLightColor";
 				break;
 			case CircletPositionCharging:
-				value = CRVALUE(@"chargingLightColor");
+				key = @"chargingLightColor";
 				break;
 		}
 	}
@@ -169,34 +144,29 @@ static UIColor * circletColorForPosition(BOOL light, CircletPosition posit){
 	else {
 		switch (posit) {
 			case CircletPositionSignal:
-				value = CRVALUE(@"signalDarkColor");
+				key = @"signalDarkColor";
 				break;
 			case CircletPositionWifi:
-				value = CRVALUE(@"wifiDarkColor");
+				key = @"wifiDarkColor";
 				break;
 			case CircletPositionData:
-				value = CRVALUE(@"dataDarkColor");
+				key = @"dataDarkColor";
 				break;
 			case CircletPositionBattery:
-				value = CRVALUE(@"batteryDarkColor");
+				key = @"batteryDarkColor";
 				break;
 			case CircletPositionCharging:
-				value = CRVALUE(@"chargingDarkColor");
+				key = @"chargingDarkColor";
 				break;
 		}
 	}
 
-	return circletColorForCase(light, [value intValue]);
+	return circletColorForValue(light, key);
 }
 
 // Returns whether or not the class is enabled in settings
 static BOOL circletEnabledForClassname(NSString *className) {
-	NSDictionary *settings = CRSETTINGS;
-	if (!settings) {
-		return NO;
-	}
-
-	else if ([className isEqualToString:@"UIStatusBarSignalStrengthItemView"]) {
+	if ([className isEqualToString:@"UIStatusBarSignalStrengthItemView"]) {
 		NSNumber *value = CRVALUE(@"signalEnabled");
 		return !value || [value boolValue];	// because of negation property
 	}
@@ -393,8 +363,11 @@ static BOOL kCRUnlocked;
 - (void)endAnimation {
 	%orig();
 
-	if (kCRUnlocked && ![[NSUserDefaults standardUserDefaults] boolForKey:@"CRDidRun"]) {
-		[[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"CRDidRun"];
+	NSMutableDictionary *settings = [[NSMutableDictionary alloc] initWithDictionary:CRSETTINGS];
+	if (kCRUnlocked && !settings[@"didRun"]) {
+		CRLOG(@"Detected novel run, creating new plist...");
+		[settings setObject:@(YES) forKey:@"didRun"];
+		[settings writeToFile:CRPATH atomically:YES];
 
 		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
@@ -402,6 +375,8 @@ static BOOL kCRUnlocked;
 		[alert release];
 		[circletAVDelegate release];
 	}
+
+	[settings release];
 }
 
 %end
@@ -438,9 +413,15 @@ static BOOL kCRUnlocked;
 /***************************************************************************************/
 
 %ctor {
+	NSDictionary *settings = CRSETTINGS;
+	if (!settings || !settings[@"didRun"]) {
+		CRLOG(@"Clearing antiquated old settings...");
+		[@{} writeToFile:CRPATH atomically:YES];
+	}
+
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
 		CRLOG(@"Fixing up statusBar now...");
-		
+
 		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
 		[statusBar setShowsOnlyCenterItems:YES];
 		[statusBar setShowsOnlyCenterItems:NO];

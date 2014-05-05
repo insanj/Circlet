@@ -8,16 +8,23 @@
 #include <Twitter/Twitter.h>
 #include <notify.h>
 
+#define URL_ENCODE(string) [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)(string), NULL, CFSTR(":/=,!$& '()*+;[]@#?"), kCFStringEncodingUTF8) autorelease]
+#define CRTINTCOLOR [UIColor colorWithRed:52/255.0 green:53/255.0 blue:46/255.0 alpha:1.0]
+
 @interface CRPrefsListController : PSListController
 @end
 
-@interface CRSignalPrefsListController : PSListController
+@interface CRItemPrefsListController : PSListController
+@property(nonatomic, retain) NSDictionary *titleToColor;
 @end
 
-@interface CRWifiPrefsListController : PSListController
+@interface CRSignalPrefsListController : CRItemPrefsListController
 @end
 
-@interface CRBatteryPrefsListController : PSListController
+@interface CRWifiPrefsListController : CRItemPrefsListController
+@end
+
+@interface CRBatteryPrefsListController : CRItemPrefsListController
 @end
 
 @interface CRListItemsController : PSListItemsController

@@ -4,7 +4,7 @@ ARCHS = armv7 armv7s arm64
 include theos/makefiles/common.mk
 
 BUNDLE_NAME = CRPrefs
-CRPrefs_FILES = CRPrefs.xm
+CRPrefs_FILES = CRPrefsListController.xm $(wildcard *.m)
 CRPrefs_INSTALL_PATH = /Library/PreferenceBundles
 CRPrefs_FRAMEWORKS = UIKit MessageUI Twitter
 CRPrefs_PRIVATE_FRAMEWORKS = Preferences CoreGraphics
