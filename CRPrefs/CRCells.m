@@ -6,7 +6,7 @@
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier specifier:specifier];
 
 	if (self) {
-		CGFloat padding = 5.0, savedHeight = 94.0;
+		CGFloat padding = 5.0, savedHeight = 92.0;
 
 		_plainTextView = [[UITextView alloc] initWithFrame:CGRectMake(padding, 0.0, self.frame.size.width - (padding * 2.0), savedHeight)];
 		self.clipsToBounds = _plainTextView.clipsToBounds = NO;

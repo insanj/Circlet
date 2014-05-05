@@ -9,7 +9,6 @@
 #import "CRHeaders.h"
 #import "UIImage+Circlet.h"
 
-
 typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionSignal = 0,
     CircletPositionWifi, // == 1

@@ -166,6 +166,10 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/insanj/circlet"]];
 }
 
+- (void)website {
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://insanj.com/circlet"]];
+}
+
 - (void)dealloc {
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 	[super dealloc];

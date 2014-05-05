@@ -1,4 +1,5 @@
 #import "CRPrefs.h"
+#import "../UIImage+Circlet.h"
 
 @implementation CRListItemsController
 
@@ -7,22 +8,13 @@
 	[super loadView];
 }
 
-- (id)tableView:(id)arg1 cellForRowAtIndexPath:(id)arg2 {
+- (id)tableView:(UITableView *)arg1 cellForRowAtIndexPath:(NSIndexPath *)arg2 {
 	PSTableCell *cell = [super tableView:arg1 cellForRowAtIndexPath:arg2];
-	
-	UIView *colorThumb = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 20.0, 20.0)];
-	colorThumb.backgroundColor = [_safeTitleToColor objectForKey:[[cell titleLabel] text]];
-	colorThumb.layer.masksToBounds = YES;
-	colorThumb.layer.cornerRadius = 10.0;
-	colorThumb.layer.borderColor = [UIColor lightGrayColor].CGColor;
-	colorThumb.layer.borderWidth = 1.0;
 
-	UIGraphicsBeginImageContextWithOptions(colorThumb.bounds.size, NO, 0.0);
-	[colorThumb.layer renderInContext:UIGraphicsGetCurrentContext()];
-	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-	UIGraphicsEndImageContext();
+	CGFloat percent = ((CGFloat)arg2.row + 1.0) / (CGFloat)[arg1 numberOfRowsInSection:arg2.section];
+	UIImage *circletImage = [UIImage circletWithColor:[_safeTitleToColor objectForKey:[[cell titleLabel] text]] radius:10.0 percentage:percent style:CircletStyleRadial];
 
-	[cell.imageView setImage:image];
+	[cell.imageView setImage:circletImage];
 	return cell;
 }
 
