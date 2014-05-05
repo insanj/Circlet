@@ -3,9 +3,16 @@
 #define URL_ENCODE(string) [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)(string), NULL, CFSTR(":/=,!$& '()*+;[]@#?"), kCFStringEncodingUTF8) autorelease]
 #define CRTINTCOLOR [UIColor colorWithRed:52/255.0 green:53/255.0 blue:46/255.0 alpha:1.0]
 
+static void circletDisable(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLSmartDisable" object:nil];
+}
+
 @implementation CRPrefsListController
 
 - (void)loadView {
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletDisable, CFSTR("com.insanj.circlet/Disable"), NULL, 0);
+	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(smartDisable) name:@"CLSmartDisable" object:nil];
+
 	[super loadView];
 
 	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped:)] autorelease];
@@ -65,6 +72,49 @@
 	}
 
 	[super viewWillAppear:animated];
+	[self smartDisable];
+}
+
+- (void)smartDisable {
+	CRLOG(@"Smart disabling...");
+	NSDictionary *settings = [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]];
+	NSNumber *signalValue = [settings objectForKey:@"signalEnabled"];
+	NSNumber *wifiValue = [settings objectForKey:@"wifiEnabled"];
+	NSNumber *batteryValue = [settings objectForKey:@"batteryEnabled"];
+	PSSpecifier *signalAdjustmentsSpecifier = [self specifierForID:@"SignalAdjustments"];
+	PSSpecifier *wifiAdjustmentsSpecifier = [self specifierForID:@"WifiAdjustments"];
+	PSSpecifier *batteryAdjustmentsSpecifier = [self specifierForID:@"BatteryAdjustments"];
+
+	if (signalValue && ![signalValue boolValue]) {
+		[signalAdjustmentsSpecifier setProperty:@(NO) forKey:@"enabled"];
+		[self reloadSpecifier:signalAdjustmentsSpecifier];
+	}
+
+	else {
+		[signalAdjustmentsSpecifier setProperty:@(YES) forKey:@"enabled"];
+		[self reloadSpecifier:signalAdjustmentsSpecifier];
+	}
+
+	if (!wifiValue || ![wifiValue boolValue]) {
+		[wifiAdjustmentsSpecifier setProperty:@(NO) forKey:@"enabled"];
+		[self reloadSpecifier:wifiAdjustmentsSpecifier];
+	}
+
+	else {
+		[wifiAdjustmentsSpecifier setProperty:@(YES) forKey:@"enabled"];
+		[self reloadSpecifier:wifiAdjustmentsSpecifier];
+	}
+
+	if (!batteryValue || ![batteryValue boolValue]) {
+		[batteryAdjustmentsSpecifier setProperty:@(NO) forKey:@"enabled"];
+		[self reloadSpecifier:batteryAdjustmentsSpecifier];
+	}
+
+	else {
+		[batteryAdjustmentsSpecifier setProperty:@(YES) forKey:@"enabled"];
+		[self reloadSpecifier:batteryAdjustmentsSpecifier];
+	}
+
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -79,7 +129,7 @@
 	[arg1 deselectRowAtIndexPath:arg2 animated:YES];
 }
 
-- (void)respring {
+- (void)replenish {
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
 }
 
@@ -130,6 +180,11 @@
 	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://github.com/insanj/circlet"]];
 }
 
+- (void)dealloc {
+	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
+	[super dealloc];
+}
+
 @end
 
 @implementation CRSignalPrefsListController
@@ -139,6 +194,13 @@
 		_specifiers = [[self loadSpecifiersFromPlistName:@"CRSignalPrefs" target:self] retain];
 
 	return _specifiers;
+}
+
+- (void)loadView {
+	[super loadView];
+
+	[UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = CRTINTCOLOR;
+	[UISegmentedControl appearanceWhenContainedIn:self.class, nil].tintColor = CRTINTCOLOR;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -162,6 +224,13 @@
 	return _specifiers;
 }
 
+- (void)loadView {
+	[super loadView];
+
+	[UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = CRTINTCOLOR;
+	[UISegmentedControl appearanceWhenContainedIn:self.class, nil].tintColor = CRTINTCOLOR;
+}
+
 - (void)viewWillAppear:(BOOL)animated {
 	self.view.tintColor = CRTINTCOLOR;
 	self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
@@ -181,6 +250,13 @@
 		_specifiers = [[self loadSpecifiersFromPlistName:@"CRBatteryPrefs" target:self] retain];
 
 	return _specifiers;
+}
+
+- (void)loadView {
+	[super loadView];
+
+	[UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = CRTINTCOLOR;
+	[UISegmentedControl appearanceWhenContainedIn:self.class, nil].tintColor = CRTINTCOLOR;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -257,7 +333,7 @@
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier specifier:specifier];
 
 	if (self) {
-		_plainTextView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.frame.size.width, 104.0)];
+		_plainTextView = [[UITextView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.frame.size.width, 86.0)];
 		self.clipsToBounds = _plainTextView.clipsToBounds = NO;
 		_plainTextView.backgroundColor = [UIColor clearColor];
 		_plainTextView.userInteractionEnabled = YES;
@@ -265,9 +341,10 @@
 		_plainTextView.editable = NO;
 		_plainTextView.delegate = self;
 	
-		NSMutableAttributedString *clickable = [[NSMutableAttributedString alloc] initWithString:@"Circlet (1.0) was created by Julian Weiss with lots of help from Benno (@bensge) and the entire Hashbang Crew. Inspired primarily by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects') development, make sure to follow me on Twitter. Enjoy!" attributes:@{ NSFontAttributeName : [UIFont systemFontOfSize:[UIFont smallSystemFontSize]]}];
+		NSMutableAttributedString *clickable = [[[NSMutableAttributedString alloc] initWithString:@"Circlet (1.0) was created by Julian Weiss with lots of love from Benno, A³Tweaks, and the entire Hashbang crew. Inspired by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects), make sure to follow me on Twitter. Enjoy!" attributes:@{ NSFontAttributeName : [UIFont systemFontOfSize:[UIFont smallSystemFontSize]]}] autorelease];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://insanj.com/"]} range:[clickable.string rangeOfString:@"Julian Weiss"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://bensge.com/"]} range:[clickable.string rangeOfString:@"Benno"]];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://www.a3tweaks.com/"]} range:[clickable.string rangeOfString:@"A³Tweaks"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://hbang.ws/"]} range:[clickable.string rangeOfString:@"Hashbang Crew"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://reddit.com/r/jailbreak"]} range:[clickable.string rangeOfString:@"/r/jailbreak"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://twitter.com/insanj"]} range:[clickable.string rangeOfString:@"on Twitter"]];
@@ -275,10 +352,8 @@
 		_plainTextView.dataDetectorTypes = UIDataDetectorTypeLink;
 		_plainTextView.linkTextAttributes = @{ NSForegroundColorAttributeName : [UIColor colorWithRed:68/255.0 green:132/255.0 blue:231/255.0 alpha:1.0] };
 		_plainTextView.attributedText = clickable;
-		[clickable release];
 
 		[self addSubview:_plainTextView];
-		// _plainTextView.frame = (CGRect){self.frame.origin, [clickable boundingRectWithSize:CGSizeMake(self.frame.size.width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size};
 	}
 
 	return self;

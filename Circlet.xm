@@ -442,26 +442,34 @@ static BOOL kCRUnlocked;
 		CRLOG(@"Fixing up statusBar now...");
 
 		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
-		[UIView animateWithDuration:0.1 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^(void){
-			CRLOG(@"Animating out...");
-
-			CGRect swingUp = statusBar.frame;
-			swingUp.origin.y -= swingUp.size.height;
-			statusBar.frame = swingUp;
-			statusBar.alpha = 0.0;
-		} completion:^(BOOL finished) {
-			CRLOG(@"Completed animation out...");
-			[statusBar setShowsOnlyCenterItems:YES];
-
-			[UIView animateWithDuration:0.1 delay:0.1 options:UIViewAnimationOptionCurveEaseIn animations:^(void){
-				CRLOG(@"Animating in...");
-				[statusBar setShowsOnlyCenterItems:NO];
-
-				CGRect swingDown = statusBar.frame;
-				swingDown.origin.y += swingDown.size.height;
-				statusBar.frame = swingDown;
-				statusBar.alpha = 1.0;
-			} completion:nil];
+		UIView *fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
+		[statusBar.superview addSubview:fakeStatusBar];
+		
+		CGRect upwards = statusBar.frame;
+		upwards.origin.y -= upwards.size.height;
+		statusBar.frame = upwards;
+		
+		[statusBar setShowsOnlyCenterItems:YES];
+		[statusBar setShowsOnlyCenterItems:NO];
+		
+		CGFloat shrinkAmount = 5.0;
+		
+		[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
+			NSLog(@"Animating out...");
+			
+			CGRect shrinkFrame = fakeStatusBar.frame;
+			shrinkFrame.origin.x += shrinkAmount;
+			shrinkFrame.origin.y += shrinkAmount;
+			shrinkFrame.size.width -= shrinkAmount;
+			shrinkFrame.size.height -= shrinkAmount;
+			fakeStatusBar.frame = shrinkFrame;
+			fakeStatusBar.alpha = 0.0;
+			
+			CGRect downwards = statusBar.frame;
+			downwards.origin.y += downwards.size.height;
+			statusBar.frame = downwards;
+		} completion: ^(BOOL finished) {
+			[fakeStatusBar release];
 		}];
 	}];
 }

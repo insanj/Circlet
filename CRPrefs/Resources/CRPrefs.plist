@@ -7,17 +7,16 @@
 
 		<dict>
 			<key>cell</key>		 	    <string>PSGroupCell</string>
-			<key>label</key>		    <string>Signal</string>
-            <key>footerText</key>       <string>Simplify your signal strength indicator.</string>
 		</dict>
 
 		<dict>
 			<key>cell</key>				<string>PSSwitchCell</string>
 			<key>defaults</key>			<string>com.insanj.circlet</string>
-			<key>label</key>			<string>Enabled</string>
+			<key>label</key>			<string>Signal</string>
 			<key>key</key> 				<string>signalEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<true/>
+            <key>PostNotification</key> <string>com.insanj.circlet/Disable</string>
 		</dict>
 
         <dict>
@@ -25,25 +24,21 @@
             <key>defaults</key>          <string>com.insanj.colendar</string>
             <key>detail</key>            <string>CRSignalPrefsListController</string>
             <key>label</key>             <string>Adjustments</string>
+            <key>id</key>         	 	 <string>SignalAdjustments</string>
         </dict>
 
         <dict>
             <key>cell</key>             <string>PSGroupCell</string>
-        </dict>
-
-        <dict>
-            <key>cell</key>             <string>PSGroupCell</string>
-            <key>label</key>            <string>Wifi and Data</string>
-            <key>footerText</key>       <string>Simplify your data strength indicator.</string>
         </dict>
 
         <dict>
             <key>cell</key>             <string>PSSwitchCell</string>
             <key>defaults</key>         <string>com.insanj.circlet</string>
-            <key>label</key>            <string>Enabled</string>
+            <key>label</key>            <string>Wifi and Data</string>
             <key>key</key>              <string>wifiEnabled</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <false/>
+            <key>PostNotification</key> <string>com.insanj.circlet/Disable</string>
         </dict>
 
         <dict>
@@ -51,25 +46,21 @@
             <key>defaults</key>          <string>com.insanj.colendar</string>
             <key>detail</key>            <string>CRWifiPrefsListController</string>
             <key>label</key>             <string>Adjustments</string>
-        </dict>
-
-        <dict>
-            <key>cell</key>             <string>PSGroupCell</string>
+            <key>id</key>         	 	 <string>WifiAdjustments</string>
         </dict>
 
 		<dict>
 			<key>cell</key>		 	<string>PSGroupCell</string>
-			<key>label</key>		<string>Battery</string>
-            <key>footerText</key>   <string>Simplify your battery life indicator.</string>
 		</dict>
 
 		<dict>
 			<key>cell</key>				<string>PSSwitchCell</string>
 			<key>defaults</key>			<string>com.insanj.circlet</string>
-			<key>label</key>			<string>Enabled</string>
+			<key>label</key>			<string>Battery</string>
 			<key>key</key> 				<string>batteryEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
+            <key>PostNotification</key> <string>com.insanj.circlet/Disable</string>
 		</dict>
 
         <dict>
@@ -77,25 +68,24 @@
             <key>defaults</key>          <string>com.insanj.colendar</string>
             <key>detail</key>            <string>CRBatteryPrefsListController</string>
             <key>label</key>             <string>Adjustments</string>
+            <key>id</key>         	 	 <string>BatteryAdjustments</string>
         </dict>
 
-		<dict>
-			<key>cell</key>		     	<string>PSGroupCell</string>
-		</dict>
 
         <dict>
             <key>cell</key>             <string>PSGroupCell</string>
+			<key>label</key> 			<string>About</string>
+			<key>footerText</key>		<string>No respring required.</string>
         </dict>
 
 		<dict>
 			<key>cell</key>			 	<string>PSButtonCell</string>
 			<key>label</key>		    <string>Apply Settings</string>
-			<key>action</key> 		  	<string>respring</string>
+			<key>action</key> 		  	<string>replenish</string>
 		</dict>
 
 		<dict>
 			<key>cell</key>				  <string>PSGroupCell</string>
-            <key>label</key>              <string>About</string>
 			<key>footerAlignment</key> 	  <integer>1</integer>
 			<key>footerText</key>		  <string>Thanks for using Circlet! Please send all feedback and support directly from Cydia.</string>
 		</dict>
@@ -116,14 +106,13 @@
 
 		<dict>
 			<key>cell</key>				<string>PSGroupCell</string>
-			<key>label</key> 			<string>Credits</string>
             <key>footerText</key>       <string>© 2014 Julian Weiss</string>
 		</dict>
 
 		<dict>
 			<key>cell</key> 			<string>PSStaticTextCell</string>
 			<key>cellClass</key>		<string>CRCreditsCell</string>
-			<key>height</key> 	  	    <integer>104</integer>
+			<key>height</key> 	  	    <integer>86</integer>
 		</dict>
 
 	</array>
