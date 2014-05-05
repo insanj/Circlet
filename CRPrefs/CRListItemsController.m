@@ -2,18 +2,16 @@
 
 @implementation CRListItemsController
 
+- (void)loadView {
+	_safeTitleToColor = [CRTITLETOCOLOR retain];
+	[super loadView];
+}
+
 - (id)tableView:(id)arg1 cellForRowAtIndexPath:(id)arg2 {
 	PSTableCell *cell = [super tableView:arg1 cellForRowAtIndexPath:arg2];
-
-	CRItemPrefsListController *parent = (CRItemPrefsListController *) [self parentController];
-	CRLOG(@"parent: %@", parent);
-	NSDictionary *titleToColor = parent.titleToColor;
-	CRLOG(@"titleToColor: %@", titleToColor);
-	UIColor *color = [titleToColor objectForKey:[[cell titleLabel] text]];
-	CRLOG(@"color: %@", color);
-
+	
 	UIView *colorThumb = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, 20.0, 20.0)];
-	colorThumb.backgroundColor = color;
+	colorThumb.backgroundColor = [_safeTitleToColor objectForKey:[[cell titleLabel] text]];
 	colorThumb.layer.masksToBounds = YES;
 	colorThumb.layer.cornerRadius = 10.0;
 	colorThumb.layer.borderColor = [UIColor lightGrayColor].CGColor;
@@ -24,7 +22,6 @@
 	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
 
-	[colorThumb release];
 	[cell.imageView setImage:image];
 	return cell;
 }

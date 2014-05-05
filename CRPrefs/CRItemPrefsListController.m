@@ -1,10 +1,9 @@
 #import "CRPrefs.h"
 
 @implementation CRItemPrefsListController
-@synthesize titleToColor;
 
 - (void)loadView {
-	titleToColor = [CRTITLETOCOLOR retain];
+	_titleToColor = CRTITLETOCOLOR;
 	[super loadView];
 
 	[UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = CRTINTCOLOR;
@@ -21,23 +20,25 @@
 	[arg1 deselectRowAtIndexPath:arg2 animated:YES];
 }
 
-- (NSArray*)lightColorTitles:(id)target {
-	NSMutableArray *titles = [[[NSMutableArray alloc] initWithArray:[titleToColor allKeys]] autorelease];
+- (NSArray *)lightColorTitles:(id)target {
+	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[_titleToColor allKeys]];
 	[titles removeObject:@"Black (Default)"];
-	return titles;
+	[titles removeObject:@"White"];
+	return [titles sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 }
 
-- (NSArray*)lightColorValues:(id)target {
+- (NSArray *)lightColorValues:(id)target {
 	return [self lightColorTitles:target];
 }
 
-- (NSArray*)darkColorTitles:(id)target {
-	NSMutableArray *titles = [[[NSMutableArray alloc] initWithArray:[titleToColor allKeys]] autorelease];
+- (NSArray *)darkColorTitles:(id)target {
+	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[_titleToColor allKeys]];
+	[titles removeObject:@"Black"];
 	[titles removeObject:@"White (Default)"];
-	return titles;
+	return [titles sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 }
 
-- (NSArray*)darkColorValues:(id)target {
+- (NSArray *)darkColorValues:(id)target {
 	return [self darkColorTitles:target];
 }
 

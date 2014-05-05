@@ -1,7 +1,6 @@
 #import "CRPrefs.h"
 
 @implementation CRSignalPrefsListController
-@synthesize titleToColor;
 
 - (NSArray *)specifiers{
 	if(!_specifiers)
@@ -31,7 +30,6 @@
 @end
 
 @implementation CRWifiPrefsListController
-@synthesize titleToColor;
 
 - (NSArray *)specifiers{
 	if(!_specifiers)
@@ -61,7 +59,6 @@
 @end
 
 @implementation CRBatteryPrefsListController
-@synthesize titleToColor;
 
 - (NSArray *)specifiers{
 	if(!_specifiers)

@@ -14,8 +14,9 @@
 @interface CRPrefsListController : PSListController
 @end
 
-@interface CRItemPrefsListController : PSListController
-@property(nonatomic, retain) NSDictionary *titleToColor;
+@interface CRItemPrefsListController : PSListController {
+	NSDictionary *_titleToColor;
+}
 @end
 
 @interface CRSignalPrefsListController : CRItemPrefsListController
@@ -27,7 +28,9 @@
 @interface CRBatteryPrefsListController : CRItemPrefsListController
 @end
 
-@interface CRListItemsController : PSListItemsController
+@interface CRListItemsController : PSListItemsController {
+	NSDictionary *_safeTitleToColor;
+}
 @end
 
 @interface CRCreditsCell : PSTableCell <UITextViewDelegate> {
