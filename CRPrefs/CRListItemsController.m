@@ -25,12 +25,14 @@
 - (id)tableView:(UITableView *)arg1 cellForRowAtIndexPath:(NSIndexPath *)arg2 {
 	PSTableCell *cell = [super tableView:arg1 cellForRowAtIndexPath:arg2];
 
+	NSString *title = [[cell titleLabel] text];
 	UIColor *color;
 	if (arg2.row == 0) {
 		NSString *key = [[self specifier] propertyForKey:@"key"];
 		NSString *colorString = CRVALUE([key stringByAppendingString:@"Custom"]);
 		if (!colorString) {
-			color = [UIColor clearColor];
+			[cell.imageView setImage:[UIImage imageNamed:@"rainbow.png" inBundle:[NSBundle bundleForClass:self.class]]];
+			return cell;
 		}
 
 		else {
@@ -39,8 +41,13 @@
 		}
 	}
 
+	else if ([title isEqualToString:@"Clear"]) {
+		[cell.imageView setImage:nil];
+		return cell;
+	}
+
 	else {
-		color = [_safeTitleToColor objectForKey:[[cell titleLabel] text]];
+		color = [_safeTitleToColor objectForKey:title];
 	}
 
 	CGFloat percent = ((CGFloat)arg2.row + 1.0) / (CGFloat)[arg1 numberOfRowsInSection:arg2.section];

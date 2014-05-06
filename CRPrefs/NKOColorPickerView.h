@@ -9,10 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <Preferences/PreferencesAppController.h>
 #import <Preferences/PrefsRootController.h>
-
-@interface UIImage (Private)
-+ (UIImage *)imageNamed:(NSString *)named inBundle:(NSBundle *)bundle;
-@end
+#import "../CRHeaders.h"
 
 typedef void (^NKOColorPickerDidChangeColorBlock)(UIColor *color);
 

@@ -72,6 +72,9 @@ struct _rawData {
 - (void *)rawData; // Fuck da police, ily casting
 @end
 
+@interface UIImage (Private)
++ (UIImage *)imageNamed:(NSString *)named inBundle:(NSBundle *)bundle;
+@end
 
 @interface _UILegibilityImageSet : NSObject
 @property(retain) UIImage *image;

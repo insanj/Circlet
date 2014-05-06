@@ -20,7 +20,7 @@
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://insanj.com/"]} range:[clickable.string rangeOfString:@"Julian Weiss"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://bensge.com/"]} range:[clickable.string rangeOfString:@"Benno"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://www.a3tweaks.com/"]} range:[clickable.string rangeOfString:@"A³Tweaks"]];
-		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://hbang.ws/"]} range:[clickable.string rangeOfString:@"Hashbang Crew"]];
+		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://hbang.ws/"]} range:[clickable.string rangeOfString:@"Hashbang crew"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"https://github.com/FWCarlos/NKO-Color-Picker-View-iOS"]} range:[clickable.string rangeOfString:@"NKOColorPickerView"]];		
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://reddit.com/r/jailbreak"]} range:[clickable.string rangeOfString:@"/r/jailbreak"]];
 		[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://twitter.com/insanj"]} range:[clickable.string rangeOfString:@"on Twitter"]];
