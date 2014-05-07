@@ -24,9 +24,10 @@
 
 - (id)tableView:(UITableView *)arg1 cellForRowAtIndexPath:(NSIndexPath *)arg2 {
 	PSTableCell *cell = [super tableView:arg1 cellForRowAtIndexPath:arg2];
-
+	CGFloat percent = ((CGFloat)arg2.row + 1.0) / (CGFloat)[arg1 numberOfRowsInSection:arg2.section];
 	NSString *title = [[cell titleLabel] text];
 	UIColor *color;
+
 	if (arg2.row == 0) {
 		NSString *key = [[self specifier] propertyForKey:@"key"];
 		NSString *colorString = CRVALUE([key stringByAppendingString:@"Custom"]);
@@ -42,7 +43,19 @@
 	}
 
 	else if ([title isEqualToString:@"Clear"]) {
-		[cell.imageView setImage:nil];
+		CGFloat radius = 10.0, border = 0.5;
+		UIImage *outerCirclet = [UIImage circletWithColor:[UIColor lightGrayColor] radius:radius percentage:percent style:CircletStyleRadial];
+		UIImage *middleCirclet = [UIImage circletWithColor:[UIColor whiteColor] radius:(radius - border) percentage:percent style:CircletStyleRadial];
+		UIImage *innerCirclet = [UIImage circletWithColor:[UIColor lightGrayColor] radius:(radius - border) percentage:percent style:CircletStyleRadial thickness:((radius * 2.0) / 8.0)];
+
+		UIGraphicsBeginImageContextWithOptions(outerCirclet.size, NO, [UIScreen mainScreen].scale);
+		[outerCirclet drawAtPoint:CGPointZero];
+		[innerCirclet drawAtPoint:CGPointMake(border / 2.0, border / 2.0)];
+		[middleCirclet drawAtPoint:CGPointMake(border, border)];
+		UIImage *comboCirclet = UIGraphicsGetImageFromCurrentImageContext();
+		UIGraphicsEndImageContext();
+
+		[cell.imageView setImage:comboCirclet];
 		return cell;
 	}
 
@@ -50,9 +63,7 @@
 		color = [_safeTitleToColor objectForKey:title];
 	}
 
-	CGFloat percent = ((CGFloat)arg2.row + 1.0) / (CGFloat)[arg1 numberOfRowsInSection:arg2.section];
 	UIImage *circletImage = [UIImage circletWithColor:color radius:10.0 percentage:percent style:CircletStyleRadial];
-
 	[cell.imageView setImage:circletImage];
 	return cell;
 }
