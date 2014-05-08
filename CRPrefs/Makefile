@@ -1,10 +1,10 @@
-TARGET=:clang
+TARGET =: clang
 ARCHS = armv7 armv7s arm64
 
 include theos/makefiles/common.mk
 
 BUNDLE_NAME = CRPrefs
-CRPrefs_FILES = CRPrefsListController.xm $(wildcard *.m)
+CRPrefs_FILES = CRPrefsListController.xm $(wildcard *.m) ../UIImage+Circlet.m
 CRPrefs_INSTALL_PATH = /Library/PreferenceBundles
 CRPrefs_FRAMEWORKS = UIKit MessageUI Twitter CoreGraphics CoreImage
 CRPrefs_PRIVATE_FRAMEWORKS = Preferences

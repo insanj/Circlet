@@ -12,9 +12,10 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 
 	[super loadView];
 
-	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped:)] autorelease];
 	[UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = CRTINTCOLOR;
 	[UISegmentedControl appearanceWhenContainedIn:self.class, nil].tintColor = CRTINTCOLOR;
+	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped:)] autorelease];
+	[self pullHeaderPin];
 }
 
 - (NSArray *)specifiers {
@@ -31,6 +32,29 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 
 	[super viewWillAppear:animated];
 	[self smartDisable];
+}
+
+- (void)pullHeaderPin {
+	CRLOG(@"Pulling header pin...");
+	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
+	CGFloat hour = [components hour];
+	CGFloat minute = ([components minute] / 60.0);
+	CGFloat combined = (hour + minute) / 23.0;
+
+	CRLOG(@"Percentage full: %f", combined);
+
+	UIImage *clockCirclet = [UIImage circletWithColor:CRTINTCOLOR radius:13.0 percentage:combined style:arc4random_uniform(6)];
+
+	if (!self.navigationItem.titleView) {
+		self.navigationItem.titleView = [[UIImageView alloc] initWithImage:clockCirclet];
+	}
+
+	else {
+		UIImageView *titleView = (UIImageView *) self.navigationItem.titleView;
+		titleView.image = clockCirclet;
+	}
+	
+	[self performSelector:@selector(pullHeaderPin) withObject:nil afterDelay:60.0];
 }
 
 - (void)smartDisable {

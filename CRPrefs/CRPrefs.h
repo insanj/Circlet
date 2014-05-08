@@ -1,4 +1,6 @@
 #include "../CRHeaders.h"
+#import "../UIImage+Circlet.h"
+
 #include <Preferences/PSListItemsController.h>
 #include <Preferences/PSListController.h>
 #include <Preferences/PSTableCell.h>
@@ -12,6 +14,7 @@
 #define CRTINTCOLOR [UIColor colorWithRed:52/255.0 green:53/255.0 blue:46/255.0 alpha:1.0]
 
 @interface CRPrefsListController : PSListController
+- (void)pullHeaderPin;
 @end
 
 @interface CRItemPrefsListController : PSListController {
