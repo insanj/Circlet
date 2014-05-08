@@ -36,25 +36,25 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 
 - (void)pullHeaderPin {
 	CRLOG(@"Pulling header pin...");
-	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
+	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
 	CGFloat hour = [components hour];
 	CGFloat minute = ([components minute] / 60.0);
 	CGFloat combined = (hour + minute) / 23.0;
 
 	CRLOG(@"Percentage full: %f", combined);
 
-	UIImage *clockCirclet = [UIImage circletWithColor:CRTINTCOLOR radius:13.0 percentage:combined style:arc4random_uniform(6)];
-
 	if (!self.navigationItem.titleView) {
-		self.navigationItem.titleView = [[UIImageView alloc] initWithImage:clockCirclet];
+		NSInteger style = arc4random_uniform(6);
+		self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage circletWithColor:CRTINTCOLOR radius:13.0 percentage:combined style:style]];
+		self.navigationItem.titleView.tag = style;
 	}
 
 	else {
 		UIImageView *titleView = (UIImageView *) self.navigationItem.titleView;
-		titleView.image = clockCirclet;
+		titleView.image = [UIImage circletWithColor:CRTINTCOLOR radius:13.0 percentage:combined style:titleView.tag];
 	}
 	
-	[self performSelector:@selector(pullHeaderPin) withObject:nil afterDelay:60.0];
+	[self performSelector:@selector(pullHeaderPin) withObject:nil afterDelay:(60.0 - [components second])];
 }
 
 - (void)smartDisable {
