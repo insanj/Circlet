@@ -72,25 +72,26 @@
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
 		</dict>
 
+        <dict>
+            <key>cell</key>        <string>PSLinkListCell</string>
+            <key>defaults</key>    <string>com.insanj.circlet</string>
+            <key>detail</key>      <string>CRListItemsController</string>
+            <key>key</key>         <string>timeOuterDarkColor</string>
+            <key>label</key>       <string>Outer Dark Color</string>
+            <key>titlesDataSource</key>  <string>darkColorTitles:</string>
+            <key>valuesDataSource</key>  <string>darkColorTitles:</string>
+        </dict>
+
 		<dict>
 			<key>cell</key>  	   <string>PSLinkListCell</string>
 			<key>defaults</key>    <string>com.insanj.circlet</string>
 			<key>detail</key> 	   <string>CRListItemsController</string>
 			<key>key</key> 		   <string>timeInnerLightColor</string>
-			<key>label</key> 	   <string>Inner Dark Color</string>
-            <key>titlesDataSource</key>  <string>darkColorTitles:</string>
-            <key>valuesDataSource</key>  <string>darkColorValues:</string>
+			<key>label</key> 	   <string>Inner Light Color</string>
+            <key>titlesDataSource</key>  <string>lightColorTitles:</string>
+            <key>valuesDataSource</key>  <string>lightColorTitles:</string>
 		</dict>
 
-        <dict>
-            <key>cell</key>        <string>PSLinkListCell</string>
-            <key>defaults</key>    <string>com.insanj.circlet</string>
-            <key>detail</key>      <string>CRListItemsController</string>
-            <key>key</key>         <string>timeOuterLightColor</string>
-            <key>label</key>       <string>Outer Light Color</string>
-            <key>titlesDataSource</key>  <string>lightColorTitles:</string>
-            <key>valuesDataSource</key>  <string>lightColorValues:</string>
-        </dict>
 
         <dict>
             <key>cell</key>        <string>PSLinkListCell</string>
