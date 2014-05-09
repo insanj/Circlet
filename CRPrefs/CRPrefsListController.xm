@@ -15,7 +15,6 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 	[UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = CRTINTCOLOR;
 	[UISegmentedControl appearanceWhenContainedIn:self.class, nil].tintColor = CRTINTCOLOR;
 	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped:)] autorelease];
-	[self pullHeaderPin];
 }
 
 - (NSArray *)specifiers {
@@ -26,9 +25,15 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 	return _specifiers;
 }
 
+- (void)viewDidDisappear:(BOOL)animated {
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(pullHeaderPin) object:nil];
+	[super viewDidDisappear:animated];
+}
+
 - (void)viewWillAppear:(BOOL)animated {
 	self.view.tintColor = CRTINTCOLOR;
 	self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
+	[self pullHeaderPin];
 
 	[super viewWillAppear:animated];
 	[self smartDisable];
@@ -44,7 +49,7 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 	CRLOG(@"Percentage full: %f", combined);
 
 	if (!self.navigationItem.titleView) {
-		NSInteger style = arc4random_uniform(6);
+		NSInteger style = arc4random_uniform(5); // Don't really like concentric inverse here
 		self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage circletWithColor:CRTINTCOLOR radius:13.0 percentage:combined style:style]];
 		self.navigationItem.titleView.tag = style;
 	}
