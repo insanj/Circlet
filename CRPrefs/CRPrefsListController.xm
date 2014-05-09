@@ -38,8 +38,8 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 	CRLOG(@"Pulling header pin...");
 	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
 	CGFloat hour = [components hour];
-	CGFloat minute = ([components minute] / 60.0);
-	CGFloat combined = (hour + minute) / 23.0;
+	CGFloat minute = [components minute] / 60.0;
+	CGFloat combined = (fmod(hour + minute, 12.0) + 1.0) / 12.0; // (hour + minute) / 23.0;
 
 	CRLOG(@"Percentage full: %f", combined);
 
