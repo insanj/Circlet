@@ -204,6 +204,16 @@ struct _rawData {
 @interface UIStatusBarServiceItemView : UIStatusBarItemView
 @end
 
+@interface UIStatusBarTimeItemView : UIStatusBarItemView {
+    NSString *_timeString;
+}
+
+- (id)contentsImage;
+- (void)dealloc;
+- (int)textStyle;
+- (BOOL)updateForNewData:(id)arg1 actions:(int)arg2;
+@end
+
 @interface UIStatusBarBatteryItemView : UIStatusBarItemView  {
     int _capacity;
     int _state;
@@ -315,7 +325,6 @@ struct _rawData {
 - (void)_crossfadeToNewForegroundViewWithAlpha:(float)arg1;
 - (void)crossfadeTime:(BOOL)arg1 duration:(double)arg2;
 - (void)setShowsOnlyCenterItems:(BOOL)arg1;
-
 @end
 
 @interface UIStatusBarWindow : UIWindow  {

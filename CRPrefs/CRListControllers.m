@@ -58,6 +58,35 @@
 
 @end
 
+@implementation CRTimePrefsListController
+
+- (NSArray *)specifiers{
+	if(!_specifiers)
+		_specifiers = [[self loadSpecifiersFromPlistName:@"CRTimePrefs" target:self] retain];
+
+	return _specifiers;
+}
+
+- (void)loadView {
+	[super loadView];
+
+	NSDictionary *settings = CRSETTINGS;
+
+	if (![settings objectForKey:@"timeStyle"]) {
+		PSSpecifier *timeStyleSpecifier = [self specifierForID:@"TimeStyle"];
+		[self setPreferenceValue:@(1) specifier:timeStyleSpecifier];
+		[self reloadSpecifier:timeStyleSpecifier];
+	}
+
+	if (![settings objectForKey:@"timeSize"]) {
+		PSSpecifier *timeSizeSpecifier = [self specifierForID:@"TimeSize"];
+		[self setPreferenceValue:@(5.0) specifier:timeSizeSpecifier];
+		[self reloadSpecifier:timeSizeSpecifier];
+	}
+}
+
+@end
+
 @implementation CRBatteryPrefsListController
 
 - (NSArray *)specifiers{

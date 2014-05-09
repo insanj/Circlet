@@ -67,9 +67,11 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 	NSDictionary *settings = [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]];
 	NSNumber *signalValue = [settings objectForKey:@"signalEnabled"];
 	NSNumber *wifiValue = [settings objectForKey:@"wifiEnabled"];
+	NSNumber *timeValue = [settings objectForKey:@"timeEnabled"];
 	NSNumber *batteryValue = [settings objectForKey:@"batteryEnabled"];
 	PSSpecifier *signalAdjustmentsSpecifier = [self specifierForID:@"SignalAdjustments"];
 	PSSpecifier *wifiAdjustmentsSpecifier = [self specifierForID:@"WifiAdjustments"];
+	PSSpecifier *timeAdjustmentsSpecifier = [self specifierForID:@"TimeAdjustments"];
 	PSSpecifier *batteryAdjustmentsSpecifier = [self specifierForID:@"BatteryAdjustments"];
 
 	if (signalValue && ![signalValue boolValue]) {
@@ -90,6 +92,16 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 	else {
 		[wifiAdjustmentsSpecifier setProperty:@(YES) forKey:@"enabled"];
 		[self reloadSpecifier:wifiAdjustmentsSpecifier];
+	}
+
+	if (!timeValue || ![timeValue boolValue]) {
+		[timeAdjustmentsSpecifier setProperty:@(NO) forKey:@"enabled"];
+		[self reloadSpecifier:timeAdjustmentsSpecifier];
+	}
+
+	else {
+		[timeAdjustmentsSpecifier setProperty:@(YES) forKey:@"enabled"];
+		[self reloadSpecifier:timeAdjustmentsSpecifier];
 	}
 
 	if (!batteryValue || ![batteryValue boolValue]) {

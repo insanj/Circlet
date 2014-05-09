@@ -13,9 +13,9 @@
         <dict>
             <key>cell</key>         <string>PSSegmentCell</string>
             <key>defaults</key>     <string>com.insanj.circlet</string>
-            <key>id</key>           <string>SignalStyle</string>
-            <key>key</key>          <string>signalStyle</string>
-            <key>label</key>        <string>Style</string>
+            <key>id</key>           <string>TimeStyle</string>
+            <key>key</key>          <string>timeStyle</string>
+            <key>label</key>        <string>Time</string>
             <key>cellClass</key>    <string>CRSegmentTableCell</string>
             <key>validTitles</key>  <array>
                 <string>Radial</string>
@@ -33,21 +33,21 @@
             <key>cell</key>             <string>PSSwitchCell</string>
             <key>defaults</key>         <string>com.insanj.circlet</string>
             <key>label</key>            <string>Invert Style</string>
-            <key>key</key>              <string>signalInvert</string>
+            <key>key</key>              <string>timeInvert</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <false/>
         </dict>
 
         <dict>
             <key>cell</key>         <string>PSGroupCell</string>
-            <key>footerText</key>   <string>Make sure to tap Refresh Status Bar in the main area to instantly see your changes.</string>
+            <key>footerText</key>   <string>Outer represents the minute, Inner represents the hour.&#10;&#10;Make sure to tap Refresh Status Bar in the main area to instantly see your changes.</string>
         </dict>
 
         <dict>
             <key>cell</key>         <string>PSSegmentCell</string>
             <key>defaults</key>     <string>com.insanj.circlet</string>
-            <key>id</key>           <string>SignalSize</string>
-            <key>key</key>          <string>signalSize</string>
+            <key>id</key>           <string>TimeSize</string>
+            <key>key</key>          <string>timeSize</string>
             <key>label</key>        <string>Size</string>
             <key>cellClass</key>    <string>CRSegmentTableCell</string>
             <key>validTitles</key>  <array>
@@ -66,8 +66,8 @@
 			<key>cell</key>  	   <string>PSLinkListCell</string>
 			<key>defaults</key>    <string>com.insanj.circlet</string>
 			<key>detail</key> 	   <string>CRListItemsController</string>
-			<key>key</key> 	  	   <string>signalLightColor</string>
-			<key>label</key> 	   <string>Light Color</string>
+			<key>key</key> 	  	   <string>timeOuterLightColor</string>
+			<key>label</key> 	   <string>Outer Light Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
 		</dict>
@@ -76,14 +76,34 @@
 			<key>cell</key>  	   <string>PSLinkListCell</string>
 			<key>defaults</key>    <string>com.insanj.circlet</string>
 			<key>detail</key> 	   <string>CRListItemsController</string>
-			<key>key</key> 		   <string>signalDarkColor</string>
-			<key>label</key> 	   <string>Dark Color</string>
+			<key>key</key> 		   <string>timeInnerLightColor</string>
+			<key>label</key> 	   <string>Inner Dark Color</string>
             <key>titlesDataSource</key>  <string>darkColorTitles:</string>
             <key>valuesDataSource</key>  <string>darkColorValues:</string>
 		</dict>
 
+        <dict>
+            <key>cell</key>        <string>PSLinkListCell</string>
+            <key>defaults</key>    <string>com.insanj.circlet</string>
+            <key>detail</key>      <string>CRListItemsController</string>
+            <key>key</key>         <string>timeOuterLightColor</string>
+            <key>label</key>       <string>Outer Light Color</string>
+            <key>titlesDataSource</key>  <string>lightColorTitles:</string>
+            <key>valuesDataSource</key>  <string>lightColorValues:</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>        <string>PSLinkListCell</string>
+            <key>defaults</key>    <string>com.insanj.circlet</string>
+            <key>detail</key>      <string>CRListItemsController</string>
+            <key>key</key>         <string>timeInnerDarkColor</string>
+            <key>label</key>       <string>Inner Dark Color</string>
+            <key>titlesDataSource</key>  <string>darkColorTitles:</string>
+            <key>valuesDataSource</key>  <string>darkColorValues:</string>
+        </dict>
+
     </array>
-    <key>title</key>    <string>Signal</string>
+    <key>title</key>    <string>Time</string>
 </dict>
 
 </plist>

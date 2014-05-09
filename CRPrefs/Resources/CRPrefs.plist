@@ -50,6 +50,28 @@
             <key>id</key>         	 	 <string>WifiAdjustments</string>
         </dict>
 
+        <dict>
+            <key>cell</key>             <string>PSGroupCell</string>
+        </dict>
+
+        <dict>
+			<key>cell</key>				<string>PSSwitchCell</string>
+			<key>defaults</key>			<string>com.insanj.circlet</string>
+			<key>label</key>			<string>Time</string>
+			<key>key</key> 				<string>timeEnabled</string>
+			<key>enabled</key> 			<true/>
+			<key>default</key> 			<false/>
+            <key>PostNotification</key> <string>com.insanj.circlet/Disable</string>
+		</dict>
+
+        <dict>
+            <key>cell</key>              <string>PSLinkListCell</string>
+            <key>defaults</key>          <string>com.insanj.colendar</string>
+            <key>detail</key>            <string>CRTimePrefsListController</string>
+            <key>label</key>             <string>Adjustments</string>
+            <key>id</key>         	 	 <string>TimeAdjustments</string>
+        </dict>
+
 		<dict>
 			<key>cell</key>		 	<string>PSGroupCell</string>
 		</dict>
@@ -80,7 +102,7 @@
 
 		<dict>
 			<key>cell</key>			 	<string>PSButtonCell</string>
-			<key>label</key>		    <string>Apply Settings</string>
+			<key>label</key>		    <string>Refresh Status Bar</string>
 			<key>action</key> 		  	<string>replenish</string>
 		</dict>
 

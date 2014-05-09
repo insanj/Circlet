@@ -28,6 +28,9 @@
 @interface CRWifiPrefsListController : CRItemPrefsListController
 @end
 
+@interface CRTimePrefsListController : CRItemPrefsListController
+@end
+
 @interface CRBatteryPrefsListController : CRItemPrefsListController
 @end
 

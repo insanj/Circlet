@@ -40,7 +40,7 @@
 
         <dict>
             <key>cell</key>         <string>PSGroupCell</string>
-            <key>footerText</key>   <string>Make sure to tap Apply Settings in the main area to see your changes.</string>
+            <key>footerText</key>   <string>Make sure to tap Refresh Status Bar in the main area to instantly see your changes.</string>
         </dict>
 
 		<dict>

@@ -13,8 +13,10 @@ typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionSignal = 0,
     CircletPositionWifi, // == 1
     CircletPositionData, // == 2
-    CircletPositionBattery, // == 3
-    CircletPositionCharging, // == 4
+    CircletPositionTimeOuter, // == 3
+	CircletPositionTimeInner, // == 4
+    CircletPositionBattery, // == 5
+    CircletPositionCharging, // == 6
 };
 
 /***************************************************************************************/
@@ -33,6 +35,10 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 		case CircletPositionData:
 			value = CRVALUE(@"wifiSize");
 			break;
+		case CircletPositionTimeOuter:
+		case CircletPositionTimeInner:
+			value = CRVALUE(@"timeSize");
+			break;
 		case CircletPositionBattery:
 		case CircletPositionCharging:
 			value = CRVALUE(@"batterySize");
@@ -43,30 +49,27 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 }
 
 static CGFloat circletWidthFromPosition(CircletPosition posit) {
-	CGFloat width = 0.0;
+	NSNumber *value;
 	if (posit == CircletPositionSignal) {
 		NSNumber *value = CRVALUE(@"signalSize");
 		CGFloat diameter = value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
-		width = diameter + (diameter / 10.0);
+		return diameter + (diameter / 10.0);
 	}
 
 	else if (posit == CircletPositionWifi || posit == CircletPositionData) {
-		NSNumber *value = CRVALUE(@"wifiSize");
-		if (value) {
-			CGFloat diameter = [value floatValue] * 2.0;
-			width = diameter + (diameter / 10.0);
-		}
+		value = CRVALUE(@"wifiSize");
+	}
+
+	else if (posit == CircletPositionTimeOuter || posit == CircletPositionTimeInner) {
+		value = CRVALUE(@"timeSize");
 	}
 	
 	else {
-		NSNumber *value =  CRVALUE(@"batterySize");
-		if (value) {
-			CGFloat diameter = [value floatValue] * 2.0;
-			width = diameter + (diameter / 10.0);
-		}
+		value =  CRVALUE(@"batterySize");
 	}
 
-	return width;
+	CGFloat diameter = [value floatValue] * 2.0;
+	return diameter + (diameter / 10.0);
 }
 
 static CircletStyle circletStyleFromPosition(CircletPosition posit) {
@@ -81,6 +84,11 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 		case CircletPositionData:
 			value = CRVALUE(@"wifiStyle");
 			invert = CRVALUE(@"wifiInvert");
+			break;
+		case CircletPositionTimeOuter:
+		case CircletPositionTimeInner:
+			value = CRVALUE(@"timeStyle");
+			invert = CRVALUE(@"timeInvert");
 			break;
 		case CircletPositionBattery:
 		case CircletPositionCharging:
@@ -132,6 +140,12 @@ static UIColor * circletColorForPosition(BOOL light, CircletPosition posit){
 			case CircletPositionData:
 				key = @"dataLightColor";
 				break;
+			case CircletPositionTimeOuter:
+				key = @"timeOuterLightColor";
+				break;
+			case CircletPositionTimeInner:
+				key = @"timeInnerLightColor";
+				break;
 			case CircletPositionBattery:
 				key = @"batteryLightColor";
 				break;
@@ -151,6 +165,12 @@ static UIColor * circletColorForPosition(BOOL light, CircletPosition posit){
 				break;
 			case CircletPositionData:
 				key = @"dataDarkColor";
+				break;
+			case CircletPositionTimeOuter:
+				key = @"timeOuterDarkColor";
+				break;
+			case CircletPositionTimeInner:
+				key = @"timeInnerDarkColor";
 				break;
 			case CircletPositionBattery:
 				key = @"batteryDarkColor";
@@ -175,6 +195,10 @@ static BOOL circletEnabledForClassname(NSString *className) {
 		return [CRVALUE(@"wifiEnabled") boolValue];
 	}
 
+	else if ([className isEqualToString:@"UIStatusBarTimeItemView"]) {
+		return [CRVALUE(@"timeEnabled") boolValue];
+	}
+
 	else if ([className isEqualToString:@"UIStatusBarBatteryItemView"]) {
 		return [CRVALUE(@"batteryEnabled") boolValue];
 	}
@@ -182,51 +206,9 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	return NO;
 }
 
-/***************************************************************************************/
-/**************************** CRAVDelegate (used from LS) ******************************/
-/***************************************************************************************/
-
-@interface CRAlertViewDelegate : NSObject <UIAlertViewDelegate>
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
-@end
-
-@implementation CRAlertViewDelegate
-
-
-- (id)init {
-	if (self = [super init]){
-		//This class manages the memory management itself
-		[self retain];
-	}
-	return self;
-}
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-	if (buttonIndex == [alertView cancelButtonIndex]) {
-		return;
-	}
-
-	else if ([alertView.title isEqualToString:@"Warning"]) {
-		[(SpringBoard *)[%c(SpringBoard) sharedApplication] _relaunchSpringBoardNow];
-	}
-
-	else {
-		if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer.dylib"] || [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer2.dylib"]) {
-			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Cydia&path=Circlet"]];
-		}
-
-		else {
-			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Circlet"]];
-		}
-	}
-	//Die already
-	[self release];
-}
-
-@end
 
 /***************************************************************************************/
-/****************************** Shared, SB and LS Hooks  *******************************/
+/***************************** UIStatusBarItemView Hooks  ******************************/
 /***************************************************************************************/
 
 %hook UIStatusBarSignalStrengthItemView
@@ -291,6 +273,33 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 %end
 
+%hook UIStatusBarTimeItemView
+
+- (_UILegibilityImageSet *)contentsImage {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+
+	if (shouldOverride) {
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		
+		CGFloat radius = circletRadiusFromPosition(CircletPositionTimeOuter);
+		NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
+		CGFloat hour = fmod([components hour], 12.0) / 12.0;
+		CGFloat minute = [components minute] / 60.0;
+		CircletStyle style = circletStyleFromPosition(CircletPositionTimeOuter);
+
+		UIImage *white = [UIImage circletWithInnerColor:circletColorForPosition(YES, CircletPositionTimeInner) outerColor:circletColorForPosition(YES, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
+		UIImage *black = [UIImage circletWithInnerColor:circletColorForPosition(NO, CircletPositionTimeInner) outerColor:circletColorForPosition(NO, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
+
+		return (w >= 0.5) ? [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black] : [%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+	}
+
+	return %orig();
+}
+
+%end
+
 %hook UIStatusBarBatteryItemView
 
 - (id)_accessoryImage {
@@ -342,6 +351,82 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 %end
 
+
+/***************************************************************************************/
+/********************************* Foreground Layout  **********************************/
+/***************************************************************************************/
+
+%hook UIStatusBarLayoutManager
+
+- (CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2 {
+	CGRect frame = %orig(arg1, arg2);
+	CRLOG(@"%@", NSStringFromCGRect(frame));
+
+	if ([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && circletEnabledForClassname(@"UIStatusBarSignalStrengthItemView")) {
+		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionSignal), frame.size.height);
+	}
+
+	else if ([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && circletEnabledForClassname(@"UIStatusBarDataNetworkItemView")) {
+		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
+	}
+
+	else if ([arg1 isKindOfClass:%c(UIStatusBarTimeItemView)] && circletEnabledForClassname(@"UIStatusBarTimeItemView")) {
+		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionTimeOuter), frame.size.height);
+	}
+
+	else if ([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && circletEnabledForClassname(@"UIStatusBarBatteryItemView")) {
+		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery), frame.size.height);
+	}
+
+	return frame;
+}
+
+%end
+
+
+/**************************************************************************************/
+/************************ CRAVDelegate (used from first run) ****************************/
+/***************************************************************************************/
+
+@interface CRAlertViewDelegate : NSObject <UIAlertViewDelegate>
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
+@end
+
+@implementation CRAlertViewDelegate
+
+- (id)init {
+	if (self = [super init]){
+		// This class manages the memory management itself
+		[self retain];
+	}
+	return self;
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+	if (buttonIndex == [alertView cancelButtonIndex]) {
+		return;
+	}
+
+	else {
+		if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer.dylib"] || [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer2.dylib"]) {
+			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Cydia&path=Circlet"]];
+		}
+
+		else {
+			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Circlet"]];
+		}
+	}
+
+	// Die already
+	[self release];
+}
+
+@end
+
+/***************************************************************************************/
+/********************************* First Run Prompts  **********************************/
+/***************************************************************************************/
+
 static CRAlertViewDelegate *circletAVDelegate;
 static BOOL kCRUnlocked;
 
@@ -382,33 +467,6 @@ static BOOL kCRUnlocked;
 %end
 
 /***************************************************************************************/
-/********************************* Foreground Layout  **********************************/
-/***************************************************************************************/
-
-%hook UIStatusBarLayoutManager
-
-- (CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2 {
-	CGRect frame = %orig(arg1, arg2);
-	CRLOG(@"%@", NSStringFromCGRect(frame));
-
-	if ([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && circletEnabledForClassname(@"UIStatusBarSignalStrengthItemView")) {
-		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionSignal), frame.size.height);
-	}
-
-	else if ([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && circletEnabledForClassname(@"UIStatusBarDataNetworkItemView")) {
-		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
-	}
-
-	else if ([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && circletEnabledForClassname(@"UIStatusBarBatteryItemView")) {
-		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery), frame.size.height);
-	}
-
-	return frame;
-}
-
-%end
-
-/***************************************************************************************/
 /****************************** Pulling it all togctor   *******************************/
 /***************************************************************************************/
 
@@ -422,8 +480,15 @@ static BOOL kCRUnlocked;
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
 		CRLOG(@"Fixing up statusBar now...");
 
+
 		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+		[statusBar crossfadeTime:NO duration:0.0];		
 		[statusBar setShowsOnlyCenterItems:YES];
 		[statusBar setShowsOnlyCenterItems:NO];
+
+		CGFloat animationTime = 0.6;
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, animationTime * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+			[statusBar crossfadeTime:YES duration:animationTime];
+		});
 	}];
 }
