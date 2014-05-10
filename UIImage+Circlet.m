@@ -196,14 +196,46 @@
 }
 
 + (UIImage *)circletWithInnerColor:(UIColor *)inner outerColor:(UIColor *)outer radius:(CGFloat)radius innerPercentage:(CGFloat)innerPercent outerPercentage:(CGFloat)outerPercent style:(CircletStyle)style {
+	// Side-by-side:
+	CGFloat smallRadius = radius / 2.0;
+	CGFloat thickness = (smallRadius * 2.0) / 10.0;
+	smallRadius -= thickness;
+	
+	UIImage *outerCirclet = [UIImage circletWithColor:outer radius:smallRadius percentage:outerPercent style:style];
+	UIImage *innerCirclet = [UIImage circletWithColor:inner radius:smallRadius percentage:innerPercent style:style];
+	
+	CGSize comboSize = CGSizeMake((radius * 2.0) - thickness, (smallRadius * 2.0) + thickness);
+	UIGraphicsBeginImageContextWithOptions(comboSize, NO, [UIScreen mainScreen].scale);
+	[innerCirclet drawAtPoint:CGPointZero blendMode:kCGBlendModeMultiply alpha:1.0];
+	[outerCirclet drawAtPoint:CGPointMake(outerCirclet.size.width + thickness, 0.0) blendMode:kCGBlendModeMultiply alpha:1.0];
+	UIImage *comboCirclet = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+	
+	/*
+	Inner/Outer:
 	UIImage *outerCirclet = [UIImage circletWithColor:outer radius:radius percentage:outerPercent style:style];
 	UIImage *innerCirclet = [UIImage circletWithColor:inner radius:(radius / 2.0) percentage:innerPercent style:style];
-	
+
 	UIGraphicsBeginImageContextWithOptions(outerCirclet.size, NO, [UIScreen mainScreen].scale);
 	[outerCirclet drawAtPoint:CGPointZero blendMode:kCGBlendModeMultiply alpha:1.0];
 	[innerCirclet drawAtPoint:CGPointMake(innerCirclet.size.width / 2.0, innerCirclet.size.height / 2.0) blendMode:kCGBlendModeMultiply alpha:1.0];
 	UIImage *comboCirclet = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
+
+	Diagonal:
+	CGFloat spacer = radius / 30.0;
+	CGFloat smallRadius = (radius / 2.0) - spacer;
+	CGFloat thickness = (smallRadius * 2.0) / 10.0;
+	UIImage *outerCirclet = [UIImage circletWithColor:outer radius:(smallRadius + spacer) percentage:outerPercent style:style thickness:thickness];
+	UIImage *innerCirclet = [UIImage circletWithColor:inner radius:(smallRadius + spacer) percentage:innerPercent style:style thickness:thickness];
+	
+	CGSize comboSize = CGSizeMake(radius * 2.0, radius * 2.0);
+	UIGraphicsBeginImageContextWithOptions(comboSize, NO, [UIScreen mainScreen].scale);
+	[outerCirclet drawAtPoint:CGPointZero blendMode:kCGBlendModeMultiply alpha:1.0];
+	[innerCirclet drawAtPoint:CGPointMake((smallRadius * 2.0), (smallRadius * 2.0)) blendMode:kCGBlendModeMultiply alpha:1.0];
+	UIImage *comboCirclet = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+	*/
 	
 	return comboCirclet;
 }

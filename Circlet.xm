@@ -38,7 +38,7 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 		case CircletPositionTimeOuter:
 		case CircletPositionTimeInner:
 			value = CRVALUE(@"timeSize");
-			break;
+			return value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
 		case CircletPositionBattery:
 		case CircletPositionCharging:
 			value = CRVALUE(@"batterySize");
@@ -62,6 +62,8 @@ static CGFloat circletWidthFromPosition(CircletPosition posit) {
 
 	else if (posit == CircletPositionTimeOuter || posit == CircletPositionTimeInner) {
 		value = CRVALUE(@"timeSize");
+		CGFloat diameter = [value floatValue] * 2.0;
+		return (diameter * 2.0) + (diameter / 10.0);
 	}
 	
 	else {
