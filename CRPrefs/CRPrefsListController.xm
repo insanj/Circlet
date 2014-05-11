@@ -139,9 +139,8 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 	upwards.origin.y -= upwards.size.height;
 	statusBar.frame = upwards;
 
-	CGFloat shrinkAmount = 5.0;
-
-	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
+	CGFloat shrinkAmount = 5.0, animationDuration = 0.6;
+	[UIView animateWithDuration:animationDuration delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
 		NSLog(@"Animating out...");
 		
 		CGRect shrinkFrame = fakeStatusBar.frame;
@@ -157,7 +156,10 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 		statusBar.frame = downwards;
 	} completion: ^(BOOL finished) {
 		[fakeStatusBar removeFromSuperview];
+		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshTime" object:nil];
 	}];
+
+
 }
 
 - (void)shareTapped:(UIBarButtonItem *)sender {

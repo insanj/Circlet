@@ -482,15 +482,18 @@ static BOOL kCRUnlocked;
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
 		CRLOG(@"Fixing up statusBar now...");
 
-
 		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
-		[statusBar crossfadeTime:NO duration:0.0];		
 		[statusBar setShowsOnlyCenterItems:YES];
 		[statusBar setShowsOnlyCenterItems:NO];
+	}];
 
-		CGFloat animationTime = 0.6;
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, animationTime * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-			[statusBar crossfadeTime:YES duration:animationTime];
+	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshTime" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+		CGFloat shorterDuration = 0.3;
+
+		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+		[statusBar crossfadeTime:NO duration:shorterDuration];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, shorterDuration * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+			[statusBar crossfadeTime:YES duration:shorterDuration];
 		});
 	}];
 }
