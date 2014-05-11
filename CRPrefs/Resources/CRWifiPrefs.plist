@@ -57,8 +57,8 @@
 			</array>
 			<key>validValues</key> <array>
 				<real>3.0</real>
+				<real>4.0</real>
 				<real>5.0</real>
-				<real>6.0</real>
 			</array>
 		</dict>
 

@@ -74,14 +74,61 @@
 	if (indexPath.row == 0) {	
 		NSString *key = [[self specifier] propertyForKey:@"key"];
 		NSString *colorString = CRVALUE([key stringByAppendingString:@"Custom"]);
-		CIColor *customColor = [CIColor colorWithString:colorString];
-		NKOColorPickerView *pickerView = [[NKOColorPickerView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width - 50.0, self.view.frame.size.height / 2.0) color:[UIColor colorWithRed:customColor.red green:customColor.green blue:customColor.blue alpha:customColor.alpha] andDidChangeColorBlock:nil];
+		CIColor *customCIColor = [CIColor colorWithString:colorString];
+		UIColor *customColor = [UIColor colorWithRed:customCIColor.red green:customCIColor.green blue:customCIColor.blue alpha:customCIColor.alpha];
 
-		UIAlertView *pickerAlertView = [[UIAlertView alloc] initWithTitle:@"Custom Color" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
-		[pickerAlertView setValue:pickerView forKey:@"accessoryView"];
-		[pickerAlertView show];
-		[pickerAlertView release];
+		_pickerAlertView = [[UIAlertView alloc] initWithTitle:nil message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
+		_pickerAlertView.alertViewStyle = UIAlertViewStylePlainTextInput;
+	
+		UITextField *colorField = [_pickerAlertView textFieldAtIndex:0];
+		colorField.delegate = self;
+		// colorField.keyboardType = UIKeyboardTypeDefault;
+		// colorField.keyboardAppearance = UIKeyboardAppearanceDark;
+		
+		const CGFloat *colorComponents = CGColorGetComponents(customColor.CGColor);
+		NSString *hexString=[NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
+		colorField.text = hexString;
+
+		NKOColorPickerView *pickerView = [[NKOColorPickerView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width - 50.0, self.view.frame.size.height / 3.0) color:customColor andDidChangeColorBlock:^(UIColor *color) {
+			const CGFloat *colorComponents = CGColorGetComponents(color.CGColor);
+			NSString *hexString=[NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
+			if (colorField.text.length == 7 && ![hexString isEqualToString:colorField.text]) {
+				colorField.text = hexString;
+			}
+		}];
+
+		[_pickerAlertView setValue:pickerView forKey:@"accessoryView"];
+		[_pickerAlertView show];
 	}
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+	if (string.length == 7) { // If the picker is trying to fit in a color
+		return NO;
+	}
+	
+	else if (range.location == 0) { // If the user is trying to remove the #
+		textField.text = @"#";
+		return NO;
+	}
+	
+	else if (range.location > 6) { // If the user is trying to input more than 6 characters
+		return NO;
+	}
+	
+	NSScanner *colorScanner = [NSScanner scannerWithString:[textField.text substringFromIndex:1]];
+	
+	unsigned int pickerColor;
+	[colorScanner scanHexInt:&pickerColor];
+	CGFloat red = ((pickerColor & 0xFF0000) >> 16) / 255.0;
+	CGFloat green = ((pickerColor & 0x00FF00) >>  8) / 255.0;
+	CGFloat blue  = (pickerColor & 0x0000FF) / 255.0;
+	
+	UIColor *color = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
+	NKOColorPickerView *colorPickerView = (NKOColorPickerView *)[_pickerAlertView valueForKey:@"accessoryView"];
+	[colorPickerView setColor:color];
+
+	return YES;
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
@@ -99,6 +146,11 @@
 
 		[[self table] reloadData];
 	}
+}
+
+- (void)dealloc {
+	[_pickerAlertView release];
+	[super dealloc];
 }
 
 @end

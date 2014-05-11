@@ -34,9 +34,11 @@
 @interface CRBatteryPrefsListController : CRItemPrefsListController
 @end
 
-@interface CRListItemsController : PSListItemsController <UIAlertViewDelegate> {
+@interface CRListItemsController : PSListItemsController <UIAlertViewDelegate, UITextFieldDelegate> {
 	NSDictionary *_safeTitleToColor;
 }
+
+@property(nonatomic, retain) UIAlertView *pickerAlertView;
 @end
 
 @interface CRCreditsCell : PSTableCell <UITextViewDelegate> {
