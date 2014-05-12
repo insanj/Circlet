@@ -109,7 +109,7 @@
 
         <dict>
             <key>cell</key>             <string>PSButtonCell</string>
-            <key>label</key>            <string>Refresh Status Bar</string>
+            <key>label</key>            <string>Refresh Wifi and Data</string>
             <key>action</key>           <string>sidesReplenish</string>
         </dict>
 

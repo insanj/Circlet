@@ -1,13 +1,48 @@
 #import "CRPrefs.h"
 
-static void circletDisable(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
+static void circletSidesDisable(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLSmartDisable" object:nil];
+
+	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+	UIView *fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
+	[statusBar.superview addSubview:fakeStatusBar];
+
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
+
+	CGRect upwards = statusBar.frame;
+	upwards.origin.y -= upwards.size.height;
+	statusBar.frame = upwards;
+
+	CGFloat shrinkAmount = 5.0;
+	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
+		NSLog(@"Animating out...");
+		
+		CGRect shrinkFrame = fakeStatusBar.frame;
+		shrinkFrame.origin.x += shrinkAmount;
+		shrinkFrame.origin.y += shrinkAmount;
+		shrinkFrame.size.width -= shrinkAmount;
+		shrinkFrame.size.height -= shrinkAmount;
+		fakeStatusBar.frame = shrinkFrame;
+		fakeStatusBar.alpha = 0.0;
+		
+		CGRect downwards = statusBar.frame;
+		downwards.origin.y += downwards.size.height;
+		statusBar.frame = downwards;
+	} completion: ^(BOOL finished) {
+		[fakeStatusBar removeFromSuperview];
+	}];
+}
+
+static void circletMiddleDisable(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLSmartDisable" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshTime" object:nil];
 }
 
 @implementation CRPrefsListController
 
 - (void)loadView {
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletDisable, CFSTR("com.insanj.circlet/Disable"), NULL, 0);
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletSidesDisable, CFSTR("com.insanj.circlet/SidesDisable"), NULL, 0);
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletMiddleDisable, CFSTR("com.insanj.circlet/MiddleDisable"), NULL, 0);
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(smartDisable) name:@"CLSmartDisable" object:nil];
 
 	[super loadView];

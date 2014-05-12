@@ -17,6 +17,7 @@ typedef NS_ENUM(NSUInteger, CircletPosition) {
 	CircletPositionTimeInner, // == 4
     CircletPositionBattery, // == 5
     CircletPositionCharging, // == 6
+    CircletPositionLowBattery, // == 7
 };
 
 /***************************************************************************************/
@@ -41,6 +42,7 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 			return value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
 		case CircletPositionBattery:
 		case CircletPositionCharging:
+		case CircletPositionLowBattery:
 			value = CRVALUE(@"batterySize");
 			break;
 	}
@@ -94,6 +96,7 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 			break;
 		case CircletPositionBattery:
 		case CircletPositionCharging:
+		case CircletPositionLowBattery:
 			value = CRVALUE(@"batteryStyle");
 			invert = CRVALUE(@"batteryInvert");
 			break;
@@ -120,7 +123,19 @@ static UIColor * circletColorForKey(BOOL light, NSString *key) {
 		return [UIColor colorWithRed:customColor.red green:customColor.green blue:customColor.blue alpha:customColor.alpha];
 	}
 
-	if (!value || !valueInDict) {
+	else if (!value || !valueInDict) {
+		/* if ([key isEqualToString:@"lowBatteryLightColor"]) {
+			return [UIColor yellowColor];
+		}
+
+		else if ([key isEqualToString:@"lowBatteryDarkColor"]) {
+			return [UIColor redColor];
+		}*/
+
+		if ([key rangeOfString:@"lowBattery"].location != NSNotFound) {
+			return [UIColor redColor];
+		}
+
 		return light ? [UIColor whiteColor] : [UIColor colorWithRed:17.0/255.0 green:17.0/255.0 blue:17.0/255.0 alpha:1.0];
 	}
 
@@ -154,6 +169,9 @@ static UIColor * circletColorForPosition(BOOL light, CircletPosition posit){
 			case CircletPositionCharging:
 				key = @"chargingLightColor";
 				break;
+			case CircletPositionLowBattery:
+				key = @"lowBatteryLightColor";
+				break;
 		}
 	}
 
@@ -179,6 +197,9 @@ static UIColor * circletColorForPosition(BOOL light, CircletPosition posit){
 				break;
 			case CircletPositionCharging:
 				key = @"chargingDarkColor";
+				break;
+			case CircletPositionLowBattery:
+				key = @"lowBatteryDarkColor";
 				break;
 		}
 	}
@@ -342,6 +363,11 @@ static BOOL circletEnabledForClassname(NSString *className) {
 			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionCharging) radius:radius percentage:percentage style:style];
 		}
 
+		else if (percentage <= 0.20) {
+			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionLowBattery) radius:radius percentage:percentage style:style];
+			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionLowBattery) radius:radius percentage:percentage style:style];
+		}
+
 		else {
 			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionBattery) radius:radius percentage:percentage style:style];
 			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionBattery) radius:radius percentage:percentage style:style];
@@ -362,26 +388,32 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 %hook UIStatusBarLayoutManager
 
-- (CGRect)_frameForItemView:(UIStatusBarItemView *)arg1 startPosition:(float)arg2 {
+- (CGRect)_frameForItemView:(id)arg1 startPosition:(float)arg2 {
 	CGRect frame = %orig(arg1, arg2);
-	CRLOG(@"%@", NSStringFromCGRect(frame));
+	NSString *className = NSStringFromClass([arg1 class]);
 
-	if ([arg1 isKindOfClass:%c(UIStatusBarSignalStrengthItemView)] && circletEnabledForClassname(@"UIStatusBarSignalStrengthItemView")) {
-		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionSignal), frame.size.height);
+	if (circletEnabledForClassname(className)) {
+		if ([className isEqualToString:@"UIStatusBarSignalStrengthItemView"]) {
+			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionSignal), frame.size.height);
+		}
+
+		else if ([className isEqualToString:@"UIStatusBarDataNetworkItemView"]) {
+			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
+		}
+
+		else if ([className isEqualToString:@"UIStatusBarTimeItemView"]) {
+			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionTimeOuter), frame.size.height);
+		}
+
+		else if ([className isEqualToString:@"UIStatusBarBatteryItemView"]) {
+			UIImage *boltImage = (UIImage *) [arg1 _accessoryImage];
+			CGFloat boltWidth = boltImage ? boltImage.size.width : 0.0;
+
+			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery) + boltWidth, frame.size.height);
+		}
 	}
 
-	else if ([arg1 isKindOfClass:%c(UIStatusBarDataNetworkItemView)] && circletEnabledForClassname(@"UIStatusBarDataNetworkItemView")) {
-		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
-	}
-
-	else if ([arg1 isKindOfClass:%c(UIStatusBarTimeItemView)] && circletEnabledForClassname(@"UIStatusBarTimeItemView")) {
-		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionTimeOuter), frame.size.height);
-	}
-
-	else if ([arg1 isKindOfClass:%c(UIStatusBarBatteryItemView)] && circletEnabledForClassname(@"UIStatusBarBatteryItemView")) {
-		return CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery), frame.size.height);
-	}
-
+	CRLOG(@"%@ for %@", NSStringFromCGRect(frame), className);
 	return frame;
 }
 

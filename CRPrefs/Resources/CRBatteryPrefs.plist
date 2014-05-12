@@ -104,6 +104,26 @@
 		</dict>
 
         <dict>
+            <key>cell</key>         <string>PSLinkListCell</string>
+            <key>defaults</key>     <string>com.insanj.circlet</string>
+            <key>detail</key>       <string>CRListItemsController</string>
+            <key>key</key>          <string>lowBatteryLightColor</string>
+            <key>label</key>        <string>Low Battery Light Color</string>
+            <key>titlesDataSource</key>  <string>lightColorTitles:</string>
+            <key>valuesDataSource</key>  <string>lightColorValues:</string>
+        </dict>
+
+        <dict>
+        <key>cell</key>             <string>PSLinkListCell</string>
+        <key>defaults</key>         <string>com.insanj.circlet</string>
+            <key>detail</key>       <string>CRListItemsController</string>
+            <key>key</key>          <string>lowBatteryDarkColor</string>
+            <key>label</key>        <string>Low Battery Dark Color</string>
+            <key>titlesDataSource</key>  <string>darkColorTitles:</string>
+            <key>valuesDataSource</key>  <string>darkColorValues:</string>
+        </dict>
+
+        <dict>
             <key>cell</key>             <string>PSGroupCell</string>
         </dict>
     
@@ -123,7 +143,7 @@
 
         <dict>
             <key>cell</key>             <string>PSButtonCell</string>
-            <key>label</key>            <string>Refresh Status Bar</string>
+            <key>label</key>            <string>Refresh Battery</string>
             <key>action</key>           <string>sidesReplenish</string>
         </dict>
 
