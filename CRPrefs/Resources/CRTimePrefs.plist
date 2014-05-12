@@ -103,6 +103,17 @@
             <key>valuesDataSource</key>  <string>darkColorTitles:</string>
         </dict>
 
+         <dict>
+            <key>cell</key>             <string>PSGroupCell</string>
+            <key>footerText</key>       <string>No respring required.</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>             <string>PSButtonCell</string>
+            <key>label</key>            <string>Refresh Status Bar</string>
+            <key>action</key>           <string>middleReplenish</string>
+        </dict>
+
     </array>
     <key>title</key>    <string>Time</string>
 </dict>

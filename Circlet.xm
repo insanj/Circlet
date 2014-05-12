@@ -308,7 +308,9 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	CRLOG(@"%@", %orig);
 	
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
-	if (shouldOverride) {
+	NSNumber *showBolt = CRVALUE(@"showBolt");
+
+	if (shouldOverride && (!showBolt || ![showBolt boolValue])) {
 		UIImage *image = %orig();
 		UIGraphicsBeginImageContextWithOptions(CGSizeMake(1.0, 1.0), NO, image.scale);
 		UIImage *tiny = UIGraphicsGetImageFromCurrentImageContext();
@@ -488,12 +490,12 @@ static BOOL kCRUnlocked;
 	}];
 
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshTime" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-		CGFloat shorterDuration = 0.3;
+		CGFloat animationDuration = 0.6;
 
 		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
-		[statusBar crossfadeTime:NO duration:shorterDuration];
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, shorterDuration * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-			[statusBar crossfadeTime:YES duration:shorterDuration];
+		[statusBar crossfadeTime:NO duration:animationDuration];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, animationDuration * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+			[statusBar crossfadeTime:YES duration:animationDuration];
 		});
 	}];
 }

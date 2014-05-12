@@ -128,40 +128,6 @@ static void circletDisable(CFNotificationCenterRef center, void *observer, CFStr
 	[arg1 deselectRowAtIndexPath:arg2 animated:YES];
 }
 
-- (void)replenish {
-	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
-	UIView *fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
-	[statusBar.superview addSubview:fakeStatusBar];
-
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
-
-	CGRect upwards = statusBar.frame;
-	upwards.origin.y -= upwards.size.height;
-	statusBar.frame = upwards;
-
-	CGFloat shrinkAmount = 5.0, animationDuration = 0.6;
-	[UIView animateWithDuration:animationDuration delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
-		NSLog(@"Animating out...");
-		
-		CGRect shrinkFrame = fakeStatusBar.frame;
-		shrinkFrame.origin.x += shrinkAmount;
-		shrinkFrame.origin.y += shrinkAmount;
-		shrinkFrame.size.width -= shrinkAmount;
-		shrinkFrame.size.height -= shrinkAmount;
-		fakeStatusBar.frame = shrinkFrame;
-		fakeStatusBar.alpha = 0.0;
-		
-		CGRect downwards = statusBar.frame;
-		downwards.origin.y += downwards.size.height;
-		statusBar.frame = downwards;
-	} completion: ^(BOOL finished) {
-		[fakeStatusBar removeFromSuperview];
-		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshTime" object:nil];
-	}];
-
-
-}
-
 - (void)shareTapped:(UIBarButtonItem *)sender {
 	NSString *text = @"Life has never been simpler than with #Circlet by @insanj.";
 	NSURL *url = [NSURL URLWithString:@"http://insanj.com/circlet"];

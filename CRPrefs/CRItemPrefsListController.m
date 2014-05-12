@@ -15,6 +15,41 @@
 	self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
 }
 
+- (void)sidesReplenish {
+	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+	UIView *fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
+	[statusBar.superview addSubview:fakeStatusBar];
+
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
+
+	CGRect upwards = statusBar.frame;
+	upwards.origin.y -= upwards.size.height;
+	statusBar.frame = upwards;
+
+	CGFloat shrinkAmount = 5.0;
+	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
+		NSLog(@"Animating out...");
+		
+		CGRect shrinkFrame = fakeStatusBar.frame;
+		shrinkFrame.origin.x += shrinkAmount;
+		shrinkFrame.origin.y += shrinkAmount;
+		shrinkFrame.size.width -= shrinkAmount;
+		shrinkFrame.size.height -= shrinkAmount;
+		fakeStatusBar.frame = shrinkFrame;
+		fakeStatusBar.alpha = 0.0;
+		
+		CGRect downwards = statusBar.frame;
+		downwards.origin.y += downwards.size.height;
+		statusBar.frame = downwards;
+	} completion: ^(BOOL finished) {
+		[fakeStatusBar removeFromSuperview];
+	}];
+}
+
+- (void)middleReplenish {
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshTime" object:nil];
+}
+
 - (void)tableView:(id)arg1 didSelectRowAtIndexPath:(id)arg2 {
 	[super tableView:arg1 didSelectRowAtIndexPath:arg2];
 	[arg1 deselectRowAtIndexPath:arg2 animated:YES];
