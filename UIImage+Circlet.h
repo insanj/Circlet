@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 #import <CoreGraphics/CoreGraphics.h>
+#import <CoreText/CoreText.h>
 
 @interface UIImage (Circlet)
 
@@ -17,11 +18,13 @@ typedef NS_ENUM(NSUInteger, CircletStyle) {
     CircletStyleRadial = 0,
     CircletStyleFill, // == 1
     CircletStyleConcentric, // == 2
+    CircletStyleTextual, // == 3
 	
 	// Bottom down
-	CircletStyleRadialInverse, // == 3
-    CircletStyleFillInverse, // == 4
-    CircletStyleConcentricInverse, // == 5
+	CircletStyleRadialInverse, // == 4
+    CircletStyleFillInverse, // == 5
+    CircletStyleConcentricInverse, // == 6
+	CircletStyleTextualInverse, // == 7
 };
 
 + (UIImage *)lightCircletWithRadius:(CGFloat)radius percentage:(CGFloat)percent style:(CircletStyle)style;

@@ -133,10 +133,10 @@ static UIColor * circletColorForKey(BOOL light, NSString *key) {
 		}*/
 
 		if ([key rangeOfString:@"lowBattery"].location != NSNotFound) {
-			return [UIColor redColor];
+			return titleToColor[@"Red"];
 		}
 
-		return light ? [UIColor whiteColor] : [UIColor colorWithRed:17.0/255.0 green:17.0/255.0 blue:17.0/255.0 alpha:1.0];
+		return light ? titleToColor[@"White"] : titleToColor[@"Black"];
 	}
 
 	return valueInDict;
@@ -278,9 +278,32 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 		CRLOG(@"networkType:%i, wifiState:%i, percentage:%f", networkType, wifiState, percentage);
 		UIImage *white, *black;
+
 		if (networkType != 5) {
-			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius percentage:1.0 style:style];
-			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius percentage:1.0 style:style];
+			CTRadioAccessTechnology *radioTechnology = [[CTRadioAccessTechnology alloc] init];
+			NSString *radioType = radioTechnology.radioAccessTechnology;
+			[radioTechnology release];
+
+			if ([radioType rangeOfString:@"EDGE"].location != NSNotFound) {
+				percentage = 0.5;
+			}
+
+			else if ([radioType rangeOfString:@"HSDPA"].location != NSNotFound) {
+				percentage = 0.75;
+			}
+
+			else if ([radioType rangeOfString:@"LTE"].location != NSNotFound) {
+				percentage = 1.0;
+			}
+
+			else {
+				percentage = 0.25;
+			}
+
+			CRLOG(@"data network type: %@, percentage: %f", radioType, percentage);
+
+			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius percentage:percentage style:style];
+			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius percentage:percentage style:style];
 		}
 
 		else {
@@ -295,6 +318,8 @@ static BOOL circletEnabledForClassname(NSString *className) {
 }
 
 %end
+
+// UIStatusBarServiceItemView
 
 %hook UIStatusBarTimeItemView
 
@@ -408,7 +433,7 @@ static BOOL circletEnabledForClassname(NSString *className) {
 		else if ([className isEqualToString:@"UIStatusBarBatteryItemView"]) {
 			UIImage *boltImage = (UIImage *) [arg1 _accessoryImage];
 			CGFloat boltWidth = boltImage ? boltImage.size.width : 0.0;
-
+			// ionno deal with this
 			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery) + boltWidth, frame.size.height);
 		}
 	}

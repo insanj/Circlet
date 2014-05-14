@@ -1,13 +1,13 @@
 THEOS_PACKAGE_DIR_NAME = debs
 TARGET =: clang
-ARCHS = armv7 armv7s arm64
+ARCHS = armv7 arm64
 # DEBUG = 1
 
 include theos/makefiles/common.mk
 
 TWEAK_NAME = Circlet
 Circlet_FILES = Circlet.xm UIImage+Circlet.m
-Circlet_FRAMEWORKS = Foundation UIKit QuartzCore CoreGraphics CoreImage
+Circlet_FRAMEWORKS = Foundation UIKit QuartzCore CoreGraphics CoreImage CoreTelephony CoreText
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 SUBPROJECTS += CRPrefs

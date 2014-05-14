@@ -7,6 +7,7 @@
 //
 
 #import "UIImage+Circlet.h"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 @implementation UIImage (Circlet)
 
@@ -32,6 +33,7 @@
 	
 	UIGraphicsBeginImageContextWithOptions(bounds.size, NO, [UIScreen mainScreen].scale);
 	CGContextRef context = UIGraphicsGetCurrentContext();
+	CGContextSetShouldAntialias(context, YES);
 	
 	// Creates outline of circle with calculated thickness as additional pixels
 	CGContextSetLineWidth(context, thickness);
@@ -48,58 +50,133 @@
 		CGContextSetFillColorWithColor(context, colorRef);
 		CGContextStrokePath(context);
 		
-		if (percent >= 0.98) {
-			CGContextFillEllipseInRect(context, frame);
+		// Applies inversion settings, or properly deducts percentage amount
+		switch (style) {
+			default:
+			case CircletStyleRadial:
+			case CircletStyleTextual:
+			case CircletStyleTextualInverse:
+				break;
+			case CircletStyleFill:
+				if (percent < 1.0) {
+					percent = 1.0 - percent;
+				}
+				break;
+			case CircletStyleConcentric:
+				percent = 1.0 - percent;
+				break;
+			case CircletStyleRadialInverse:
+			case CircletStyleFillInverse:
+			case CircletStyleConcentricInverse:
+				percent -= 1.0;
+				break;
 		}
 		
+		// ◔
+		if (style == CircletStyleRadial) {
+			CGFloat startAngle = -M_PI_2, endAngle = -M_PI_2 + (2 * M_PI * percent);
+			CGPoint endPoint = CGPointMake(center.x + radius * cos(startAngle), center.y + radius * sin(startAngle));
+			UIBezierPath *arc = [UIBezierPath bezierPath];
+			[arc moveToPoint:center];
+			[arc addLineToPoint:endPoint];
+			[arc addArcWithCenter:center radius:radius startAngle:startAngle endAngle:endAngle clockwise:YES];
+			[arc addLineToPoint:center];
+			[arc fill];
+		}
+		
+		// ◕
+		else if (style == CircletStyleRadialInverse) {
+			CGFloat startAngle = -M_PI_2, endAngle = -M_PI_2 + ((2 * M_PI) * percent);
+			CGPoint endPoint = CGPointMake(center.x + radius * cos(startAngle), center.y + radius * sin(startAngle));
+			UIBezierPath *arc = [UIBezierPath bezierPath];
+			[arc moveToPoint:center];
+			[arc addLineToPoint:endPoint];
+			[arc addArcWithCenter:center radius:radius startAngle:startAngle endAngle:endAngle clockwise:NO];
+			[arc addLineToPoint:center];
+			[arc fill];
+		}
+		
+		// ◒ or ◓
+		else if (style == CircletStyleFill || style == CircletStyleFillInverse) {
+			CGContextAddArc(context, center.x, center.y, radius - thickness, M_PI_2 * (3 - (2 * percent)), M_PI_2 * (3 + (2 * percent)), YES);
+		}
+		
+		// ⦿
+		else if (style == CircletStyleConcentric) {
+			CGRect minor = CGRectInset(frame, percent * radius, percent * radius);
+			CGContextAddEllipseInRect(context, minor);
+		}
+		
+		// ➉ or ➓
 		else {
-			// Applies inversion settings, or properly deducts percentage amount
-			if (style == CircletStyleFill && percent < 1.0) {
-				percent = 1.0 - percent;
+			/*CGTextDrawingMode mode = kCGTextFill;
+			if (style == CircletStyleTextualInverse) {
+			//	mode = kCGTextInvisible;
+				CGContextFillEllipseInRect(context, frame);
 			}
 			
-			else if (style == CircletStyleConcentric) {
-				percent = 1.0 - percent;
+			CGContextTranslateCTM(context, radius / 2.0, radius);
+			CGContextScaleCTM(context, 1.0, -1.0);
+			CGContextSetTextDrawingMode(context, mode);
+			
+			NSString *number = [NSString stringWithFormat:@"%i", (int)percent];
+			CGFloat fontSize = diameter / number.length;
+			UIFont *font = [UIFont fontWithName:@"HelveticaNeue-Thin" size:fontSize];
+			// [number sizeWithAttributes:@{NSFontAttributeName : font}].height
+			
+			CGContextSelectFont(context, [font.fontName UTF8String], fontSize, kCGEncodingMacRoman);
+		    CGContextShowTextAtPoint(context, 0.0, -thickness, [number UTF8String], number.length);*/
+						
+			/*NSString *number = [NSString stringWithFormat:@"%i", (int)percent];
+			CGFloat fontSize = diameter / number.length;
+			UIFont *font = [UIFont fontWithName:@"HelveticaNeue-Thin" size:fontSize];
+			
+			UIColor *textColor = color;
+			if (style == CircletStyleTextualInverse) {
+				const CGFloat *colorComponents = CGColorGetComponents(textColor.CGColor);
+				textColor = [UIColor colorWithRed:(1.0 - colorComponents[0]) green:(1.0 - colorComponents[1]) blue:(1.0 - colorComponents[2]) alpha:colorComponents[3]];
 			}
 			
-			else if (style != CircletStyleRadial) {
-				percent -= 1.0;
+			NSAttributedString *attributedNumber = [[NSAttributedString alloc] initWithString:number attributes:@{ NSFontAttributeName : font, NSForegroundColorAttributeName : color, NSParagraphStyleAttributeName : kCAAlignmentCenter }];
+			CTFramesetterRef coreTextFramesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)attributedNumber);
+			
+			CGContextSetTextMatrix(context, CGAffineTransformIdentity);
+			CGContextTranslateCTM(context, 0.0, 0.0);
+			CGContextScaleCTM(context, 1.0, -1.0);
+			
+			CGMutablePathRef coreTextPath = CGPathCreateMutable();
+			CGPathAddRect(coreTextPath, NULL, frame);
+			
+			CTFrameRef coreTextFrame = CTFramesetterCreateFrame(coreTextFramesetter, CFRangeMake(0, number.length), coreTextPath, NULL);
+			CTFrameDraw(coreTextFrame, context);
+			CFRelease(coreTextPath);
+			// [coreTextAttributedString release];*/
+			
+			NSString *circletText = [NSString stringWithFormat:@"%i", (int)percent];
+			CGFloat circletTextSize = (diameter - thickness) / circletText.length;
+			UIFont *circletTextFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:circletTextSize];
+			NSMutableParagraphStyle *circletTextParagraphStyle = [[NSMutableParagraphStyle alloc] init];
+			circletTextParagraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
+			circletTextParagraphStyle.alignment = NSTextAlignmentCenter;
+			
+			NSAttributedString *circletAttributedText = [[NSAttributedString alloc] initWithString:circletText attributes:@{ NSFontAttributeName : circletTextFont, NSForegroundColorAttributeName : color, NSParagraphStyleAttributeName : circletTextParagraphStyle }];
+			
+			CGPoint circletDrawPoint = center;
+			circletDrawPoint.x -= circletAttributedText.size.width / 2.0;
+			circletDrawPoint.y -= circletAttributedText.size.height / 1.9;
+			// circletDrawFrame.origin.x -= thickness / 5.0;
+
+			/*if (style == CircletStyleTextualInverse) {
+				CGContextFillEllipseInRect(context, frame);
+				CGImageRef circletTextImage = [self circletImageWithText:circletAttributedText];
+				CGImageRef mask = CGImageMaskCreate(CGImageGetWidth(circletTextImage), CGImageGetHeight(circletTextImage),CGImageGetBitsPerComponent(circletTextImage), CGImageGetBitsPerPixel(circletTextImage), CGImageGetBytesPerRow(circletTextImage), CGImageGetDataProvider(circletTextImage), NULL, false);
+				CGImageCreateWithMask(<#CGImageRef image#>, <#CGImageRef mask#>)
+				CGContextClipToMask(context, frame, mask);
 			}
 			
-			// ◔
-			if (style == CircletStyleRadial) {
-				CGFloat startAngle = -M_PI_2, endAngle = -M_PI_2 + (2 * M_PI * percent);
-				CGPoint endPoint = CGPointMake(center.x + radius * cos(startAngle), center.y + radius * sin(startAngle));
-				UIBezierPath *arc = [UIBezierPath bezierPath];
-				[arc moveToPoint:center];
-				[arc addLineToPoint:endPoint];
-				[arc addArcWithCenter:center radius:radius startAngle:startAngle endAngle:endAngle clockwise:YES];
-				[arc addLineToPoint:center];
-				[arc fill];
-			}
-			
-			// ◕
-			else if (style == CircletStyleRadialInverse) {
-				CGFloat startAngle = -M_PI_2, endAngle = -M_PI_2 + ((2 * M_PI) * percent);
-				CGPoint endPoint = CGPointMake(center.x + radius * cos(startAngle), center.y + radius * sin(startAngle));
-				UIBezierPath *arc = [UIBezierPath bezierPath];
-				[arc moveToPoint:center];
-				[arc addLineToPoint:endPoint];
-				[arc addArcWithCenter:center radius:radius startAngle:startAngle endAngle:endAngle clockwise:NO];
-				[arc addLineToPoint:center];
-				[arc fill];
-			}
-			
-			// ◒ or ◓
-			else if (style == CircletStyleFill || style == CircletStyleFillInverse) {
-				CGContextAddArc(context, center.x, center.y, radius - thickness, M_PI_2 * (3 - (2 * percent)), M_PI_2 * (3 + (2 * percent)), YES);
-			}
-			
-			// ⦿
-			else {
-				CGRect minor = CGRectInset(frame, percent * radius, percent * radius);
-				CGContextAddEllipseInRect(context, minor);
-			}
+			else {*/
+				[circletAttributedText drawAtPoint:circletDrawPoint];
+			//}
 		}
 	}
 	
@@ -155,4 +232,12 @@
 	return comboCirclet;
 }
 
++ (CGImageRef)circletImageWithText:(NSAttributedString *)text {
+	UIGraphicsBeginImageContextWithOptions(text.size, NO, [UIScreen mainScreen].scale);
+	[text drawAtPoint:CGPointZero];
+	UIImage *circletTextImage = [UIGraphicsGetImageFromCurrentImageContext() imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+	UIGraphicsEndImageContext();
+	
+	return circletTextImage.CGImage;
+}
 @end
