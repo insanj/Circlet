@@ -18,15 +18,17 @@
             <key>key</key>          <string>batteryStyle</string>
             <key>label</key>        <string>Style</string>
             <key>cellClass</key>    <string>CRSegmentTableCell</string>
-            <key>validTitles</key>  <array>
+            <key>validTitles</key> <array>
                 <string>Radial</string>
                 <string>Fill</string>
                 <string>Concentric</string>
+                <string>Textual</string>
             </array>
             <key>validValues</key> <array>
                 <integer>0</integer>
                 <integer>1</integer>
                 <integer>2</integer>
+                <integer>3</integer>
             </array>
         </dict>
 

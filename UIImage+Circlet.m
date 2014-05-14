@@ -11,19 +11,10 @@
 
 @implementation UIImage (Circlet)
 
-+ (UIImage *)lightCircletWithRadius:(CGFloat)radius percentage:(CGFloat)percent style:(CircletStyle)style {
-	return [self circletWithColor:[UIColor whiteColor] radius:radius percentage:percent style:style];
-}
-
-+ (UIImage *)darkCircletWithRadius:(CGFloat)radius percentage:(CGFloat)percent style:(CircletStyle)style {
-	return [self circletWithColor:[UIColor blackColor] radius:radius percentage:percent style:style];
-}
-
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius percentage:(CGFloat)percent style:(CircletStyle)style {
 	return [self circletWithColor:color radius:radius percentage:percent style:style thickness:((radius * 2.0) / 10.0)];
 }
 
-// Dumb helper method for oulining (shouldn't be used in average production)
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius percentage:(CGFloat)percent style:(CircletStyle)style thickness:(CGFloat)thickness {
 	CGFloat diameter = radius * 2.0;
 	CGRect frame = (CGRect){CGPointMake(thickness / 2.0, thickness / 2.0), CGSizeMake(diameter, diameter)};
@@ -58,9 +49,7 @@
 			case CircletStyleTextualInverse:
 				break;
 			case CircletStyleFill:
-				if (percent < 1.0) {
-					percent = 1.0 - percent;
-				}
+				percent = fabs(0.99 - percent);
 				break;
 			case CircletStyleConcentric:
 				percent = 1.0 - percent;
@@ -166,17 +155,12 @@
 			circletDrawPoint.y -= circletAttributedText.size.height / 1.9;
 			// circletDrawFrame.origin.x -= thickness / 5.0;
 
-			/*if (style == CircletStyleTextualInverse) {
+			if (style == CircletStyleTextualInverse) {
 				CGContextFillEllipseInRect(context, frame);
-				CGImageRef circletTextImage = [self circletImageWithText:circletAttributedText];
-				CGImageRef mask = CGImageMaskCreate(CGImageGetWidth(circletTextImage), CGImageGetHeight(circletTextImage),CGImageGetBitsPerComponent(circletTextImage), CGImageGetBitsPerPixel(circletTextImage), CGImageGetBytesPerRow(circletTextImage), CGImageGetDataProvider(circletTextImage), NULL, false);
-				CGImageCreateWithMask(<#CGImageRef image#>, <#CGImageRef mask#>)
-				CGContextClipToMask(context, frame, mask);
+				CGContextSetBlendMode(context, kCGBlendModeDestinationOut);
 			}
 			
-			else {*/
-				[circletAttributedText drawAtPoint:circletDrawPoint];
-			//}
+			[circletAttributedText drawAtPoint:circletDrawPoint];
 		}
 	}
 	
@@ -232,12 +216,50 @@
 	return comboCirclet;
 }
 
-+ (CGImageRef)circletImageWithText:(NSAttributedString *)text {
-	UIGraphicsBeginImageContextWithOptions(text.size, NO, [UIScreen mainScreen].scale);
-	[text drawAtPoint:CGPointZero];
-	UIImage *circletTextImage = [UIGraphicsGetImageFromCurrentImageContext() imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
++ (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius char:(char)letter invert:(BOOL)invert{
+	CGFloat diameter = radius * 2.0;
+	CGFloat thickness = diameter / 10.0;
+	CGRect frame = (CGRect){CGPointMake(thickness / 2.0, thickness / 2.0), CGSizeMake(diameter, diameter)};
+	CGRect bounds = (CGRect){CGPointZero, CGSizeMake(diameter + thickness, diameter + thickness)};
+	CGPoint center = CGPointMake(bounds.size.width / 2.0, bounds.size.height / 2.0);
+	CGColorRef colorRef = color.CGColor; // Light color
+	
+	UIGraphicsBeginImageContextWithOptions(bounds.size, NO, [UIScreen mainScreen].scale);
+	CGContextRef context = UIGraphicsGetCurrentContext();
+	CGContextSetShouldAntialias(context, YES);
+	
+	// Creates outline of circle with calculated thickness as additional pixels
+	CGContextSetLineWidth(context, thickness);
+    CGContextSetStrokeColorWithColor(context, colorRef);
+
+	CGContextAddArc(context, center.x, center.y, radius, 0.0, M_PI * 2, YES);
+	CGContextSetFillColorWithColor(context, colorRef);
+	CGContextStrokePath(context);
+	
+	CGFloat circletTextSize = diameter - thickness;
+	UIFont *circletTextFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:circletTextSize];
+	NSMutableParagraphStyle *circletTextParagraphStyle = [[NSMutableParagraphStyle alloc] init];
+	circletTextParagraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
+	circletTextParagraphStyle.alignment = NSTextAlignmentCenter;
+	
+	NSAttributedString *circletAttributedText = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%c", letter] attributes:@{ NSFontAttributeName : circletTextFont, NSForegroundColorAttributeName : color, NSParagraphStyleAttributeName : circletTextParagraphStyle }];
+	
+	CGPoint circletDrawPoint = center;
+	circletDrawPoint.x -= circletAttributedText.size.width / 2.0;
+	circletDrawPoint.y -= circletAttributedText.size.height / 1.9;
+
+	if (invert) {
+		CGContextFillEllipseInRect(context, frame);
+		CGContextSetBlendMode(context, kCGBlendModeDestinationOut);
+	}
+	
+	[circletAttributedText drawAtPoint:circletDrawPoint];
+	
+	CGContextDrawPath(context, kCGPathFill);
+	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
 	
-	return circletTextImage.CGImage;
+	return image;
 }
+
 @end

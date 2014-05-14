@@ -104,7 +104,7 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 
 	CircletStyle style = value ? [value integerValue] : CircletStyleFill;
 	if (invert && [invert boolValue]) {
-		style += 3;
+		style += 4;
 	}
 
 	return style;
@@ -244,6 +244,9 @@ static BOOL circletEnabledForClassname(NSString *className) {
 		CGFloat radius = circletRadiusFromPosition(CircletPositionSignal);
 		CGFloat percentage = bars / 5.0;
 		CircletStyle style = circletStyleFromPosition(CircletPositionSignal);
+		if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+			percentage *= 5.0;
+		}
 
 		UIImage *white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionSignal) radius:radius percentage:percentage style:style];
 		UIImage *black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionSignal) radius:radius percentage:percentage style:style];
@@ -269,40 +272,56 @@ static BOOL circletEnabledForClassname(NSString *className) {
 		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
 		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
 		CGFloat radius = circletRadiusFromPosition(CircletPositionWifi);
-		CGFloat percentage = wifiState / 3.0;
 		CircletStyle style = circletStyleFromPosition(CircletPositionWifi);
+		CGFloat percentage = wifiState / 3.0;
 
 		CRLOG(@"networkType:%i, wifiState:%i, percentage:%f", networkType, wifiState, percentage);
 		UIImage *white, *black;
 
 		if (networkType != 5) {
 			CTRadioAccessTechnology *radioTechnology = [[CTRadioAccessTechnology alloc] init];
-			NSString *radioType = radioTechnology.radioAccessTechnology;
+			NSString *radioType = [radioTechnology.radioAccessTechnology stringByReplacingOccurrencesOfString:@"CTRadioAccessTechnology" withString:@""];
 			[radioTechnology release];
 
-			if ([radioType rangeOfString:@"EDGE"].location != NSNotFound) {
-				percentage = 0.5;
+			if (style == CircletStyleTextual) {
+				white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius char:[radioType characterAtIndex:0] invert:NO];
+				black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius char:[radioType characterAtIndex:0] invert:NO];
 			}
 
-			else if ([radioType rangeOfString:@"HSDPA"].location != NSNotFound) {
-				percentage = 0.75;
-			}
-
-			else if ([radioType rangeOfString:@"LTE"].location != NSNotFound) {
-				percentage = 1.0;
+			else if (style == CircletStyleTextualInverse) {
+				white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius char:[radioType  characterAtIndex:0] invert:YES];
+				black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius char:[radioType characterAtIndex:0] invert:YES];
 			}
 
 			else {
-				percentage = 0.25;
+				if ([radioType rangeOfString:@"EDGE"].location != NSNotFound) {
+					percentage = 0.5;
+				}
+
+				else if ([radioType rangeOfString:@"HSDPA"].location != NSNotFound) {
+					percentage = 0.75;
+				}
+
+				else if ([radioType rangeOfString:@"LTE"].location != NSNotFound) {
+					percentage = 1.0;
+				}
+
+				else {
+					percentage = 0.25;
+				}
+
+				CRLOG(@"data network type: %@, percentage: %f", radioType, percentage);
+
+				white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius percentage:percentage style:style];
+				black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius percentage:percentage style:style];
 			}
-
-			CRLOG(@"data network type: %@, percentage: %f", radioType, percentage);
-
-			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius percentage:percentage style:style];
-			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius percentage:percentage style:style];
 		}
 
 		else {
+			if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+				percentage *= 3;
+			}
+
 			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionWifi) radius:radius percentage:percentage style:style];
 			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionWifi) radius:radius percentage:percentage style:style];
 		}
@@ -331,7 +350,12 @@ static BOOL circletEnabledForClassname(NSString *className) {
 		NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
 		CGFloat hour = fmod([components hour], 12.0) / 12.0;
 		CGFloat minute = [components minute] / 60.0;
+		
 		CircletStyle style = circletStyleFromPosition(CircletPositionTimeOuter);
+		if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+			hour *= 12.0;
+			minute *= 60.0;
+		}
 
 		UIImage *white = [UIImage circletWithInnerColor:circletColorForPosition(YES, CircletPositionTimeInner) outerColor:circletColorForPosition(YES, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
 		UIImage *black = [UIImage circletWithInnerColor:circletColorForPosition(NO, CircletPositionTimeInner) outerColor:circletColorForPosition(NO, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
@@ -375,8 +399,13 @@ static BOOL circletEnabledForClassname(NSString *className) {
 		int level = MSHookIvar<int>(self, "_capacity");
 		BOOL needsBolt = [self _needsAccessoryImage];
 		CGFloat radius = circletRadiusFromPosition(CircletPositionBattery);
-		CGFloat percentage = level / 100.0;
+
 		CircletStyle style = circletStyleFromPosition(CircletPositionBattery);
+		CGFloat percentage = level / 100.0;
+		if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+			percentage *= 100;
+		}
+
 
 		UIImage *white, *black;
 		if (needsBolt) {

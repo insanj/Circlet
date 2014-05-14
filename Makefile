@@ -1,5 +1,5 @@
 THEOS_PACKAGE_DIR_NAME = debs
-TARGET =: clang
+TARGET = :clang::6.0
 ARCHS = armv7 arm64
 # DEBUG = 1
 
