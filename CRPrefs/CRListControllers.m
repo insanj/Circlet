@@ -113,4 +113,33 @@
 		[self reloadSpecifier:batterySizeSpecifier];
 	}
 }
+
+- (NSArray *)chargingColorTitles:(id)target {
+	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[[_titleToColor allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
+	[titles insertObject:@"Custom" atIndex:0];
+	[titles removeObject:@"Black (Default)"];
+	[titles removeObject:@"Red (Default)"];
+	[titles removeObject:@"White (Default)"];
+	[titles removeObject:@"Green"];
+	return titles;
+}
+
+- (NSArray *)chargingColorValues:(id)target {
+	return [self chargingColorTitles:target];
+}
+
+- (NSArray *)lowPowerColorTitles:(id)target {
+	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[[_titleToColor allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
+	[titles insertObject:@"Custom" atIndex:0];
+	[titles removeObject:@"Black (Default)"];
+	[titles removeObject:@"Red"];
+	[titles removeObject:@"White (Default)"];
+	[titles removeObject:@"Green (Default)"];
+	return titles;
+}
+
+- (NSArray *)lowPowerColorValues:(id)target {
+	return [self lowPowerColorTitles:target];
+}
+
 @end

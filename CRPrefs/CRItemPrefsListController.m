@@ -59,7 +59,9 @@
 	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[[_titleToColor allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
 	[titles insertObject:@"Custom" atIndex:0];
 	[titles removeObject:@"Black (Default)"];
+	[titles removeObject:@"Red (Default)"];
 	[titles removeObject:@"White"];
+	[titles removeObject:@"Green (Default)"];
 	return titles;
 }
 
@@ -71,7 +73,9 @@
 	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[[_titleToColor allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
 	[titles insertObject:@"Custom" atIndex:0];
 	[titles removeObject:@"Black"];
+	[titles removeObject:@"Red (Default)"];
 	[titles removeObject:@"White (Default)"];
+	[titles removeObject:@"Green (Default)"];
 	return titles;
 }
 

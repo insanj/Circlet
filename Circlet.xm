@@ -69,7 +69,7 @@ static CGFloat circletWidthFromPosition(CircletPosition posit) {
 	}
 	
 	else {
-		value =  CRVALUE(@"batterySize");
+		value = CRVALUE(@"batterySize");
 	}
 
 	CGFloat diameter = [value floatValue] * 2.0;
@@ -124,16 +124,12 @@ static UIColor * circletColorForKey(BOOL light, NSString *key) {
 	}
 
 	else if (!value || !valueInDict) {
-		/* if ([key isEqualToString:@"lowBatteryLightColor"]) {
-			return [UIColor yellowColor];
-		}
-
-		else if ([key isEqualToString:@"lowBatteryDarkColor"]) {
-			return [UIColor redColor];
-		}*/
-
 		if ([key rangeOfString:@"lowBattery"].location != NSNotFound) {
 			return titleToColor[@"Red"];
+		}
+
+		else if ([key rangeOfString:@"charging"].location != NSNotFound) {
+			return titleToColor[@"Green"];
 		}
 
 		return light ? titleToColor[@"White"] : titleToColor[@"Black"];
