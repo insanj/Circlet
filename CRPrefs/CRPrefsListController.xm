@@ -232,7 +232,7 @@ static void circletMiddleDisable(CFNotificationCenterRef center, void *observer,
 }
 
 - (void)website {
-	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://insanj.com/circlet"]];
+	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://insanj.com/circlet"]];
 }
 
 - (void)dealloc {
