@@ -4,22 +4,28 @@
 
 @implementation CRListItemsController
 
+
 - (void)loadView {
 	_safeTitleToColor = [CRTITLETOCOLOR retain];
 	[super loadView];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-	self.view.tintColor = CRTINTCOLOR;
-    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
+	if (MODERN_IOS) {
+		self.view.tintColor = CRTINTCOLOR;
+	    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
+	}
+
     [super viewWillAppear:animated];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
 	[super viewWillDisappear:animated];
 
-	self.view.tintColor = nil;
-	self.navigationController.navigationBar.tintColor = nil;
+	if (MODERN_IOS) {
+		self.view.tintColor = nil;
+	    self.navigationController.navigationBar.tintColor = nil;
+	}
 }
 
 - (id)tableView:(UITableView *)arg1 cellForRowAtIndexPath:(NSIndexPath *)arg2 {
@@ -77,7 +83,8 @@
 		CIColor *customCIColor = [CIColor colorWithString:colorString];
 		UIColor *customColor = [UIColor colorWithRed:customCIColor.red green:customCIColor.green blue:customCIColor.blue alpha:customCIColor.alpha];
 
-		_pickerAlertView = [[UIAlertView alloc] initWithTitle:nil message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
+		NSString *messageFiller = MODERN_IOS ? nil : @"\n\n\n\n";
+		_pickerAlertView = [[UIAlertView alloc] initWithTitle:nil message:messageFiller delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
 		_pickerAlertView.alertViewStyle = UIAlertViewStylePlainTextInput;
 	
 		UITextField *colorField = [_pickerAlertView textFieldAtIndex:0];
@@ -86,18 +93,30 @@
 		// colorField.keyboardAppearance = UIKeyboardAppearanceDark;
 		
 		const CGFloat *colorComponents = CGColorGetComponents(customColor.CGColor);
-		NSString *hexString=[NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
+		NSString *hexString = [NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
 		colorField.text = hexString;
 
-		NKOColorPickerView *pickerView = [[NKOColorPickerView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width - 50.0, self.view.frame.size.height / 3.0) color:customColor andDidChangeColorBlock:^(UIColor *color) {
+		CGFloat pickerHeight = self.view.frame.size.height / 3.0; //: colorField.frame.origin.y -_pickerAlertView.frame.origin.y /* [_pickerAlertView bodyTextLabel].frame.size.height */ ;
+		CRLOG(@"pickerHeight decided on: %f", pickerHeight);
+
+		NKOColorPickerView *pickerView = [[NKOColorPickerView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width - 50.0, pickerHeight) color:customColor andDidChangeColorBlock:^(UIColor *color) {
 			const CGFloat *colorComponents = CGColorGetComponents(color.CGColor);
-			NSString *hexString=[NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
+			NSString *hexString = [NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
+			
 			if (colorField.text.length == 7 && ![hexString isEqualToString:colorField.text]) {
 				colorField.text = hexString;
 			}
 		}];
 
-		[_pickerAlertView setValue:pickerView forKey:@"accessoryView"];
+		if (MODERN_IOS) {
+			[_pickerAlertView setValue:pickerView forKey:@"accessoryView"];
+		}
+
+		else {
+			_pickerAlertView.tag = 913;
+			[_pickerAlertView addSubview:pickerView];
+		}
+
 		[_pickerAlertView show];
 	}
 }
@@ -125,7 +144,7 @@
 	CGFloat blue  = (pickerColor & 0x0000FF) / 255.0;
 	
 	UIColor *color = [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
-	NKOColorPickerView *colorPickerView = (NKOColorPickerView *)[_pickerAlertView valueForKey:@"accessoryView"];
+	NKOColorPickerView *colorPickerView = MODERN_IOS ? (NKOColorPickerView *)[_pickerAlertView valueForKey:@"accessoryView"] : (NKOColorPickerView *)[_pickerAlertView viewWithTag:913];
 	[colorPickerView setColor:color];
 
 	return YES;
@@ -133,7 +152,7 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
 	if (buttonIndex != [alertView cancelButtonIndex]) {
-		NKOColorPickerView *picker = (NKOColorPickerView *)[alertView valueForKey:@"accessoryView"];
+		NKOColorPickerView *picker = MODERN_IOS ? (NKOColorPickerView *)[alertView valueForKey:@"accessoryView"] : (NKOColorPickerView *)[alertView viewWithTag:913];
 		CIColor *color = [CIColor colorWithCGColor:picker.color.CGColor];
 
 		NSMutableDictionary *settings = [[NSMutableDictionary alloc] initWithDictionary:CRSETTINGS];

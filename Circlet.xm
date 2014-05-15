@@ -225,6 +225,8 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	return NO;
 }
 
+// All iOS 7 and iOS 6 hooks
+%group Shared
 
 /***************************************************************************************/
 /***************************** UIStatusBarItemView Hooks  ******************************/
@@ -283,35 +285,48 @@ static BOOL circletEnabledForClassname(NSString *className) {
 			NSString *radioType = [radioTechnology.radioAccessTechnology stringByReplacingOccurrencesOfString:@"CTRadioAccessTechnology" withString:@""];
 			[radioTechnology release];
 
+			char representativeChar;
 			if (style == CircletStyleTextual) {
-				white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius char:[radioType characterAtIndex:0] invert:NO];
-				black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius char:[radioType characterAtIndex:0] invert:NO];
+				representativeChar = 't';
 			}
 
 			else if (style == CircletStyleTextualInverse) {
-				white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius char:[radioType  characterAtIndex:0] invert:YES];
-				black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius char:[radioType characterAtIndex:0] invert:YES];
+				representativeChar = 'i';
+			}
+
+			if ([radioType rangeOfString:@"EDGE"].location != NSNotFound) {
+				representativeChar = 'E';
+				percentage = 0.5;
+			}
+
+			else if ([radioType rangeOfString:@"HSDPA"].location != NSNotFound) {
+				representativeChar = 'G';
+				percentage = 0.75;
+			}
+
+			else if ([radioType rangeOfString:@"LTE"].location != NSNotFound) {
+				representativeChar = 'L';
+				percentage = 1.0;
 			}
 
 			else {
-				if ([radioType rangeOfString:@"EDGE"].location != NSNotFound) {
-					percentage = 0.5;
-				}
+				representativeChar = 'o';
+				percentage = 0.25;
+			}
 
-				else if ([radioType rangeOfString:@"HSDPA"].location != NSNotFound) {
-					percentage = 0.75;
-				}
+			CRLOG(@"data network type: %@, percentage: %f", radioType, percentage);
 
-				else if ([radioType rangeOfString:@"LTE"].location != NSNotFound) {
-					percentage = 1.0;
-				}
+			if (style == CircletStyleTextual) {
+				white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius char:representativeChar invert:NO];
+				black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius char:representativeChar invert:NO];
+			}
 
-				else {
-					percentage = 0.25;
-				}
+			else if (style == CircletStyleTextualInverse) {
+				white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius char:representativeChar invert:YES];
+				black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius char:representativeChar invert:YES];
+			}
 
-				CRLOG(@"data network type: %@, percentage: %f", radioType, percentage);
-
+			else {
 				white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius percentage:percentage style:style];
 				black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius percentage:percentage style:style];
 			}
@@ -406,7 +421,6 @@ static BOOL circletEnabledForClassname(NSString *className) {
 			percentage *= 100;
 		}
 
-
 		UIImage *white, *black;
 		if (needsBolt) {
 			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionCharging) radius:radius percentage:percentage style:style];
@@ -456,7 +470,7 @@ static BOOL circletEnabledForClassname(NSString *className) {
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarBatteryItemView"]) {
-			UIImage *boltImage = (UIImage *) [arg1 _accessoryImage];
+			UIImage *boltImage = MODERN_IOS ? (UIImage *) [arg1 _accessoryImage] : nil;
 			CGFloat boltWidth = boltImage ? boltImage.size.width : 0.0;
 			// ionno deal with this
 			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery) + boltWidth, frame.size.height);
@@ -469,6 +483,7 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 %end
 
+%end // %group Shared
 
 /**************************************************************************************/
 /************************ CRAVDelegate (used from first run) ****************************/
@@ -513,6 +528,8 @@ static BOOL circletEnabledForClassname(NSString *className) {
 /********************************* First Run Prompts  **********************************/
 /***************************************************************************************/
 
+%group Modern
+
 static CRAlertViewDelegate *circletAVDelegate;
 static BOOL kCRUnlocked;
 
@@ -536,7 +553,7 @@ static BOOL kCRUnlocked;
 
 	NSMutableDictionary *settings = [[NSMutableDictionary alloc] initWithDictionary:CRSETTINGS];
 	if (kCRUnlocked && !settings[@"didRun"]) {
-		CRLOG(@"Detected novel run, creating new plist...");
+		CRLOG(@"Detected novel (modern) run, creating new plist...");
 		[settings setObject:@(YES) forKey:@"didRun"];
 		[settings writeToFile:CRPATH atomically:YES];
 
@@ -552,6 +569,35 @@ static BOOL kCRUnlocked;
 
 %end
 
+%end // %group Modern
+
+%group Ancient
+
+%hook SBUIController
+
+- (void)finishedUnscattering{
+	%orig();
+
+	NSMutableDictionary *settings = [[NSMutableDictionary alloc] initWithDictionary:CRSETTINGS];
+	if(!settings[@"didRun"]){
+		CRLOG(@"Detected novel (ancient) run, creating new plist...");
+		[settings setObject:@(YES) forKey:@"didRun"];
+		[settings writeToFile:CRPATH atomically:YES];
+
+		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
+		[alert show];
+		[alert release];
+		[circletAVDelegate release];
+	}
+
+	[settings release];
+}
+
+%end
+
+%end // %group Ancient
+
 /***************************************************************************************/
 /****************************** Pulling it all togctor   *******************************/
 /***************************************************************************************/
@@ -561,6 +607,15 @@ static BOOL kCRUnlocked;
 	if (!settings || !settings[@"didRun"]) {
 		CRLOG(@"Clearing antiquated old settings...");
 		[@{} writeToFile:CRPATH atomically:YES];
+	}
+
+	%init(Shared);
+	if (MODERN_IOS) {
+		%init(Modern);
+	}
+
+	else {
+		%init(Ancient);
 	}
 
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){

@@ -2,9 +2,11 @@
 
 @implementation CRSignalPrefsListController
 
-- (NSArray *)specifiers{
-	if(!_specifiers)
-		_specifiers = [[self loadSpecifiersFromPlistName:@"CRSignalPrefs" target:self] retain];
+- (NSArray *)specifiers {
+	if (!_specifiers) {
+		NSString *compatibleName = MODERN_IOS ? @"CRSignalPrefs" : @"CRCSignalPrefs";
+		_specifiers = [[self loadSpecifiersFromPlistName:compatibleName target:self] retain];
+	}
 
 	return _specifiers;
 }
@@ -32,8 +34,10 @@
 @implementation CRWifiPrefsListController
 
 - (NSArray *)specifiers{
-	if(!_specifiers)
-		_specifiers = [[self loadSpecifiersFromPlistName:@"CRWifiPrefs" target:self] retain];
+	if (!_specifiers) {
+		NSString *compatibleName = MODERN_IOS ? @"CRWifiPrefs" : @"CRCWifiPrefs";
+		_specifiers = [[self loadSpecifiersFromPlistName:compatibleName target:self] retain];
+	}
 
 	return _specifiers;
 }
@@ -61,8 +65,10 @@
 @implementation CRTimePrefsListController
 
 - (NSArray *)specifiers{
-	if(!_specifiers)
-		_specifiers = [[self loadSpecifiersFromPlistName:@"CRTimePrefs" target:self] retain];
+	if (!_specifiers) {
+		NSString *compatibleName = MODERN_IOS ? @"CRTimePrefs" : @"CRCTimePrefs";
+		_specifiers = [[self loadSpecifiersFromPlistName:compatibleName target:self] retain];
+	}
 
 	return _specifiers;
 }
@@ -90,8 +96,10 @@
 @implementation CRBatteryPrefsListController
 
 - (NSArray *)specifiers{
-	if(!_specifiers)
-		_specifiers = [[self loadSpecifiersFromPlistName:@"CRBatteryPrefs" target:self] retain];
+	if (!_specifiers) {
+		NSString *compatibleName = MODERN_IOS ? @"CRBatteryPrefs" : @"CRCBatteryPrefs";
+		_specifiers = [[self loadSpecifiersFromPlistName:compatibleName target:self] retain];
+	}
 
 	return _specifiers;
 }

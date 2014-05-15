@@ -210,7 +210,7 @@ CGFloat const NKOPickerViewCrossHairshWidthAndHeight    = 38.f;
 {
     PreferencesAppController *pac = (PreferencesAppController *) [UIApplication sharedApplication].delegate;
     PrefsRootController *prc = (PrefsRootController *) pac.rootController;
-    return prc.topViewController.view.tintColor;
+    return MODERN_IOS ? prc.topViewController.view.tintColor : [UIColor blueColor];
 }
 
 #pragma mark - Touch Handling methods

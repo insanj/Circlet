@@ -7,6 +7,7 @@
 //
 
 #import "UIImage+Circlet.h"
+#define CIRCLET_FONT @"HelveticaNeue"
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 @implementation UIImage (Circlet)
@@ -98,52 +99,9 @@
 		
 		// ➉ or ➓
 		else {
-			/*CGTextDrawingMode mode = kCGTextFill;
-			if (style == CircletStyleTextualInverse) {
-			//	mode = kCGTextInvisible;
-				CGContextFillEllipseInRect(context, frame);
-			}
-			
-			CGContextTranslateCTM(context, radius / 2.0, radius);
-			CGContextScaleCTM(context, 1.0, -1.0);
-			CGContextSetTextDrawingMode(context, mode);
-			
-			NSString *number = [NSString stringWithFormat:@"%i", (int)percent];
-			CGFloat fontSize = diameter / number.length;
-			UIFont *font = [UIFont fontWithName:@"HelveticaNeue-Thin" size:fontSize];
-			// [number sizeWithAttributes:@{NSFontAttributeName : font}].height
-			
-			CGContextSelectFont(context, [font.fontName UTF8String], fontSize, kCGEncodingMacRoman);
-		    CGContextShowTextAtPoint(context, 0.0, -thickness, [number UTF8String], number.length);*/
-						
-			/*NSString *number = [NSString stringWithFormat:@"%i", (int)percent];
-			CGFloat fontSize = diameter / number.length;
-			UIFont *font = [UIFont fontWithName:@"HelveticaNeue-Thin" size:fontSize];
-			
-			UIColor *textColor = color;
-			if (style == CircletStyleTextualInverse) {
-				const CGFloat *colorComponents = CGColorGetComponents(textColor.CGColor);
-				textColor = [UIColor colorWithRed:(1.0 - colorComponents[0]) green:(1.0 - colorComponents[1]) blue:(1.0 - colorComponents[2]) alpha:colorComponents[3]];
-			}
-			
-			NSAttributedString *attributedNumber = [[NSAttributedString alloc] initWithString:number attributes:@{ NSFontAttributeName : font, NSForegroundColorAttributeName : color, NSParagraphStyleAttributeName : kCAAlignmentCenter }];
-			CTFramesetterRef coreTextFramesetter = CTFramesetterCreateWithAttributedString((CFAttributedStringRef)attributedNumber);
-			
-			CGContextSetTextMatrix(context, CGAffineTransformIdentity);
-			CGContextTranslateCTM(context, 0.0, 0.0);
-			CGContextScaleCTM(context, 1.0, -1.0);
-			
-			CGMutablePathRef coreTextPath = CGPathCreateMutable();
-			CGPathAddRect(coreTextPath, NULL, frame);
-			
-			CTFrameRef coreTextFrame = CTFramesetterCreateFrame(coreTextFramesetter, CFRangeMake(0, number.length), coreTextPath, NULL);
-			CTFrameDraw(coreTextFrame, context);
-			CFRelease(coreTextPath);
-			// [coreTextAttributedString release];*/
-			
 			NSString *circletText = [NSString stringWithFormat:@"%i", (int)percent];
 			CGFloat circletTextSize = (diameter - thickness) / circletText.length;
-			UIFont *circletTextFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:circletTextSize];
+			UIFont *circletTextFont = [UIFont fontWithName:CIRCLET_FONT size:circletTextSize];
 			NSMutableParagraphStyle *circletTextParagraphStyle = [[NSMutableParagraphStyle alloc] init];
 			circletTextParagraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 			circletTextParagraphStyle.alignment = NSTextAlignmentCenter;
@@ -154,7 +112,7 @@
 			circletDrawPoint.x -= circletAttributedText.size.width / 2.0;
 			circletDrawPoint.y -= circletAttributedText.size.height / 1.9;
 			// circletDrawFrame.origin.x -= thickness / 5.0;
-
+			
 			if (style == CircletStyleTextualInverse) {
 				CGContextFillEllipseInRect(context, frame);
 				CGContextSetBlendMode(context, kCGBlendModeDestinationOut);
@@ -231,13 +189,13 @@
 	// Creates outline of circle with calculated thickness as additional pixels
 	CGContextSetLineWidth(context, thickness);
     CGContextSetStrokeColorWithColor(context, colorRef);
-
+	
 	CGContextAddArc(context, center.x, center.y, radius, 0.0, M_PI * 2, YES);
 	CGContextSetFillColorWithColor(context, colorRef);
 	CGContextStrokePath(context);
 	
 	CGFloat circletTextSize = diameter - thickness;
-	UIFont *circletTextFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:circletTextSize];
+	UIFont *circletTextFont = [UIFont fontWithName:CIRCLET_FONT size:circletTextSize];
 	NSMutableParagraphStyle *circletTextParagraphStyle = [[NSMutableParagraphStyle alloc] init];
 	circletTextParagraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 	circletTextParagraphStyle.alignment = NSTextAlignmentCenter;
@@ -247,7 +205,7 @@
 	CGPoint circletDrawPoint = center;
 	circletDrawPoint.x -= circletAttributedText.size.width / 2.0;
 	circletDrawPoint.y -= circletAttributedText.size.height / 1.9;
-
+	
 	if (invert) {
 		CGContextFillEllipseInRect(context, frame);
 		CGContextSetBlendMode(context, kCGBlendModeDestinationOut);

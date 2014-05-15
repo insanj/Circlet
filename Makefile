@@ -1,7 +1,7 @@
 THEOS_PACKAGE_DIR_NAME = debs
-TARGET = :clang::6.0
-ARCHS = armv7 arm64
-# DEBUG = 1
+TARGET =: clang
+ARCHS = armv7 armv7s arm64
+DEBUG = 1
 
 include theos/makefiles/common.mk
 
@@ -15,5 +15,7 @@ include $(THEOS_MAKE_PATH)/aggregate.mk
 
 before-stage::
 	find . -name ".DS_Store" -delete
+after-stage::
+	find $(THEOS_STAGING_DIR) -iname \*.plist -exec plutil -convert binary1 {} \;
 internal-after-install::
 	install.exec "killall -9 backboardd"

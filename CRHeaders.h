@@ -11,6 +11,7 @@
 #define CRVALUE(key) [[NSDictionary dictionaryWithContentsOfFile:CRPATH] objectForKey:key]
 #define CRDEFAULTRADIUS 5.0
 
+#define MODERN_IOS ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
 #ifdef DEBUG
 	#define CRLOG(fmt, ...) NSLog((@"[Circlet] %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
@@ -406,4 +407,8 @@ struct _rawData {
 - (id)init;
 - (id)initWithCTTelephonyNetworkInfo:(id)arg1;
 - (id)radioAccessTechnology;
+@end
+
+@interface UIAlertView (Private)
+- (UILabel *)bodyTextLabel;
 @end

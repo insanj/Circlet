@@ -4,7 +4,21 @@ static void circletSidesDisable(CFNotificationCenterRef center, void *observer, 
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLSmartDisable" object:nil];
 
 	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
-	UIView *fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
+	UIView *fakeStatusBar;
+
+	if (MODERN_IOS) {
+		fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
+	}
+
+	else {
+		UIGraphicsBeginImageContextWithOptions(statusBar.frame.size, NO, [UIScreen mainScreen].scale);
+		CGContextRef context = UIGraphicsGetCurrentContext();
+		[statusBar.layer renderInContext:context];
+		UIImage *statusBarImave = UIGraphicsGetImageFromCurrentImageContext();
+		UIGraphicsEndImageContext();
+		fakeStatusBar = [[UIImageView alloc] initWithImage:statusBarImave];
+	}
+
 	[statusBar.superview addSubview:fakeStatusBar];
 
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
@@ -15,7 +29,7 @@ static void circletSidesDisable(CFNotificationCenterRef center, void *observer, 
 
 	CGFloat shrinkAmount = 5.0;
 	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
-		NSLog(@"Animating out...");
+		CRLOG(@"Animating out...");
 		
 		CGRect shrinkFrame = fakeStatusBar.frame;
 		shrinkFrame.origin.x += shrinkAmount;
@@ -66,8 +80,11 @@ static void circletMiddleDisable(CFNotificationCenterRef center, void *observer,
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-	self.view.tintColor = CRTINTCOLOR;
-	self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
+	if (MODERN_IOS) {
+		self.view.tintColor = CRTINTCOLOR;
+	    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
+	}
+
 	[self pullHeaderPin];
 
 	[super viewWillAppear:animated];
@@ -79,12 +96,14 @@ static void circletMiddleDisable(CFNotificationCenterRef center, void *observer,
 	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
 	CGFloat hour = [components hour];
 	CGFloat minute = [components minute] / 60.0;
-	CGFloat combined = (fmod(hour + minute, 12.0) + 1.0) / 12.0; // (hour + minute) / 23.0;
+	CGFloat combined = (fmod(hour + minute, 12.0) + 1.0) / 12.0;
 
 	CRLOG(@"Percentage full: %f", combined);
 
 	if (!self.navigationItem.titleView) {
-		NSInteger style = arc4random_uniform(5); // Don't really like concentric inverse here
+		// Randomly pick radial, fill, concentric or their inverses
+		NSInteger style = arc4random_uniform(1) + arc4random_uniform(3);
+
 		self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage circletWithColor:CRTINTCOLOR radius:13.0 percentage:combined style:style]];
 		self.navigationItem.titleView.tag = style;
 	}
@@ -154,8 +173,10 @@ static void circletMiddleDisable(CFNotificationCenterRef center, void *observer,
 - (void)viewWillDisappear:(BOOL)animated {
 	[super viewWillDisappear:animated];
 
-	self.view.tintColor = nil;
-	self.navigationController.navigationBar.tintColor = nil;
+	if (MODERN_IOS) {
+		self.view.tintColor = nil;
+	    self.navigationController.navigationBar.tintColor = nil;
+	}
 }
 
 - (void)tableView:(id)arg1 didSelectRowAtIndexPath:(id)arg2 {

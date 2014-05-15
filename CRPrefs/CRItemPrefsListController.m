@@ -11,13 +11,29 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-	self.view.tintColor = CRTINTCOLOR;
-	self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
+	if (MODERN_IOS) {
+		self.view.tintColor = CRTINTCOLOR;
+	    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
+	}
 }
 
 - (void)sidesReplenish {
 	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
-	UIView *fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
+	UIView *fakeStatusBar;
+
+	if (MODERN_IOS) {
+		fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
+	}
+
+	else {
+		UIGraphicsBeginImageContextWithOptions(statusBar.frame.size, NO, [UIScreen mainScreen].scale);
+		CGContextRef context = UIGraphicsGetCurrentContext();
+		[statusBar.layer renderInContext:context];
+		UIImage *statusBarImave = UIGraphicsGetImageFromCurrentImageContext();
+		UIGraphicsEndImageContext();
+		fakeStatusBar = [[UIImageView alloc] initWithImage:statusBarImave];
+	}
+
 	[statusBar.superview addSubview:fakeStatusBar];
 
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
@@ -28,7 +44,7 @@
 
 	CGFloat shrinkAmount = 5.0;
 	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
-		NSLog(@"Animating out...");
+		CRLOG(@"Animating out...");
 		
 		CGRect shrinkFrame = fakeStatusBar.frame;
 		shrinkFrame.origin.x += shrinkAmount;
