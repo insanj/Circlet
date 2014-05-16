@@ -229,6 +229,14 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	return NO;
 }
 
+static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
+	UIGraphicsBeginImageContextWithOptions(CGSizeMake(1.0, 1.0), NO, [UIScreen mainScreen].scale);
+	UIImage *tiny = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+
+	return tiny;
+}
+
 // All iOS 7 and iOS 6 hooks
 %group Shared
 
@@ -236,7 +244,27 @@ static BOOL circletEnabledForClassname(NSString *className) {
 /***************************** UIStatusBarItemView Hooks  ******************************/
 /***************************************************************************************/
 
+@interface UIStatusBarItemView (Circlet)
+- (_UILegibilityImageSet *)circletContentsImageForWhite:(BOOL)white;
+@end
+
 %hook UIStatusBarSignalStrengthItemView
+
+%new - (_UILegibilityImageSet *)circletContentsImageForWhite:(BOOL)white {
+	int bars = MSHookIvar<int>(self, "_signalStrengthBars");
+	CGFloat radius = circletRadiusFromPosition(CircletPositionSignal);
+	CGFloat percentage = bars / 5.0;
+	CircletStyle style = circletStyleFromPosition(CircletPositionSignal);
+
+	if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+		percentage *= 5.0;
+	}
+
+	UIImage *image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionSignal) radius:radius percentage:percentage style:style];
+	UIImage *shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionSignal) radius:radius percentage:percentage style:style];
+
+	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
+}
 
 - (_UILegibilityImageSet *)contentsImage {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarSignalStrengthItemView");
@@ -245,27 +273,90 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	if (shouldOverride) {
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-
-		int bars = MSHookIvar<int>(self, "_signalStrengthBars");
-		CGFloat radius = circletRadiusFromPosition(CircletPositionSignal);
-		CGFloat percentage = bars / 5.0;
-		CircletStyle style = circletStyleFromPosition(CircletPositionSignal);
-		if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
-			percentage *= 5.0;
-		}
-
-		UIImage *white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionSignal) radius:radius percentage:percentage style:style];
-		UIImage *black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionSignal) radius:radius percentage:percentage style:style];
-
-		return (w >= 0.5) ? [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black] : [%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+		return [self circletContentsImageForWhite:(w >= 0.5)];
 	}
 
 	return %orig();
 }
 
+- (_UILegibilityImageSet *)contentsImageForStyle:(int)arg1 {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarSignalStrengthItemView");
+	return shouldOverride ? [self circletContentsImageForWhite:arg1] : %orig();
+}
+
 %end
 
 %hook UIStatusBarDataNetworkItemView
+
+%new - (_UILegibilityImageSet *)circletContentsImageForWhite:(BOOL)white {
+	int networkType = MSHookIvar<int>(self, "_dataNetworkType");
+	int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
+	CGFloat radius = circletRadiusFromPosition(CircletPositionWifi);
+	CircletStyle style = circletStyleFromPosition(CircletPositionWifi);
+	CGFloat percentage = wifiState / 3.0;
+
+	UIImage *image, *shadow;
+	if (networkType != 5) {
+		CTRadioAccessTechnology *radioTechnology = [[CTRadioAccessTechnology alloc] init];
+		NSString *radioType = [radioTechnology.radioAccessTechnology stringByReplacingOccurrencesOfString:@"CTRadioAccessTechnology" withString:@""];
+		[radioTechnology release];
+
+		char representativeChar;
+		if (style == CircletStyleTextual) {
+			representativeChar = 't';
+		}
+
+		else if (style == CircletStyleTextualInverse) {
+			representativeChar = 'i';
+		}
+
+		if ([radioType rangeOfString:@"EDGE"].location != NSNotFound) {
+			representativeChar = 'E';
+			percentage = 0.5;
+		}
+
+		else if ([radioType rangeOfString:@"HSDPA"].location != NSNotFound) {
+			representativeChar = 'G';
+			percentage = 0.75;
+		}
+
+		else if ([radioType rangeOfString:@"LTE"].location != NSNotFound) {
+			representativeChar = 'L';
+			percentage = 1.0;
+		}
+
+		else {
+			representativeChar = 'o';
+			percentage = 0.25;
+		}
+
+		if (style == CircletStyleTextual) {
+			image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius char:representativeChar invert:NO];
+			shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionData) radius:radius char:representativeChar invert:NO];
+		}
+
+		else if (style == CircletStyleTextualInverse) {
+			image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius char:representativeChar invert:YES];
+			shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionData) radius:radius char:representativeChar invert:YES];
+		}
+
+		else {
+			image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius percentage:percentage style:style];
+			shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionData) radius:radius percentage:percentage style:style];
+		}
+	}
+
+	else {
+		if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+			percentage *= 3;
+		}
+
+		image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style];
+		shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionWifi) radius:radius percentage:percentage style:style];
+	}
+
+	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
+}
 
 - (_UILegibilityImageSet *)contentsImage {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarDataNetworkItemView");
@@ -274,86 +365,59 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	if (shouldOverride) {
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-
-		int networkType = MSHookIvar<int>(self, "_dataNetworkType");
-		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
-		CGFloat radius = circletRadiusFromPosition(CircletPositionWifi);
-		CircletStyle style = circletStyleFromPosition(CircletPositionWifi);
-		CGFloat percentage = wifiState / 3.0;
-
-		CRLOG(@"networkType:%i, wifiState:%i, percentage:%f", networkType, wifiState, percentage);
-		UIImage *white, *black;
-
-		if (networkType != 5) {
-			CTRadioAccessTechnology *radioTechnology = [[CTRadioAccessTechnology alloc] init];
-			NSString *radioType = [radioTechnology.radioAccessTechnology stringByReplacingOccurrencesOfString:@"CTRadioAccessTechnology" withString:@""];
-			[radioTechnology release];
-
-			char representativeChar;
-			if (style == CircletStyleTextual) {
-				representativeChar = 't';
-			}
-
-			else if (style == CircletStyleTextualInverse) {
-				representativeChar = 'i';
-			}
-
-			if ([radioType rangeOfString:@"EDGE"].location != NSNotFound) {
-				representativeChar = 'E';
-				percentage = 0.5;
-			}
-
-			else if ([radioType rangeOfString:@"HSDPA"].location != NSNotFound) {
-				representativeChar = 'G';
-				percentage = 0.75;
-			}
-
-			else if ([radioType rangeOfString:@"LTE"].location != NSNotFound) {
-				representativeChar = 'L';
-				percentage = 1.0;
-			}
-
-			else {
-				representativeChar = 'o';
-				percentage = 0.25;
-			}
-
-			CRLOG(@"data network type: %@, percentage: %f", radioType, percentage);
-
-			if (style == CircletStyleTextual) {
-				white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius char:representativeChar invert:NO];
-				black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius char:representativeChar invert:NO];
-			}
-
-			else if (style == CircletStyleTextualInverse) {
-				white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius char:representativeChar invert:YES];
-				black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius char:representativeChar invert:YES];
-			}
-
-			else {
-				white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionData) radius:radius percentage:percentage style:style];
-				black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionData) radius:radius percentage:percentage style:style];
-			}
-		}
-
-		else {
-			if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
-				percentage *= 3;
-			}
-
-			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionWifi) radius:radius percentage:percentage style:style];
-			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionWifi) radius:radius percentage:percentage style:style];
-		}
-
-		return (w > 0.5) ? [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black]:[%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+		return [self circletContentsImageForWhite:(w >= 0.5)];
 	}
 
 	return %orig();
 }
 
+- (_UILegibilityImageSet *)contentsImageForStyle:(int)arg1 {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarDataNetworkItemView");
+	return shouldOverride ? [self circletContentsImageForWhite:arg1] : %orig();
+}
+
 %end
 
 %hook UIStatusBarServiceItemView
+
+%new - (_UILegibilityImageSet *)circletContentsImageForWhite:(BOOL)white {
+	UIColor *light, *dark;
+	if (white) {
+		light = [UIColor whiteColor];
+		dark = [UIColor blackColor];
+	}
+
+	else {
+		light = [UIColor blackColor];
+		dark = [UIColor whiteColor];
+	}
+
+	UIImage *image, *shadow;
+	NSString *savedText = CRVALUE(@"carrierText");
+	NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+	if (clipped) {
+		if (clipped.length > 0) {
+			image = [UIImage circletWithColor:light radius:CRDEFAULTRADIUS string:savedText];
+			shadow = [UIImage circletWithColor:dark radius:CRDEFAULTRADIUS string:savedText];
+		}
+
+		else {
+			image = circletBlankImage();
+			shadow = circletBlankImage();
+		}
+	}
+
+	else {
+		NSString *serviceString = MSHookIvar<NSString *>(self, "_serviceString");
+		char serviceChar = serviceString && serviceString.length > 0 ? [serviceString characterAtIndex:0] : 'C';
+	 
+		image = [UIImage circletWithColor:light radius:CRDEFAULTRADIUS char:serviceChar invert:YES];
+		shadow = [UIImage circletWithColor:dark radius:CRDEFAULTRADIUS char:serviceChar invert:YES];
+	}
+	
+	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
+}
 
 - (_UILegibilityImageSet *)contentsImage {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView");
@@ -362,34 +426,37 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	if (shouldOverride) {
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-
-		UIImage *white, *black;
-		NSString *savedText = CRVALUE(@"carrierText");
-		if (savedText && savedText.length > 0) {
-			CRLOG(@"using saved text: %@", savedText);
-			white = [UIImage circletWithColor:[UIColor whiteColor] radius:CRDEFAULTRADIUS string:savedText];
-			black = [UIImage circletWithColor:[UIColor blackColor] radius:CRDEFAULTRADIUS string:savedText];
-		}
-
-		else {
-			NSString *serviceString = MSHookIvar<NSString *>(self, "_serviceString");
-			CRLOG(@"dealing with serviceString: %@, length:%i", serviceString, (int) serviceString.length);
-
-			char serviceChar = serviceString && serviceString.length > 0 ? [serviceString characterAtIndex:0] : 'C';
-	 
-			white = [UIImage circletWithColor:[UIColor whiteColor] radius:CRDEFAULTRADIUS char:serviceChar invert:YES];
-			black = [UIImage circletWithColor:[UIColor blackColor] radius:CRDEFAULTRADIUS char:serviceChar invert:YES];
-		}
-
-		return (w >= 0.5) ? [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black] : [%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+		return [self circletContentsImageForWhite:(w >= 0.5)];
 	}
 
 	return %orig();
 }
 
+- (_UILegibilityImageSet *)contentsImageForStyle:(int)arg1 {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView");
+	return shouldOverride ? [self circletContentsImageForWhite:arg1] : %orig();
+}
+
 %end
 
 %hook UIStatusBarTimeItemView
+
+%new - (_UILegibilityImageSet *)circletContentsImageForWhite:(BOOL)white {
+	CGFloat radius = circletRadiusFromPosition(CircletPositionTimeOuter);
+	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
+	CGFloat hour = fmod([components hour], 12.0) / 12.0;
+	CGFloat minute = [components minute] / 60.0;
+		
+	CircletStyle style = circletStyleFromPosition(CircletPositionTimeOuter);
+	if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+		hour *= 12.0;
+		minute *= 60.0;
+	}
+
+	UIImage *image = [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
+	UIImage *shadow = [UIImage circletWithInnerColor:circletColorForPosition(!white, CircletPositionTimeInner) outerColor:circletColorForPosition(!white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
+	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
+}
 
 - (_UILegibilityImageSet *)contentsImage {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
@@ -398,47 +465,62 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	if (shouldOverride) {
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		
-		CGFloat radius = circletRadiusFromPosition(CircletPositionTimeOuter);
-		NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
-		CGFloat hour = fmod([components hour], 12.0) / 12.0;
-		CGFloat minute = [components minute] / 60.0;
-		
-		CircletStyle style = circletStyleFromPosition(CircletPositionTimeOuter);
-		if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
-			hour *= 12.0;
-			minute *= 60.0;
-		}
-
-		UIImage *white = [UIImage circletWithInnerColor:circletColorForPosition(YES, CircletPositionTimeInner) outerColor:circletColorForPosition(YES, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
-		UIImage *black = [UIImage circletWithInnerColor:circletColorForPosition(NO, CircletPositionTimeInner) outerColor:circletColorForPosition(NO, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
-
-		return (w >= 0.5) ? [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black] : [%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+		return [self circletContentsImageForWhite:(w >= 0.5)];
 	}
 
 	return %orig();
+}
+
+- (_UILegibilityImageSet *)contentsImageForStyle:(int)arg1 {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
+	return shouldOverride ? [self circletContentsImageForWhite:arg1] : %orig();
 }
 
 %end
 
 %hook UIStatusBarBatteryItemView
 
-- (id)_accessoryImage {
-	CRLOG(@"%@", %orig);
-	
+- (id)_accessoryImage {	
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+
 	NSNumber *showBolt = CRVALUE(@"showBolt");
 
 	if (shouldOverride && (!showBolt || ![showBolt boolValue])) {
-		UIImage *image = %orig();
-		UIGraphicsBeginImageContextWithOptions(CGSizeMake(1.0, 1.0), NO, image.scale);
-		UIImage *tiny = UIGraphicsGetImageFromCurrentImageContext();
-		UIGraphicsEndImageContext();
-
-		return tiny;
+		return circletBlankImage();
 	}
 
 	return %orig();
+}
+
+%new - (_UILegibilityImageSet *)circletContentsImageForWhite:(BOOL)white {
+	int level = MSHookIvar<int>(self, "_capacity");
+	BOOL needsBolt = [self _needsAccessoryImage];
+	CGFloat radius = circletRadiusFromPosition(CircletPositionBattery);
+
+	CircletStyle style = circletStyleFromPosition(CircletPositionBattery);
+	CGFloat percentage = level / 100.0;
+	if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+		percentage *= 100;
+	}
+
+	UIImage *image, *shadow;
+	if (needsBolt) {
+		image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionCharging) radius:radius percentage:percentage style:style];
+		shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionCharging) radius:radius percentage:percentage style:style];
+	}
+
+	else if (percentage <= 0.20) {
+		image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionLowBattery) radius:radius percentage:percentage style:style];
+		shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionLowBattery) radius:radius percentage:percentage style:style];
+	}
+
+	else {
+		image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionBattery) radius:radius percentage:percentage style:style];
+		shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionBattery) radius:radius percentage:percentage style:style];
+	}
+
+	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
 }
 
 - (_UILegibilityImageSet *)contentsImage {
@@ -448,37 +530,15 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	if (shouldOverride) {
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-
-		int level = MSHookIvar<int>(self, "_capacity");
-		BOOL needsBolt = [self _needsAccessoryImage];
-		CGFloat radius = circletRadiusFromPosition(CircletPositionBattery);
-
-		CircletStyle style = circletStyleFromPosition(CircletPositionBattery);
-		CGFloat percentage = level / 100.0;
-		if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
-			percentage *= 100;
-		}
-
-		UIImage *white, *black;
-		if (needsBolt) {
-			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionCharging) radius:radius percentage:percentage style:style];
-			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionCharging) radius:radius percentage:percentage style:style];
-		}
-
-		else if (percentage <= 0.20) {
-			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionLowBattery) radius:radius percentage:percentage style:style];
-			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionLowBattery) radius:radius percentage:percentage style:style];
-		}
-
-		else {
-			white = [UIImage circletWithColor:circletColorForPosition(YES, CircletPositionBattery) radius:radius percentage:percentage style:style];
-			black = [UIImage circletWithColor:circletColorForPosition(NO, CircletPositionBattery) radius:radius percentage:percentage style:style];
-		}
-
-		return (w > 0.5) ? [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black] : [%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+		return [self circletContentsImageForWhite:(w >= 0.5)];
 	}
 
 	return %orig();
+}
+
+- (_UILegibilityImageSet *)contentsImageForStyle:(int)arg1 {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
+	return shouldOverride ? [self circletContentsImageForWhite:arg1] : %orig();
 }
 
 %end
@@ -501,6 +561,11 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 		else if ([className isEqualToString:@"UIStatusBarDataNetworkItemView"]) {
 			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
+		}
+
+		else if ([className isEqualToString:@"UIStatusBarServiceItemView"]) {
+			CGFloat diameter = CRDEFAULTRADIUS * 2.0;
+			frame = CGRectMake(frame.origin.x, frame.origin.y, diameter + (diameter / 10.0), frame.size.height);
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarTimeItemView"]) {
