@@ -279,9 +279,10 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	return %orig();
 }
 
-- (_UILegibilityImageSet *)contentsImageForStyle:(int)arg1 {
+- (UIImage *)contentsImageForStyle:(int)arg1 {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarSignalStrengthItemView");
-	return shouldOverride ? [self circletContentsImageForWhite:arg1] : %orig();
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+	return shouldOverride ? [self circletContentsImageForWhite:YES].image : %orig();
 }
 
 %end
@@ -371,9 +372,10 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	return %orig();
 }
 
-- (_UILegibilityImageSet *)contentsImageForStyle:(int)arg1 {
+- (UIImage *)contentsImageForStyle:(int)arg1 {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarDataNetworkItemView");
-	return shouldOverride ? [self circletContentsImageForWhite:arg1] : %orig();
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+	return shouldOverride ? [self circletContentsImageForWhite:YES].image : %orig();
 }
 
 %end
@@ -433,9 +435,10 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	return %orig();
 }
 
-- (_UILegibilityImageSet *)contentsImageForStyle:(int)arg1 {
+- (UIImage *)contentsImageForStyle:(int)arg1 {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView");
-	return shouldOverride ? [self circletContentsImageForWhite:arg1] : %orig();
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+	return shouldOverride ? [self circletContentsImageForWhite:YES].image : %orig();
 }
 
 %end
@@ -472,9 +475,10 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	return %orig();
 }
 
-- (_UILegibilityImageSet *)contentsImageForStyle:(int)arg1 {
+- (UIImage *)contentsImageForStyle:(int)arg1 {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
-	return shouldOverride ? [self circletContentsImageForWhite:arg1] : %orig();
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+	return shouldOverride ? [self circletContentsImageForWhite:YES].image : %orig();
 }
 
 %end
@@ -496,7 +500,8 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 %new - (_UILegibilityImageSet *)circletContentsImageForWhite:(BOOL)white {
 	int level = MSHookIvar<int>(self, "_capacity");
-	BOOL needsBolt = [self _needsAccessoryImage];
+	int state = MSHookIvar<int>(self, "_state");
+	// not supported on iOS 6: BOOL needsBolt = [self _needsAccessoryImage];
 	CGFloat radius = circletRadiusFromPosition(CircletPositionBattery);
 
 	CircletStyle style = circletStyleFromPosition(CircletPositionBattery);
@@ -506,7 +511,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	}
 
 	UIImage *image, *shadow;
-	if (needsBolt) {
+	if (state != 0) {
 		image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionCharging) radius:radius percentage:percentage style:style];
 		shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionCharging) radius:radius percentage:percentage style:style];
 	}
@@ -537,13 +542,13 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	return %orig();
 }
 
-- (_UILegibilityImageSet *)contentsImageForStyle:(int)arg1 {
+- (UIImage *)contentsImageForStyle:(int)arg1 {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
-	return shouldOverride ? [self circletContentsImageForWhite:arg1] : %orig();
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+	return shouldOverride ? [self circletContentsImageForWhite:YES].image : %orig();
 }
 
 %end
-
 
 /***************************************************************************************/
 /********************************* Foreground Layout  **********************************/

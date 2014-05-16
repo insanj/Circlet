@@ -158,7 +158,7 @@ struct _rawData {
 - (_UILegibilityImageSet *)contentsImage;
 
 // iOS 6
-- (_UILegibilityImageSet *)contentsImageForStyle:(int)arg1;
+- (UIImage *)contentsImageForStyle:(int)arg1;
 
 - (BOOL)updateForNewData:(id)arg1 actions:(int)arg2;
 - (void)endImageContext;

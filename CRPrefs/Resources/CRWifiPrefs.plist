@@ -7,7 +7,7 @@
         <dict>
             <key>cell</key>         <string>PSGroupCell</string>
             <key>label</key>        <string>Style</string>
-            <key>footerText</key>   <string>o, GPRS, shows as 1/4, EDGE shows as 1/2, 3G/4G shows as 3/4, LTE shows as full.&#10;&#10;Radial fills left-to-right like a clock (◔), Fill fills from bottom to top (◒), Concentric expands and contracts an inner-circle (⦿), and Textual encases text (➉). Inverting reverses how the circle fills.</string>
+            <key>footerText</key>   <string>o, GPRS, shows as 1/4, EDGE shows as 1/2, 3G/4G shows as 3/4, LTE shows as full.&#10;&#10;Radial fills left-to-right like a clock (◔), Fill fills from bottom to top (◒), Concentric expands and contracts an inner-circle (⦿), and Textual encircles text (➉). Inverting reverses how the circle fills.</string>
         </dict>
 
         <dict>
