@@ -396,18 +396,19 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	NSString *savedText = CRVALUE(@"carrierText");
 	NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
-	if (clipped) {
-		if (clipped.length > 0) {
-			image = [UIImage circletWithColor:light radius:CRDEFAULTRADIUS string:savedText];
-			shadow = [UIImage circletWithColor:dark radius:CRDEFAULTRADIUS string:savedText];
-		}
-
-		else {
-			image = circletBlankImage();
-			shadow = circletBlankImage();
-		}
+	// If the saved carrier text is a valid, non-empty string
+	if (savedText && clipped.length > 0) {
+		image = [UIImage circletWithColor:light radius:CRDEFAULTRADIUS string:clipped];
+		shadow = [UIImage circletWithColor:dark radius:CRDEFAULTRADIUS string:clipped];
 	}
 
+	// If the saved carrier text is an empty string
+	else if (savedText && clipped.length == 0 && savedText.length > 0) {
+		image = circletBlankImage();
+		shadow = circletBlankImage();
+	}
+
+	// If there is no valid saved carrier text
 	else {
 		NSString *serviceString = MSHookIvar<NSString *>(self, "_serviceString");
 		char serviceChar = serviceString && serviceString.length > 0 ? [serviceString characterAtIndex:0] : 'C';
@@ -564,8 +565,17 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarServiceItemView"]) {
-			CGFloat diameter = CRDEFAULTRADIUS * 2.0;
-			frame = CGRectMake(frame.origin.x, frame.origin.y, diameter + (diameter / 10.0), frame.size.height);
+			NSString *savedText = CRVALUE(@"carrierText");
+			NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+			if (savedText && clipped.length == 0 && savedText.length > 0) {
+				frame = CGRectMake(frame.origin.x, frame.origin.y, 0.0, 0.0);
+			}
+
+			else {
+				CGFloat diameter = CRDEFAULTRADIUS * 2.0;
+				frame = CGRectMake(frame.origin.x, frame.origin.y, diameter + (diameter / 10.0), frame.size.height);
+			}
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarTimeItemView"]) {

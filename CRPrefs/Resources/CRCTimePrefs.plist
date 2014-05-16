@@ -32,7 +32,7 @@
 
         <dict>
             <key>cell</key>         <string>PSGroupCell</string>
-            <key>footerText</key>   <string>Hour appears on left, Minute on right.&#10;&#10;Radial fills right-to-left like a clock (◔), Fill fills from bottom to top (◒), Concentric expands and contracts an inner-circle (⦿), and Textual encases text (➉). Inverting reverses how the circle fills.</string>
+            <key>footerText</key>   <string>Hour appears on left, Minute on right.&#10;&#10;Radial fills left-to-right like a clock, Fill fills from bottom to top, Concentric expands and contracts an inner-circle, and Textual encases text. Inverting reverses how the circle fills.</string>
         </dict>
 
         <dict>
