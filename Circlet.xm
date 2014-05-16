@@ -210,6 +210,10 @@ static BOOL circletEnabledForClassname(NSString *className) {
 		return !value || [value boolValue];	// because of negation property
 	}
 
+	else if ([className isEqualToString:@"UIStatusBarServiceItemView"]) {
+		return [CRVALUE(@"carrierEnabled") boolValue];
+	}
+
 	else if ([className isEqualToString:@"UIStatusBarDataNetworkItemView"]) {
 		return [CRVALUE(@"wifiEnabled") boolValue];
 	}
@@ -349,7 +353,41 @@ static BOOL circletEnabledForClassname(NSString *className) {
 
 %end
 
-// UIStatusBarServiceItemView
+%hook UIStatusBarServiceItemView
+
+- (_UILegibilityImageSet *)contentsImage {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView");
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+
+	if (shouldOverride) {
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+
+		UIImage *white, *black;
+		NSString *savedText = CRVALUE(@"carrierText");
+		if (savedText && savedText.length > 0) {
+			CRLOG(@"using saved text: %@", savedText);
+			white = [UIImage circletWithColor:[UIColor whiteColor] radius:CRDEFAULTRADIUS string:savedText];
+			black = [UIImage circletWithColor:[UIColor blackColor] radius:CRDEFAULTRADIUS string:savedText];
+		}
+
+		else {
+			NSString *serviceString = MSHookIvar<NSString *>(self, "_serviceString");
+			CRLOG(@"dealing with serviceString: %@, length:%i", serviceString, (int) serviceString.length);
+
+			char serviceChar = serviceString && serviceString.length > 0 ? [serviceString characterAtIndex:0] : 'C';
+	 
+			white = [UIImage circletWithColor:[UIColor whiteColor] radius:CRDEFAULTRADIUS char:serviceChar invert:YES];
+			black = [UIImage circletWithColor:[UIColor blackColor] radius:CRDEFAULTRADIUS char:serviceChar invert:YES];
+		}
+
+		return (w >= 0.5) ? [%c(_UILegibilityImageSet) imageFromImage:white withShadowImage:black] : [%c(_UILegibilityImageSet) imageFromImage:black withShadowImage:white];
+	}
+
+	return %orig();
+}
+
+%end
 
 %hook UIStatusBarTimeItemView
 

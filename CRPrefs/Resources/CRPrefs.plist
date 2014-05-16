@@ -22,10 +22,36 @@
 
         <dict>
             <key>cell</key>              <string>PSLinkListCell</string>
-            <key>defaults</key>          <string>com.insanj.colendar</string>
+            <key>defaults</key>          <string>com.insanj.circlet</string>
             <key>detail</key>            <string>CRSignalPrefsListController</string>
             <key>label</key>             <string>Adjustments</string>
             <key>id</key>         	 	 <string>SignalAdjustments</string>
+        </dict>
+
+        <dict>
+			<key>cell</key>		 	    <string>PSGroupCell</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>				<string>PSSwitchCell</string>
+			<key>defaults</key>			<string>com.insanj.circlet</string>
+			<key>label</key>			<string>Carrier</string>
+			<key>key</key> 				<string>carrierEnabled</string>
+			<key>enabled</key> 			<true/>
+			<key>default</key> 			<false/>
+            <key>PostNotification</key> <string>com.insanj.circlet/SidesDisable</string>
+		</dict>
+
+        <dict>
+            <key>cell</key>              <string>PSEditTextCell</string>
+            <key>cellClass</key>         <string>CREditTextCell</string>
+            <key>defaults</key>          <string>com.insanj.circlet</string>
+            <key>label</key>             <string>Carrier Text</string>
+            <key>id</key>         	 	 <string>CarrierText</string>
+			<key>key</key> 				 <string>carrierText</string>
+            <key>placeholder</key> 		 <string>ℒ, o, ⓥ, etc.</string>
+            <key>noAutoCorrect</key> 	 <true/>
+            <key>PostNotification</key>  <string>com.insanj.circlet/SidesDisable</string>
         </dict>
 
         <dict>
@@ -44,7 +70,7 @@
 
         <dict>
             <key>cell</key>              <string>PSLinkListCell</string>
-            <key>defaults</key>          <string>com.insanj.colendar</string>
+            <key>defaults</key>          <string>com.insanj.circlet</string>
             <key>detail</key>            <string>CRWifiPrefsListController</string>
             <key>label</key>             <string>Adjustments</string>
             <key>id</key>         	 	 <string>WifiAdjustments</string>
@@ -66,7 +92,7 @@
 
         <dict>
             <key>cell</key>              <string>PSLinkListCell</string>
-            <key>defaults</key>          <string>com.insanj.colendar</string>
+            <key>defaults</key>          <string>com.insanj.circlet</string>
             <key>detail</key>            <string>CRTimePrefsListController</string>
             <key>label</key>             <string>Adjustments</string>
             <key>id</key>         	 	 <string>TimeAdjustments</string>
@@ -88,7 +114,7 @@
 
         <dict>
             <key>cell</key>              <string>PSLinkListCell</string>
-            <key>defaults</key>          <string>com.insanj.colendar</string>
+            <key>defaults</key>          <string>com.insanj.circlet</string>
             <key>detail</key>            <string>CRBatteryPrefsListController</string>
             <key>label</key>             <string>Adjustments</string>
             <key>id</key>         	 	 <string>BatteryAdjustments</string>

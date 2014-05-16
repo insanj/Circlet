@@ -220,4 +220,48 @@
 	return image;
 }
 
++ (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius string:(NSString *)string {
+	CGFloat diameter = radius * 2.0;
+	CGFloat thickness = diameter / 10.0;
+	CGRect frame = (CGRect){CGPointMake(thickness / 2.0, thickness / 2.0), CGSizeMake(diameter, diameter)};
+	CGRect bounds = (CGRect){CGPointZero, CGSizeMake(diameter + thickness, diameter + thickness)};
+	CGPoint center = CGPointMake(bounds.size.width / 2.0, bounds.size.height / 2.0);
+	CGColorRef colorRef = color.CGColor; // Light color
+	
+	UIGraphicsBeginImageContextWithOptions(bounds.size, NO, [UIScreen mainScreen].scale);
+	CGContextRef context = UIGraphicsGetCurrentContext();
+	CGContextSetShouldAntialias(context, YES);
+	
+	// Creates outline of circle with calculated thickness as additional pixels
+	CGContextSetLineWidth(context, thickness);
+    CGContextSetStrokeColorWithColor(context, colorRef);
+	
+	CGContextAddArc(context, center.x, center.y, radius, 0.0, M_PI * 2, YES);
+	CGContextSetFillColorWithColor(context, colorRef);
+	CGContextStrokePath(context);
+
+	CGFloat circletTextSize = (diameter - thickness) / string.length;
+	UIFont *circletTextFont = [UIFont fontWithName:CIRCLET_FONT size:circletTextSize];
+	NSMutableParagraphStyle *circletTextParagraphStyle = [[NSMutableParagraphStyle alloc] init];
+	circletTextParagraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
+	circletTextParagraphStyle.alignment = NSTextAlignmentCenter;
+	
+	NSAttributedString *circletAttributedText = [[NSAttributedString alloc] initWithString:string attributes:@{ NSFontAttributeName : circletTextFont, NSForegroundColorAttributeName : color, NSParagraphStyleAttributeName : circletTextParagraphStyle }];
+	
+	CGPoint circletDrawPoint = center;
+	circletDrawPoint.x -= circletAttributedText.size.width / 2.0;
+	circletDrawPoint.y -= circletAttributedText.size.height / 1.9;
+	
+	CGContextFillEllipseInRect(context, frame);
+	CGContextSetBlendMode(context, kCGBlendModeDestinationOut);
+	
+	[circletAttributedText drawAtPoint:circletDrawPoint];
+
+	CGContextDrawPath(context, kCGPathFill);
+	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+	
+	return image;
+}
+
 @end

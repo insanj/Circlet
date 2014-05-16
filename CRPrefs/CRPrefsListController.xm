@@ -119,55 +119,38 @@ static void circletMiddleDisable(CFNotificationCenterRef center, void *observer,
 - (void)smartDisable {
 	CRLOG(@"Smart disabling...");
 	NSDictionary *settings = [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]];
+	
 	NSNumber *signalValue = [settings objectForKey:@"signalEnabled"];
+	NSNumber *carrierValue = [settings objectForKey:@"carrierEnabled"];
 	NSNumber *wifiValue = [settings objectForKey:@"wifiEnabled"];
 	NSNumber *timeValue = [settings objectForKey:@"timeEnabled"];
 	NSNumber *batteryValue = [settings objectForKey:@"batteryEnabled"];
+	
 	PSSpecifier *signalAdjustmentsSpecifier = [self specifierForID:@"SignalAdjustments"];
+	PSSpecifier *carrierTextSpecifier = [self specifierForID:@"CarrierText"];
 	PSSpecifier *wifiAdjustmentsSpecifier = [self specifierForID:@"WifiAdjustments"];
 	PSSpecifier *timeAdjustmentsSpecifier = [self specifierForID:@"TimeAdjustments"];
 	PSSpecifier *batteryAdjustmentsSpecifier = [self specifierForID:@"BatteryAdjustments"];
 
-	if (signalValue && ![signalValue boolValue]) {
-		[signalAdjustmentsSpecifier setProperty:@(NO) forKey:@"enabled"];
-		[self reloadSpecifier:signalAdjustmentsSpecifier];
-	}
+	BOOL signalEnabled = !signalValue || [signalValue boolValue];
+	[signalAdjustmentsSpecifier setProperty:@(signalEnabled) forKey:@"enabled"];
+	[self reloadSpecifier:signalAdjustmentsSpecifier];
 
-	else {
-		[signalAdjustmentsSpecifier setProperty:@(YES) forKey:@"enabled"];
-		[self reloadSpecifier:signalAdjustmentsSpecifier];
-	}
+	BOOL carrierEnabled = carrierValue && [carrierValue boolValue];
+	[carrierTextSpecifier setProperty:@(carrierEnabled) forKey:@"enabled"];
+	[self reloadSpecifier:carrierTextSpecifier];
 
-	if (!wifiValue || ![wifiValue boolValue]) {
-		[wifiAdjustmentsSpecifier setProperty:@(NO) forKey:@"enabled"];
-		[self reloadSpecifier:wifiAdjustmentsSpecifier];
-	}
+	BOOL wifiEnabled = wifiValue && [wifiValue boolValue];
+	[wifiAdjustmentsSpecifier setProperty:@(wifiEnabled) forKey:@"enabled"];
+	[self reloadSpecifier:wifiAdjustmentsSpecifier];
+	
+	BOOL timeEnabled = timeValue && [timeValue boolValue];
+	[timeAdjustmentsSpecifier setProperty:@(timeEnabled) forKey:@"enabled"];
+	[self reloadSpecifier:timeAdjustmentsSpecifier];
 
-	else {
-		[wifiAdjustmentsSpecifier setProperty:@(YES) forKey:@"enabled"];
-		[self reloadSpecifier:wifiAdjustmentsSpecifier];
-	}
-
-	if (!timeValue || ![timeValue boolValue]) {
-		[timeAdjustmentsSpecifier setProperty:@(NO) forKey:@"enabled"];
-		[self reloadSpecifier:timeAdjustmentsSpecifier];
-	}
-
-	else {
-		[timeAdjustmentsSpecifier setProperty:@(YES) forKey:@"enabled"];
-		[self reloadSpecifier:timeAdjustmentsSpecifier];
-	}
-
-	if (!batteryValue || ![batteryValue boolValue]) {
-		[batteryAdjustmentsSpecifier setProperty:@(NO) forKey:@"enabled"];
-		[self reloadSpecifier:batteryAdjustmentsSpecifier];
-	}
-
-	else {
-		[batteryAdjustmentsSpecifier setProperty:@(YES) forKey:@"enabled"];
-		[self reloadSpecifier:batteryAdjustmentsSpecifier];
-	}
-
+	BOOL batteryEnaled = batteryValue && [batteryValue boolValue];
+	[batteryAdjustmentsSpecifier setProperty:@(batteryEnaled) forKey:@"enabled"];
+	[self reloadSpecifier:batteryAdjustmentsSpecifier];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {

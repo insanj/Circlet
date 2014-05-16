@@ -51,6 +51,66 @@
 
 @end
 
+@implementation CREditTextCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier {
+	// styles: 0, 4, 8... invisible
+	//		   1 normal label, no input
+	//		   2 tiny blue text, no input
+	//		   1000 default, normal label, small black aligned left
+	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier specifier:specifier];
+	return self;
+}
+
+- (BOOL)textFieldShouldReturn:(id)arg1 {
+	/*UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+	UIView *fakeStatusBar;
+
+	if (MODERN_IOS) {
+		fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
+	}
+
+	else {
+		UIGraphicsBeginImageContextWithOptions(statusBar.frame.size, NO, [UIScreen mainScreen].scale);
+		CGContextRef context = UIGraphicsGetCurrentContext();
+		[statusBar.layer renderInContext:context];
+		UIImage *statusBarImave = UIGraphicsGetImageFromCurrentImageContext();
+		UIGraphicsEndImageContext();
+		fakeStatusBar = [[UIImageView alloc] initWithImage:statusBarImave];
+	}
+
+	[statusBar.superview addSubview:fakeStatusBar];
+
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
+
+	CGRect upwards = statusBar.frame;
+	upwards.origin.y -= upwards.size.height;
+	statusBar.frame = upwards;
+
+	CGFloat shrinkAmount = 5.0;
+	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
+		CRLOG(@"Animating out...");
+		
+		CGRect shrinkFrame = fakeStatusBar.frame;
+		shrinkFrame.origin.x += shrinkAmount;
+		shrinkFrame.origin.y += shrinkAmount;
+		shrinkFrame.size.width -= shrinkAmount;
+		shrinkFrame.size.height -= shrinkAmount;
+		fakeStatusBar.frame = shrinkFrame;
+		fakeStatusBar.alpha = 0.0;
+		
+		CGRect downwards = statusBar.frame;
+		downwards.origin.y += downwards.size.height;
+		statusBar.frame = downwards;
+	} completion: ^(BOOL finished) {
+		[fakeStatusBar removeFromSuperview];
+	}];
+*/
+	return YES;
+}
+
+@end
+
 @implementation CRSegmentTableCell
 
 - (void)layoutSubviews {

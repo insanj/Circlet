@@ -6,6 +6,7 @@
 #include <Preferences/PSTableCell.h>
 #include <Preferences/PSSegmentTableCell.h>
 #include <Preferences/PSTextViewTableCell.h>
+#include <Preferences/PSEditableTableCell.h>
 #include <UIKit/UIActivityViewController.h>
 #include <Twitter/Twitter.h>
 #include <notify.h>
@@ -45,6 +46,9 @@
 	UITextView *_plainTextView;
 }
 
+@end
+
+@interface CREditTextCell : PSEditableTableCell
 @end
 
 @interface CRSegmentTableCell : PSSegmentTableCell

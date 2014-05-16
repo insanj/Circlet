@@ -30,5 +30,6 @@ typedef NS_ENUM(NSUInteger, CircletStyle) {
 
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius percentage:(CGFloat)percent style:(CircletStyle)style thickness:(CGFloat)thickness;
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius char:(char)letter invert:(BOOL)invert;
++ (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius string:(NSString *)string;
 
 @end

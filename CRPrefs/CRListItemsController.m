@@ -4,7 +4,6 @@
 
 @implementation CRListItemsController
 
-
 - (void)loadView {
 	_safeTitleToColor = [CRTITLETOCOLOR retain];
 	[super loadView];
