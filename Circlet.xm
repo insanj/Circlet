@@ -260,8 +260,19 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		percentage *= 5.0;
 	}
 
-	UIImage *image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionSignal) radius:radius percentage:percentage style:style];
-	UIImage *shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionSignal) radius:radius percentage:percentage style:style];
+	NSNumber *outline = CRVALUE(@"signalOutline");
+	BOOL showOutline = !outline || ![outline boolValue];
+
+	UIImage *image, *shadow;
+	if (showOutline) {
+		image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionSignal) radius:radius percentage:percentage style:style];
+		shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionSignal) radius:radius percentage:percentage style:style];
+	}
+
+	else {
+		image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionSignal) radius:radius percentage:percentage style:style thickness:0.0];
+		shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionSignal) radius:radius percentage:percentage style:style thickness:0.0];
+	}
 
 	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
 }
@@ -295,6 +306,10 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	CGFloat radius = circletRadiusFromPosition(CircletPositionWifi);
 	CircletStyle style = circletStyleFromPosition(CircletPositionWifi);
 	CGFloat percentage = wifiState / 3.0;
+	
+	NSNumber *outline = CRVALUE(@"wifiOutline");
+	BOOL showOutline = !outline || ![outline boolValue];
+	BOOL textualStyle = (style == CircletStyleTextual), inverseTextualStyle = (style == CircletStyleTextualInverse);
 
 	UIImage *image, *shadow;
 	if (networkType != 5) {
@@ -302,58 +317,74 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		NSString *radioType = [radioTechnology.radioAccessTechnology stringByReplacingOccurrencesOfString:@"CTRadioAccessTechnology" withString:@""];
 		[radioTechnology release];
 
-		char representativeChar;
+		NSString* representativeString;
 		if (style == CircletStyleTextual) {
-			representativeChar = 't';
+			representativeString = @"t";
 		}
 
 		else if (style == CircletStyleTextualInverse) {
-			representativeChar = 'i';
+			representativeString = @"i";
 		}
 
 		if ([radioType rangeOfString:@"EDGE"].location != NSNotFound) {
-			representativeChar = 'E';
+			representativeString = @"E";
 			percentage = 0.5;
 		}
 
 		else if ([radioType rangeOfString:@"HSDPA"].location != NSNotFound) {
-			representativeChar = 'G';
+			representativeString = @"G";
 			percentage = 0.75;
 		}
 
 		else if ([radioType rangeOfString:@"LTE"].location != NSNotFound) {
-			representativeChar = 'L';
+			representativeString = @"L";
 			percentage = 1.0;
 		}
 
 		else {
-			representativeChar = 'o';
+			representativeString = @"o";
 			percentage = 0.25;
 		}
 
-		if (style == CircletStyleTextual) {
-			image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius char:representativeChar invert:NO];
-			shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionData) radius:radius char:representativeChar invert:NO];
-		}
+		if (textualStyle || inverseTextualStyle) {
+			if (showOutline) {
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius string:representativeString invert:inverseTextualStyle];
+				shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionData) radius:radius string:representativeString invert:inverseTextualStyle];
+			}
 
-		else if (style == CircletStyleTextualInverse) {
-			image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius char:representativeChar invert:YES];
-			shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionData) radius:radius char:representativeChar invert:YES];
+			else {
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius string:representativeString invert:inverseTextualStyle thickness:0.0];
+				shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionData) radius:radius string:representativeString invert:inverseTextualStyle thickness:0.0];
+			}
 		}
 
 		else {
-			image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius percentage:percentage style:style];
-			shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionData) radius:radius percentage:percentage style:style];
+			if (showOutline) {
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius percentage:percentage style:style];
+				shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionData) radius:radius percentage:percentage style:style];
+			}
+
+			else {
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius percentage:percentage style:style thickness:0.0];
+				shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionData) radius:radius percentage:percentage style:style thickness:0.0];
+			}
 		}
 	}
 
 	else {
-		if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+		if (textualStyle || inverseTextualStyle) {
 			percentage *= 3;
 		}
 
-		image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style];
-		shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionWifi) radius:radius percentage:percentage style:style];
+		if (showOutline) {
+			image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style];
+			shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionWifi) radius:radius percentage:percentage style:style];
+		}
+
+		else {
+			image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style thickness:0.0];
+			shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionWifi) radius:radius percentage:percentage style:style thickness:0.0];
+		}
 	}
 
 	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
@@ -400,8 +431,8 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 	// If the saved carrier text is a valid, non-empty string
 	if (savedText && clipped.length > 0) {
-		image = [UIImage circletWithColor:light radius:CRDEFAULTRADIUS string:clipped];
-		shadow = [UIImage circletWithColor:dark radius:CRDEFAULTRADIUS string:clipped];
+		image = [UIImage circletWithColor:light radius:CRDEFAULTRADIUS string:clipped invert:YES];
+		shadow = [UIImage circletWithColor:dark radius:CRDEFAULTRADIUS string:clipped invert:YES];
 	}
 
 	// If the saved carrier text is an empty string
@@ -413,10 +444,10 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	// If there is no valid saved carrier text
 	else {
 		NSString *serviceString = MSHookIvar<NSString *>(self, "_serviceString");
-		char serviceChar = serviceString && serviceString.length > 0 ? [serviceString characterAtIndex:0] : 'C';
+		NSString *serviceSingleString = serviceString && serviceString.length > 0 ? [serviceString substringToIndex:1] : @"C";
 	 
-		image = [UIImage circletWithColor:light radius:CRDEFAULTRADIUS char:serviceChar invert:YES];
-		shadow = [UIImage circletWithColor:dark radius:CRDEFAULTRADIUS char:serviceChar invert:YES];
+		image = [UIImage circletWithColor:light radius:CRDEFAULTRADIUS string:serviceSingleString invert:YES];
+		shadow = [UIImage circletWithColor:dark radius:CRDEFAULTRADIUS string:serviceSingleString invert:YES];
 	}
 	
 	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
@@ -457,8 +488,20 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		minute *= 60.0;
 	}
 
-	UIImage *image = [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
-	UIImage *shadow = [UIImage circletWithInnerColor:circletColorForPosition(!white, CircletPositionTimeInner) outerColor:circletColorForPosition(!white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
+	NSNumber *outline = CRVALUE(@"timeOutline");
+	BOOL showOutline = !outline || ![outline boolValue];
+
+	UIImage *image, *shadow;
+	if (showOutline) {
+		image = [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
+		shadow = [UIImage circletWithInnerColor:circletColorForPosition(!white, CircletPositionTimeInner) outerColor:circletColorForPosition(!white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
+	}
+
+	else {
+		image = [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style thickness:0.0];
+		shadow = [UIImage circletWithInnerColor:circletColorForPosition(!white, CircletPositionTimeInner) outerColor:circletColorForPosition(!white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style thickness:0.0];
+	}
+
 	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
 }
 
@@ -511,19 +554,34 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	}
 
 	UIImage *image, *shadow;
+	UIColor *imageColor, *shadowColor;
 	if (state != 0) {
-		image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionCharging) radius:radius percentage:percentage style:style];
-		shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionCharging) radius:radius percentage:percentage style:style];
+		imageColor = circletColorForPosition(white, CircletPositionCharging);
+		shadowColor = circletColorForPosition(!white, CircletPositionCharging);
+
 	}
 
 	else if (percentage <= 0.20) {
-		image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionLowBattery) radius:radius percentage:percentage style:style];
-		shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionLowBattery) radius:radius percentage:percentage style:style];
+		imageColor = circletColorForPosition(white, CircletPositionLowBattery);
+		shadowColor = circletColorForPosition(!white, CircletPositionLowBattery);
 	}
 
 	else {
-		image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionBattery) radius:radius percentage:percentage style:style];
-		shadow = [UIImage circletWithColor:circletColorForPosition(!white, CircletPositionBattery) radius:radius percentage:percentage style:style];
+		imageColor = circletColorForPosition(white, CircletPositionBattery);
+		shadowColor = circletColorForPosition(!white, CircletPositionBattery);
+	}
+
+	NSNumber *outline = CRVALUE(@"batteryOutline");
+	BOOL showOutline = !outline || ![outline boolValue];
+
+	if (showOutline) {
+		image = [UIImage circletWithColor:imageColor radius:radius percentage:percentage style:style];
+		shadow = [UIImage circletWithColor:shadowColor radius:radius percentage:percentage style:style];
+	}
+
+	else {
+		image = [UIImage circletWithColor:imageColor radius:radius percentage:percentage style:style thickness:0.0];
+		shadow = [UIImage circletWithColor:shadowColor radius:radius percentage:percentage style:style thickness:0.0];
 	}
 
 	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];

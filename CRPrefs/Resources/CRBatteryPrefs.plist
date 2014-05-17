@@ -42,6 +42,15 @@
         </dict>
 
         <dict>
+            <key>cell</key>             <string>PSSwitchCell</string>
+            <key>defaults</key>         <string>com.insanj.circlet</string>
+            <key>label</key>            <string>Outline</string>
+            <key>key</key>              <string>batteryOutline</string>
+            <key>enabled</key>          <true/>
+            <key>default</key>          <true/>
+        </dict>
+
+        <dict>
             <key>cell</key>           <string>PSGroupCell</string>
         </dict>
 
