@@ -140,19 +140,6 @@
             <key>valuesDataSource</key>  <string>lowPowerColorValues:</string>
         </dict>
 
-        <dict>
-            <key>cell</key>             <string>PSGroupCell</string>
-        </dict>
-    
-       <dict>
-            <key>cell</key>             <string>PSSwitchCell</string>
-            <key>defaults</key>         <string>com.insanj.circlet</string>
-            <key>label</key>            <string>Show Bolt</string>
-            <key>key</key>              <string>showBolt</string>
-            <key>enabled</key>          <true/>
-            <key>default</key>          <false/>
-        </dict>
-
          <dict>
             <key>cell</key>             <string>PSGroupCell</string>
             <key>footerText</key>       <string>No respring required.</string>

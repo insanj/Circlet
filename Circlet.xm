@@ -558,7 +558,6 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	if (state != 0) {
 		imageColor = circletColorForPosition(white, CircletPositionCharging);
 		shadowColor = circletColorForPosition(!white, CircletPositionCharging);
-
 	}
 
 	else if (percentage <= 0.20) {
@@ -582,6 +581,27 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	else {
 		image = [UIImage circletWithColor:imageColor radius:radius percentage:percentage style:style thickness:0.0];
 		shadow = [UIImage circletWithColor:shadowColor radius:radius percentage:percentage style:style thickness:0.0];
+	}
+
+	NSNumber *showBolt = CRVALUE(@"showBolt");
+
+	if (showBolt && [showBolt boolValue] && state != 0) {
+		CGRect expanded = (CGRect){CGPointZero, image.size};
+		expanded.size.width *= 2.5;
+
+		UIGraphicsBeginImageContextWithOptions(expanded.size, NO, [UIScreen mainScreen].scale);
+		CGContextRef context = UIGraphicsGetCurrentContext();
+		[image drawAtPoint:CGPointZero];
+		UIImage *doubledImage = UIGraphicsGetImageFromCurrentImageContext();
+		UIGraphicsEndImageContext();
+
+		UIGraphicsBeginImageContextWithOptions(expanded.size, NO, [UIScreen mainScreen].scale);
+		context = UIGraphicsGetCurrentContext();
+		[shadow drawAtPoint:CGPointZero];
+		UIImage *doubledShadow = UIGraphicsGetImageFromCurrentImageContext();
+		UIGraphicsEndImageContext();
+
+		return [%c(_UILegibilityImageSet) imageFromImage:doubledImage withShadowImage:doubledShadow];
 	}
 
 	return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:shadow];
@@ -646,10 +666,16 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarBatteryItemView"]) {
-			UIImage *boltImage = MODERN_IOS ? (UIImage *) [arg1 _accessoryImage] : nil;
-			CGFloat boltWidth = boltImage ? boltImage.size.width : 0.0;
-			// ionno deal with this
-			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery) + boltWidth, frame.size.height);
+			NSNumber *showBolt = CRVALUE(@"showBolt");
+
+			// Should only have that preference set if on iOS 7 (not in other plist)...
+			if (showBolt && [showBolt boolValue] && MSHookIvar<int>(arg1, "_state") != 0) {
+				frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery) * 2.0, frame.size.height);
+			}
+
+			else {
+				frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery), frame.size.height);
+			}
 		}
 	}
 
