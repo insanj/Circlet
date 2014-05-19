@@ -34,4 +34,6 @@ typedef NS_ENUM(NSUInteger, CircletStyle) {
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius string:(NSString *)string invert:(BOOL)invert;
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius string:(NSString *)string invert:(BOOL)invert thickness:(CGFloat)thickness;
 
++ (CGFloat)circletLargestFontSizeForString:(NSString *)string inFrame:(CGRect)frame prediction:(CGFloat)pointSize;
+
 @end

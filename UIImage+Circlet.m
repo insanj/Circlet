@@ -8,7 +8,6 @@
 
 #import "UIImage+Circlet.h"
 #define CIRCLET_FONT @"HelveticaNeue"
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 @implementation UIImage (Circlet)
 
@@ -100,7 +99,8 @@
 		// ➉ or ➓
 		else {
 			NSString *circletText = [NSString stringWithFormat:@"%i", (int)percent];
-			CGFloat circletTextSize = (diameter - thickness) / circletText.length;
+			CGFloat circletTextSize = [self circletLargestFontSizeForString:circletText inFrame:frame prediction:(diameter - thickness) / circletText.length];
+			
 			UIFont *circletTextFont = [UIFont fontWithName:CIRCLET_FONT size:circletTextSize];
 			NSMutableParagraphStyle *circletTextParagraphStyle = [[NSMutableParagraphStyle alloc] init];
 			circletTextParagraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
@@ -108,17 +108,14 @@
 			
 			NSAttributedString *circletAttributedText = [[NSAttributedString alloc] initWithString:circletText attributes:@{ NSFontAttributeName : circletTextFont, NSForegroundColorAttributeName : color, NSParagraphStyleAttributeName : circletTextParagraphStyle }];
 			
-			CGPoint circletDrawPoint = center;
-			circletDrawPoint.x -= circletAttributedText.size.width / 2.0;
-			circletDrawPoint.y -= circletAttributedText.size.height / 1.9;
-			// circletDrawFrame.origin.x -= thickness / 5.0;
-			
 			if (style == CircletStyleTextualInverse) {
 				CGContextFillEllipseInRect(context, frame);
 				CGContextSetBlendMode(context, kCGBlendModeDestinationOut);
 			}
 			
-			[circletAttributedText drawAtPoint:circletDrawPoint];
+			CGRect circletCenterFrame = frame;
+			circletCenterFrame.origin.y = (thickness / 2.0) + ((frame.size.height - [circletAttributedText size].height) / 2.0);
+			[circletAttributedText drawInRect:circletCenterFrame];
 		}
 	}
 	
@@ -199,8 +196,8 @@
 	CGContextAddArc(context, center.x, center.y, radius, 0.0, M_PI * 2, YES);
 	CGContextSetFillColorWithColor(context, colorRef);
 	CGContextStrokePath(context);
-
-	CGFloat circletTextSize = (diameter - thickness) / string.length;
+	
+	CGFloat circletTextSize = [self circletLargestFontSizeForString:string inFrame:frame prediction:(diameter - thickness) / string.length];
 	UIFont *circletTextFont = [UIFont fontWithName:CIRCLET_FONT size:circletTextSize];
 	NSMutableParagraphStyle *circletTextParagraphStyle = [[NSMutableParagraphStyle alloc] init];
 	circletTextParagraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
@@ -208,22 +205,37 @@
 	
 	NSAttributedString *circletAttributedText = [[NSAttributedString alloc] initWithString:string attributes:@{ NSFontAttributeName : circletTextFont, NSForegroundColorAttributeName : color, NSParagraphStyleAttributeName : circletTextParagraphStyle }];
 	
-	CGPoint circletDrawPoint = center;
-	circletDrawPoint.x -= circletAttributedText.size.width / 2.0;
-	circletDrawPoint.y -= circletAttributedText.size.height / 1.9;
+	// CGPoint circletDrawPoint = center;
+	// circletDrawPoint.x -= circletAttributedText.size.width / 2.0;
+	// circletDrawPoint.y -= circletAttributedText.size.height / 1.9;
 	
 	if (invert) {
 		CGContextFillEllipseInRect(context, frame);
 		CGContextSetBlendMode(context, kCGBlendModeDestinationOut);
 	}
 	
-	[circletAttributedText drawAtPoint:circletDrawPoint];
-
+	CGRect circletCenterFrame = frame;
+	circletCenterFrame.origin.y = (thickness / 2.0) + ((frame.size.height - [circletAttributedText size].height) / 2.0);
+	[circletAttributedText drawInRect:circletCenterFrame];
+	
 	CGContextDrawPath(context, kCGPathFill);
 	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
 	
 	return image;
+}
+
++ (CGFloat)circletLargestFontSizeForString:(NSString *)string inFrame:(CGRect)frame prediction:(CGFloat)pointSize {
+	UIFont *font = [UIFont fontWithName:CIRCLET_FONT size:pointSize];
+	CGSize stringSize = [string sizeWithFont:font];
+	CGFloat widthCeiling = frame.size.width - 2.0, heightCeiling = frame.size.height - 2.0;
+	
+    while (stringSize.width > widthCeiling|| stringSize.height > heightCeiling) {
+        font = [UIFont fontWithName:CIRCLET_FONT size:font.pointSize - 1.0];
+        stringSize = [string sizeWithFont:font];
+    }
+	
+    return font.pointSize;
 }
 
 @end

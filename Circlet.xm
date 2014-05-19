@@ -261,7 +261,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	}
 
 	NSNumber *outline = CRVALUE(@"signalOutline");
-	BOOL showOutline = !outline || ![outline boolValue];
+	BOOL showOutline = !outline || [outline boolValue];
 
 	UIImage *image, *shadow;
 	if (showOutline) {
@@ -308,7 +308,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	CGFloat percentage = wifiState / 3.0;
 	
 	NSNumber *outline = CRVALUE(@"wifiOutline");
-	BOOL showOutline = !outline || ![outline boolValue];
+	BOOL showOutline = !outline || [outline boolValue];
 	BOOL textualStyle = (style == CircletStyleTextual), inverseTextualStyle = (style == CircletStyleTextualInverse);
 
 	UIImage *image, *shadow;
@@ -489,7 +489,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	}
 
 	NSNumber *outline = CRVALUE(@"timeOutline");
-	BOOL showOutline = !outline || ![outline boolValue];
+	BOOL showOutline = !outline || [outline boolValue];
 
 	UIImage *image, *shadow;
 	if (showOutline) {
@@ -572,7 +572,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	}
 
 	NSNumber *outline = CRVALUE(@"batteryOutline");
-	BOOL showOutline = !outline || ![outline boolValue];
+	BOOL showOutline = !outline || [outline boolValue];
 
 	if (showOutline) {
 		image = [UIImage circletWithColor:imageColor radius:radius percentage:percentage style:style];
@@ -685,7 +685,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	}
 
 	else {
-		if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer.dylib"] || [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer2.dylib"]) {
+		if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer.dylib"]) {
 			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Cydia&path=Circlet"]];
 		}
 
