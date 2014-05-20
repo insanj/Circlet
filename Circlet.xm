@@ -326,7 +326,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 			representativeString = @"i";
 		}
 
-		if ([radioType rangeOfString:@"EDGE"].location != NSNotFound) {
+		if ([radioType rangeOfString:@"Edge"].location != NSNotFound) {
 			representativeString = @"E";
 			percentage = 0.5;
 		}
@@ -464,6 +464,13 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	}
 
 	return %orig();
+}
+
+- (CGFloat)standardPadding {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView");
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+
+	return shouldOverride ? 0.0 : %orig();
 }
 
 - (UIImage *)contentsImageForStyle:(int)arg1 {
@@ -661,15 +668,6 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 		else if ([className isEqualToString:@"UIStatusBarDataNetworkItemView"]) {
 			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
-
-			if (circletEnabledForClassname(@"UIStatusBarServiceItemView")) {
-				NSString *savedText = CRVALUE(@"carrierText");
-				NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-
-				if (savedText && clipped.length == 0 && savedText.length > 0) {
-					frame = CGRectMake(frame.origin.x - 5.0, frame.origin.y, frame.size.width, frame.size.height);
-				}
-			}
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarTimeItemView"]) {
