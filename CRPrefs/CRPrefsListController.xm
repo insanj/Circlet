@@ -19,13 +19,13 @@ static void circletSidesDisable(CFNotificationCenterRef center, void *observer, 
 		fakeStatusBar = [[UIImageView alloc] initWithImage:statusBarImave];
 	}
 
-	[statusBar.superview addSubview:fakeStatusBar];
-
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
-
 	CGRect upwards = statusBar.frame;
 	upwards.origin.y -= upwards.size.height;
+
+	[statusBar.superview addSubview:fakeStatusBar];
 	statusBar.frame = upwards;
+
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
 
 	CGFloat shrinkAmount = 5.0;
 	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
