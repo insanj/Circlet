@@ -541,7 +541,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	return %orig();
 }
 
-%new - (_UILegibilityImageSet *)circletContentsImageForWhite:(BOOL)white {
+%new - (id)circletContentsImageForWhite:(BOOL)white {
 	int level = MSHookIvar<int>(self, "_capacity");
 	int state = MSHookIvar<int>(self, "_state");
 	// not supported on iOS 6: BOOL needsBolt = [self _needsAccessoryImage];
@@ -587,7 +587,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 	if (showBolt && [showBolt boolValue] && state != 0) {
 		CGRect expanded = (CGRect){CGPointZero, image.size};
-		expanded.size.width *= 2.5;
+		expanded.size.width *= CRBOLTLEEWAY;
 
 		UIGraphicsBeginImageContextWithOptions(expanded.size, NO, [UIScreen mainScreen].scale);
 		CGContextRef context = UIGraphicsGetCurrentContext();
@@ -623,7 +623,9 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 - (UIImage *)contentsImageForStyle:(int)arg1 {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
 	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-	return shouldOverride ? [self circletContentsImageForWhite:YES].image : %orig();
+	return shouldOverride ? [UIImage circletWithColor:[UIColor whiteColor] radius:8.0 percentage:1.0 style:CircletStyleFill] : %orig();
+
+	//return shouldOverride ? [self circletContentsImageLegacy:YES forWhite:YES].image : %orig();
 }
 
 %end
@@ -643,10 +645,6 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionSignal), frame.size.height);
 		}
 
-		else if ([className isEqualToString:@"UIStatusBarDataNetworkItemView"]) {
-			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
-		}
-
 		else if ([className isEqualToString:@"UIStatusBarServiceItemView"]) {
 			NSString *savedText = CRVALUE(@"carrierText");
 			NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
@@ -661,6 +659,19 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 			}
 		}
 
+		else if ([className isEqualToString:@"UIStatusBarDataNetworkItemView"]) {
+			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
+
+			if (circletEnabledForClassname(@"UIStatusBarServiceItemView")) {
+				NSString *savedText = CRVALUE(@"carrierText");
+				NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+				if (savedText && clipped.length == 0 && savedText.length > 0) {
+					frame = CGRectMake(frame.origin.x - 5.0, frame.origin.y, frame.size.width, frame.size.height);
+				}
+			}
+		}
+
 		else if ([className isEqualToString:@"UIStatusBarTimeItemView"]) {
 			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionTimeOuter), frame.size.height);
 		}
@@ -670,7 +681,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 			// Should only have that preference set if on iOS 7 (not in other plist)...
 			if (showBolt && [showBolt boolValue] && MSHookIvar<int>(arg1, "_state") != 0) {
-				frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery) * 2.0, frame.size.height);
+				frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery) * CRBOLTLEEWAY, frame.size.height);
 			}
 
 			else {
