@@ -16,7 +16,7 @@
 		_plainTextView.editable = NO;
 		_plainTextView.delegate = self;
 	
-		NSMutableAttributedString *clickable = [[[NSMutableAttributedString alloc] initWithString:@"Circlet (1.1) was created by Julian Weiss with lots of love from Benno, A³Tweaks, and the entire Hashbang crew. Uses NKOColorPickerView for custom colors. Inspired by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects), make sure to follow me on Twitter. Enjoy!" attributes:@{ NSFontAttributeName : [UIFont systemFontOfSize:[UIFont smallSystemFontSize]]}] autorelease];
+		NSMutableAttributedString *clickable = [[[NSMutableAttributedString alloc] initWithString:@"Circlet (1.1.1) was created by Julian Weiss with lots of love from Benno, A³Tweaks, and the entire Hashbang crew. Uses NKOColorPickerView for custom colors. Inspired by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects), make sure to follow me on Twitter. Enjoy!" attributes:@{ NSFontAttributeName : [UIFont systemFontOfSize:[UIFont smallSystemFontSize]]}] autorelease];
 		
 		if (MODERN_IOS) {
 			[clickable setAttributes:@{ NSLinkAttributeName : [NSURL URLWithString:@"http://insanj.com/"]} range:[clickable.string rangeOfString:@"Julian Weiss"]];

@@ -10,7 +10,7 @@
 #define CRSETTINGS [NSDictionary dictionaryWithContentsOfFile:CRPATH]
 #define CRVALUE(key) [[NSDictionary dictionaryWithContentsOfFile:CRPATH] objectForKey:key]
 #define CRDEFAULTRADIUS 5.0
-#define CRBOLTLEEWAY 2.2
+#define CRBOLTLEEWAY 7.0
 
 #define MODERN_IOS ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
 #ifdef DEBUG
