@@ -49,7 +49,7 @@
 			case CircletStyleTextualInverse:
 				break;
 			case CircletStyleFill:
-				percent = fabs(0.99 - percent);
+				percent = fabs(0.999 - percent);
 				break;
 			case CircletStyleConcentric:
 				percent = 1.0 - percent;

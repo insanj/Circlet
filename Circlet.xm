@@ -465,7 +465,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 }
 
 - (CGFloat)standardPadding {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView");
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView") && [self circletContentsImageForWhite:YES].size.width <= 1.0;
 	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
 
 	return shouldOverride ? 0.0 : %orig();
