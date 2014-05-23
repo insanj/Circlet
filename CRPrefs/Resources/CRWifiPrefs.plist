@@ -54,24 +54,18 @@
             <key>footerText</key>   <string></string>
         </dict>
 
-		<dict>
-			<key>cell</key>  		<string>PSSegmentCell</string>
-			<key>defaults</key> 	<string>com.insanj.circlet</string>
-			<key>id</key> 		    <string>WifiSize</string>
-			<key>key</key> 		    <string>wifiSize</string>
-			<key>label</key> 		<string>Size</string>
-            <key>cellClass</key>    <string>CRSegmentTableCell</string>
-			<key>validTitles</key>  <array>
-				<string>Small</string>
-				<string>Medium</string>
-				<string>Large</string>
-			</array>
-			<key>validValues</key> <array>
-				<real>3.0</real>
-				<real>4.0</real>
-				<real>5.0</real>
-			</array>
-		</dict>
+
+        <dict>
+            <key>cell</key>                 <string>PSSliderCell</string>
+            <key>cellClass</key>            <string>CRSliderTableCell</string>
+            <key>defaults</key>             <string>com.insanj.circlet</string>
+            <key>id</key>                   <string>WifiSize</string>
+            <key>key</key>                  <string>wifiSize</string>
+            <key>leftImage</key>            <string>tiny.png</string>
+            <key>rightImage</key>           <string>big.png</string>
+            <key>min</key>                  <real>3.0</real>
+            <key>max</key>                  <real>10.0</real>
+        </dict>
 
 		<dict>
 			<key>cell</key>  		<string>PSLinkListCell</string>

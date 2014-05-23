@@ -63,7 +63,6 @@
             <key>rightImage</key>           <string>big.png</string>
             <key>min</key>                  <real>3.0</real>
             <key>max</key>                  <real>10.0</real>
-            <key>default</key>              <real>5.0</real>
         </dict>
 
 		<dict>

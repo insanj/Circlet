@@ -77,8 +77,17 @@
 	if (indexPath.row == 0) {	
 		NSString *key = [[self specifier] propertyForKey:@"key"];
 		NSString *colorString = CRVALUE([key stringByAppendingString:@"Custom"]);
-		CIColor *customCIColor = [CIColor colorWithString:colorString];
-		UIColor *customColor = [UIColor colorWithRed:customCIColor.red green:customCIColor.green blue:customCIColor.blue alpha:customCIColor.alpha];
+		
+		UIColor *customColor;
+		if (!colorString) {
+			customColor = CRTINTCOLOR;
+		}
+
+		else {
+			CIColor *customCIColor = [CIColor colorWithString:colorString];
+			customColor = [UIColor colorWithRed:customCIColor.red green:customCIColor.green blue:customCIColor.blue alpha:customCIColor.alpha];
+		}
+
 
 		NSString *messageFiller = MODERN_IOS ? nil : @"\n\n\n\n";
 		_pickerAlertView = [[UIAlertView alloc] initWithTitle:nil message:messageFiller delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Save", nil];
@@ -89,6 +98,10 @@
 		// colorField.keyboardType = UIKeyboardTypeDefault;
 		// colorField.keyboardAppearance = UIKeyboardAppearanceDark;
 		
+		const CGFloat *colorComponents = CGColorGetComponents(customColor.CGColor);
+		NSString *hexString = [NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
+		colorField.text = hexString;
+
 		CGFloat pickerHeight = self.view.frame.size.height / (MODERN_IOS ? 3.0 : 3.5); //: colorField.frame.origin.y -_pickerAlertView.frame.origin.y /* [_pickerAlertView bodyTextLabel].frame.size.height */ ;
 		CRLOG(@"pickerHeight decided on: %f", pickerHeight);
 
@@ -111,10 +124,6 @@
 		}
 
 		[_pickerAlertView show];
-
-		const CGFloat *colorComponents = CGColorGetComponents(pickerView.color.CGColor);
-		NSString *hexString = [NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
-		colorField.text = hexString;
 	}
 }
 

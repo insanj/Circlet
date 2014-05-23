@@ -1,9 +1,9 @@
 Circlet
 =======================
 
-A simpler status bar, one circle at a time. Created with lots of love from [Benno](https://github.com/bensge), [A³Tweaks](https://github.com/a3tweaks), and the entire [Hashbang crew](http://github.com/hbang). A somewhat popular open-source, commercial tweak (with [its own Medium post](https://medium.com/ios-os-x-development/5e72a868f7a4)).
+A simpler status bar, one circle at a time. Created with lots of love from [Benno](https://github.com/bensge), [A³Tweaks](https://github.com/a3tweaks), and the entire [Hashbang crew](http://github.com/hbang). A somewhat popular open-source, commercial tweak (with [its own Medium post](https://medium.com/ios-os-x-development/5e72a868f7a4)). Uses the beautiful [NKOColorPickerView](https://github.com/FWCarlos/NKO-Color-Picker-View-iOS) for custom color picking and [UIDiscreteSlider](https://github.com/philliptharris/UIDiscreteSlider) for finer size control.
 
-Uses the beautiful [NKOColorPickerView](https://github.com/FWCarlos/NKO-Color-Picker-View-iOS) for custom color picking.	
+The flexible [UIImage+Circlet](UIImage+Circlet.h) category is completly detachable from Circlet (make sure to follow the license details below if you decide to use it).
 
 ---------------------------------------	
 [Creative Commons Attribution-NonCommercial 3.0 United States License](http://creativecommons.org/licenses/by-nc/3.0/us/) as of 2014:

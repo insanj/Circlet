@@ -800,7 +800,7 @@ static BOOL kCRUnlocked;
 %ctor {
 	NSDictionary *settings = CRSETTINGS;
 	if (!settings || !settings[@"didRun"]) {
-		CRLOG(@"Clearing antiquated old settings...");
+		CRLOG(@"Clearing antiquated settings...");
 		[@{} writeToFile:CRPATH atomically:YES];
 	}
 
