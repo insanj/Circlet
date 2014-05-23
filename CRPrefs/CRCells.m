@@ -137,6 +137,7 @@
 		//self.control = discreteControl;
 		
 		UIDiscreteSlider *replacementSlider = [[UIDiscreteSlider alloc] initWithFrame:self.control.frame];
+		[replacementSlider addTarget:self action:@selector(saveSliderValue) forControlEvents:UIControlEventTouchUpInside];
 		replacementSlider.increment = 1.0;
 
 		[self setControl:replacementSlider];
@@ -147,6 +148,27 @@
 	}
 
 	return self;
+}
+
+- (void)layoutSubviews {
+	[super layoutSubviews];
+
+	NSNumber *value = CRVALUE(@"signalSize");
+	UIDiscreteSlider *slider = (UIDiscreteSlider *) self.control;
+	slider.value = value ? [value floatValue] : 5.0;
+
+	CRLOG(@"Set prev-saved slider value as: %@", value);
+}
+
+- (void)saveSliderValue {
+	UIDiscreteSlider *slider = (UIDiscreteSlider *) self.control;
+	NSNumber *value = @(slider.value);
+
+	NSMutableDictionary *settings = [[NSMutableDictionary alloc] initWithDictionary:CRSETTINGS];
+	[settings setObject:value forKey:@"signalSize"];
+	[settings writeToFile:CRPATH atomically:YES];
+
+	CRLOG(@"Saved slider value as: %@", value);
 }
 
 @end
