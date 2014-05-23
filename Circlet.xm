@@ -614,7 +614,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 }
 
 - (UIImage *)contentsImageForStyle:(int)arg1 {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
 	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
 	return shouldOverride ? [self circletContentsImageForWhite:YES] : %orig();
 }

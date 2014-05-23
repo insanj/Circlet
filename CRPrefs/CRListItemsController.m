@@ -102,10 +102,10 @@
 		NSString *hexString = [NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
 		colorField.text = hexString;
 
-		CGFloat pickerHeight = self.view.frame.size.height / (MODERN_IOS ? 3.0 : 3.5); //: colorField.frame.origin.y -_pickerAlertView.frame.origin.y /* [_pickerAlertView bodyTextLabel].frame.size.height */ ;
+		CGFloat pickerHeight = self.view.frame.size.height / (MODERN_IOS ? 3.0 : 3.5);
 		CRLOG(@"pickerHeight decided on: %f", pickerHeight);
 
-		NKOColorPickerView *pickerView = [[NKOColorPickerView alloc] initWithFrame:CGRectMake(0.0, 0.0, self.view.frame.size.width - 50.0, pickerHeight) color:customColor andDidChangeColorBlock:^(UIColor *color) {
+		NKOColorPickerView *pickerView = [[NKOColorPickerView alloc] initWithFrame:CGRectMake(0.0, 0.0, 270.0, pickerHeight) color:customColor andDidChangeColorBlock:^(UIColor *color) {
 			const CGFloat *colorComponents = CGColorGetComponents(color.CGColor);
 			NSString *hexString = [NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
 			
