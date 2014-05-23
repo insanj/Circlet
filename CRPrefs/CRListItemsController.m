@@ -1,6 +1,4 @@
 #import "CRPrefs.h"
-#import "../UIImage+Circlet.h"
-#import "NKOColorPickerView.h"
 
 @implementation CRListItemsController
 
@@ -91,10 +89,6 @@
 		// colorField.keyboardType = UIKeyboardTypeDefault;
 		// colorField.keyboardAppearance = UIKeyboardAppearanceDark;
 		
-		const CGFloat *colorComponents = CGColorGetComponents(customColor.CGColor);
-		NSString *hexString = [NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
-		colorField.text = hexString;
-
 		CGFloat pickerHeight = self.view.frame.size.height / (MODERN_IOS ? 3.0 : 3.5); //: colorField.frame.origin.y -_pickerAlertView.frame.origin.y /* [_pickerAlertView bodyTextLabel].frame.size.height */ ;
 		CRLOG(@"pickerHeight decided on: %f", pickerHeight);
 
@@ -117,6 +111,10 @@
 		}
 
 		[_pickerAlertView show];
+
+		const CGFloat *colorComponents = CGColorGetComponents(pickerView.color.CGColor);
+		NSString *hexString = [NSString stringWithFormat:@"#%02X%02X%02X", (int)(colorComponents[0] * 255), (int)(colorComponents[1] * 255), (int)(colorComponents[2] * 255)];
+		colorField.text = hexString;
 	}
 }
 

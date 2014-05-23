@@ -126,3 +126,27 @@
 }
 
 @end
+
+@implementation CRSliderTableCell
+
+- (id)initWithStyle:(int)arg1 reuseIdentifier:(id)arg2 specifier:(id)arg3 {
+	self = [super initWithStyle:arg1 reuseIdentifier:arg2 specifier:arg3];
+	if (self) {
+		//id discreteControl = object_copy(self.control, class_getInstanceSize(UIDiscreteSlider.class));
+		// object_setClass(self.control, UIDiscreteSlider.class);
+		//self.control = discreteControl;
+		
+		UIDiscreteSlider *replacementSlider = [[UIDiscreteSlider alloc] initWithFrame:self.control.frame];
+		replacementSlider.increment = 1.0;
+
+		[self setControl:replacementSlider];
+
+		/*UIDiscreteSlider *replacementSlider = ;
+		replacementSlider.minimumValue = self.control.minimumValue;
+		replacementSlider.maximumValue = self.control.maximumValue;*/
+	}
+
+	return self;
+}
+
+@end

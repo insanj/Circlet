@@ -1,15 +1,13 @@
 #include "../CRHeaders.h"
 #import "../UIImage+Circlet.h"
 
-#include <Preferences/PSListItemsController.h>
-#include <Preferences/PSListController.h>
-#include <Preferences/PSTableCell.h>
-#include <Preferences/PSSegmentTableCell.h>
-#include <Preferences/PSTextViewTableCell.h>
-#include <Preferences/PSEditableTableCell.h>
+#include <Preferences/Preferences.h>
 #include <UIKit/UIActivityViewController.h>
 #include <Twitter/Twitter.h>
 #include <notify.h>
+
+#import "UIDiscreteSlider.h"
+#import "NKOColorPickerView.h"
 
 #define URL_ENCODE(string) [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)(string), NULL, CFSTR(":/=,!$& '()*+;[]@#?"), kCFStringEncodingUTF8) autorelease]
 #define CRTINTCOLOR [UIColor colorWithRed:52/255.0 green:53/255.0 blue:46/255.0 alpha:1.0]
@@ -54,3 +52,5 @@
 @interface CRSegmentTableCell : PSSegmentTableCell
 @end
 
+@interface CRSliderTableCell : PSSliderTableCell
+@end
