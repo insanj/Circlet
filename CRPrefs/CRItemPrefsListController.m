@@ -18,6 +18,7 @@
 }
 
 - (void)sidesReplenish {
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
 	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
 	UIView *fakeStatusBar;
 
@@ -63,6 +64,7 @@
 }
 
 - (void)middleReplenish {
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshTime" object:nil];
 }
 

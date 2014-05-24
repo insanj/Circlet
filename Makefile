@@ -6,7 +6,7 @@ ARCHS = armv7 armv7s arm64
 include theos/makefiles/common.mk
 
 TWEAK_NAME = Circlet
-Circlet_FILES = Circlet.xm UIImage+Circlet.m
+Circlet_FILES = Circlet.xm UIImage+Circlet.m CRPrefsManager.xm
 Circlet_FRAMEWORKS = Foundation UIKit QuartzCore CoreGraphics CoreImage CoreTelephony CoreText
 
 include $(THEOS_MAKE_PATH)/tweak.mk

@@ -8,6 +8,13 @@
 
 #import "CRHeaders.h"
 #import "UIImage+Circlet.h"
+#import "CRPrefsManager.h"
+
+static CRPrefsManager *preferencesManager;
+
+static CRPrefsManager * sharedPreferencesManager () {
+	return ((preferencesManager = [CRPrefsManager sharedManager]));
+}
 
 typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionSignal = 0,
@@ -30,20 +37,20 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 	switch (posit) {
 		default:
 		case CircletPositionSignal:
-			value = CRVALUE(@"signalSize");
+			value = [sharedPreferencesManager() numberForKey:@"signalSize"];
 			break;
 		case CircletPositionWifi:
 		case CircletPositionData:
-			value = CRVALUE(@"wifiSize");
+			value = [sharedPreferencesManager() numberForKey:@"wifiSize"];
 			break;
 		case CircletPositionTimeOuter:
 		case CircletPositionTimeInner:
-			value = CRVALUE(@"timeSize");
+			value = [sharedPreferencesManager() numberForKey:@"timeSize"];
 			return value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
 		case CircletPositionBattery:
 		case CircletPositionCharging:
 		case CircletPositionLowBattery:
-			value = CRVALUE(@"batterySize");
+			value = [sharedPreferencesManager() numberForKey:@"batterySize"];
 			break;
 	}
 
@@ -53,23 +60,23 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 static CGFloat circletWidthFromPosition(CircletPosition posit) {
 	NSNumber *value;
 	if (posit == CircletPositionSignal) {
-		NSNumber *value = CRVALUE(@"signalSize");
+		NSNumber *value = [sharedPreferencesManager() numberForKey:@"signalSize"];
 		CGFloat diameter = value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
 		return diameter + (diameter / 10.0);
 	}
 
 	else if (posit == CircletPositionWifi || posit == CircletPositionData) {
-		value = CRVALUE(@"wifiSize");
+		value = [sharedPreferencesManager() numberForKey:@"wifiSize"];
 	}
 
 	else if (posit == CircletPositionTimeOuter || posit == CircletPositionTimeInner) {
-		value = CRVALUE(@"timeSize");
+		value = [sharedPreferencesManager() numberForKey:@"timeSize"];
 		CGFloat diameter = [value floatValue] * 2.0;
 		return (diameter * 2.0) + (diameter / 10.0);
 	}
 	
 	else {
-		value = CRVALUE(@"batterySize");
+		value = [sharedPreferencesManager() numberForKey:@"batterySize"];
 	}
 
 	CGFloat diameter = [value floatValue] * 2.0;
@@ -77,33 +84,35 @@ static CGFloat circletWidthFromPosition(CircletPosition posit) {
 }
 
 static CircletStyle circletStyleFromPosition(CircletPosition posit) {
-	NSNumber *value, *invert;
+	NSNumber *value;
+	BOOL invert;
+
 	switch (posit) {
 		default:
 		case CircletPositionSignal:
-			value = CRVALUE(@"signalStyle");
-			invert = CRVALUE(@"signalInvert");
+			value = [sharedPreferencesManager() numberForKey:@"signalStyle"];
+			invert = [sharedPreferencesManager() boolForKey:@"signalInvert"];
 			break;
 		case CircletPositionWifi:
 		case CircletPositionData:
-			value = CRVALUE(@"wifiStyle");
-			invert = CRVALUE(@"wifiInvert");
+			value = [sharedPreferencesManager() numberForKey:@"wifiStyle"];
+			invert =[sharedPreferencesManager() boolForKey:@"wifiInvert"];
 			break;
 		case CircletPositionTimeOuter:
 		case CircletPositionTimeInner:
-			value = CRVALUE(@"timeStyle");
-			invert = CRVALUE(@"timeInvert");
+			value = [sharedPreferencesManager() numberForKey:@"timeStyle"];
+			invert = [sharedPreferencesManager() boolForKey:@"timeInvert"];
 			break;
 		case CircletPositionBattery:
 		case CircletPositionCharging:
 		case CircletPositionLowBattery:
-			value = CRVALUE(@"batteryStyle");
-			invert = CRVALUE(@"batteryInvert");
+			value = [sharedPreferencesManager() numberForKey:@"batteryStyle"];
+			invert = [sharedPreferencesManager() boolForKey:@"batteryInvert"];
 			break;
 	}
 
 	CircletStyle style = value ? [value integerValue] : CircletStyleFill;
-	if (invert && [invert boolValue]) {
+	if (invert) {
 		style += 4;
 	}
 
@@ -112,13 +121,13 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 
 // Returns color value based on preferences saved value
 static UIColor * circletColorForKey(BOOL light, NSString *key) {
-	NSString *value = CRVALUE(key);
+	NSString *value = [sharedPreferencesManager() stringForKey:key];
 	NSDictionary *titleToColor = CRTITLETOCOLOR;
 	UIColor *valueInDict = titleToColor[value];
 
 	if (value && !valueInDict) {
 		CRLOG(@"CUSTOM COLOR: %@", value);
-		NSString *colorString = CRVALUE([key stringByAppendingString:@"Custom"]);
+		NSString *colorString = [sharedPreferencesManager() stringForKey:[key stringByAppendingString:@"Custom"]];
 		CIColor *customColor = [CIColor colorWithString:colorString];
 		return [UIColor colorWithRed:customColor.red green:customColor.green blue:customColor.blue alpha:customColor.alpha];
 	}
@@ -206,24 +215,24 @@ static UIColor * circletColorForPosition(BOOL light, CircletPosition posit){
 // Returns whether or not the class is enabled in settings
 static BOOL circletEnabledForClassname(NSString *className) {
 	if ([className isEqualToString:@"UIStatusBarSignalStrengthItemView"]) {
-		NSNumber *value = CRVALUE(@"signalEnabled");
+		NSNumber *value = [sharedPreferencesManager() numberForKey:@"signalEnabled"];
 		return !value || [value boolValue];	// because of negation property
 	}
 
 	else if ([className isEqualToString:@"UIStatusBarServiceItemView"]) {
-		return [CRVALUE(@"carrierEnabled") boolValue];
+		return [sharedPreferencesManager() boolForKey:@"carrierEnabled"];
 	}
 
 	else if ([className isEqualToString:@"UIStatusBarDataNetworkItemView"]) {
-		return [CRVALUE(@"wifiEnabled") boolValue];
+		return [sharedPreferencesManager() boolForKey:@"wifiEnabled"];
 	}
 
 	else if ([className isEqualToString:@"UIStatusBarTimeItemView"]) {
-		return [CRVALUE(@"timeEnabled") boolValue];
+		return [sharedPreferencesManager() boolForKey:@"timeEnabled"];
 	}
 
 	else if ([className isEqualToString:@"UIStatusBarBatteryItemView"]) {
-		return [CRVALUE(@"batteryEnabled") boolValue];
+		return [sharedPreferencesManager() boolForKey:@"batteryEnabled"];
 	}
 
 	return NO;
@@ -260,7 +269,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		percentage *= 5.0;
 	}
 
-	NSNumber *outline = CRVALUE(@"signalOutline");
+	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"signalOutline"];
 	BOOL showOutline = !outline || [outline boolValue];
 
 	if (showOutline) {
@@ -305,7 +314,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	CircletStyle style = circletStyleFromPosition(CircletPositionWifi);
 	CGFloat percentage = wifiState / 3.0;
 	
-	NSNumber *outline = CRVALUE(@"wifiOutline");
+	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"wifiOutline"];
 	BOOL showOutline = !outline || [outline boolValue];
 	BOOL textualStyle = (style == CircletStyleTextual), inverseTextualStyle = (style == CircletStyleTextualInverse);
 
@@ -427,7 +436,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		dark = [UIColor whiteColor];
 	}
 
-	NSString *savedText = CRVALUE(@"carrierText");
+	NSString *savedText = [sharedPreferencesManager() stringForKey:@"carrierText"];
 	NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
 	// If the saved carrier text is a valid, non-empty string
@@ -494,7 +503,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		minute *= 60.0;
 	}
 
-	NSNumber *outline = CRVALUE(@"timeOutline");
+	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"timeOutline"];
 	BOOL showOutline = !outline || [outline boolValue];
 
 	if (showOutline) {
@@ -535,7 +544,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
 	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
 
-	NSNumber *showBolt = CRVALUE(@"showBolt");
+	NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
 
 	if (shouldOverride && (!showBolt || ![showBolt boolValue])) {
 		return circletBlankImage();
@@ -570,7 +579,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		imageColor = circletColorForPosition(white, CircletPositionBattery);
 	}
 
-	NSNumber *outline = CRVALUE(@"batteryOutline");
+	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"batteryOutline"];
 	BOOL showOutline = !outline || [outline boolValue];
 
 	if (showOutline) {
@@ -581,7 +590,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		image = [UIImage circletWithColor:imageColor radius:radius percentage:percentage style:style thickness:0.0];
 	}
 
-	NSNumber *showBolt = CRVALUE(@"showBolt");
+	NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
 
 	if (showBolt && [showBolt boolValue] && state != 0) {
 		CGRect expanded = (CGRect){CGPointZero, image.size};
@@ -637,7 +646,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarServiceItemView"]) {
-			NSString *savedText = CRVALUE(@"carrierText");
+			NSString *savedText = [sharedPreferencesManager() stringForKey:@"carrierText"];
 			NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
 			if (savedText && clipped.length == 0 && savedText.length > 0) {
@@ -659,7 +668,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarBatteryItemView"]) {
-			NSNumber *showBolt = CRVALUE(@"showBolt");
+			NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
 
 			// Should only have that preference set if on iOS 7 (not in other plist)...
 			if (showBolt && [showBolt boolValue] && MSHookIvar<int>(arg1, "_state") != 0) {
@@ -691,10 +700,12 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 @implementation CRAlertViewDelegate
 
 - (id)init {
-	if (self = [super init]){
-		// This class manages the memory management itself
-		[self retain];
+	self = [super init];
+
+	if (self) {
+		[self retain]; // This class manages the memory management itself
 	}
+
 	return self;
 }
 
@@ -746,11 +757,9 @@ static BOOL kCRUnlocked;
 - (void)endAnimation {
 	%orig();
 
-	NSMutableDictionary *settings = [[NSMutableDictionary alloc] initWithDictionary:CRSETTINGS];
-	if (kCRUnlocked && !settings[@"didRun"]) {
-		CRLOG(@"Detected novel (modern) run, creating new plist...");
-		[settings setObject:@(YES) forKey:@"didRun"];
-		[settings writeToFile:CRPATH atomically:YES];
+	if (kCRUnlocked && ![sharedPreferencesManager() objectForKey:@"didRun"]) {
+		CRLOG(@"Detected novel (modern) run...");
+		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
 
 		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
@@ -758,8 +767,6 @@ static BOOL kCRUnlocked;
 		[alert release];
 		[circletAVDelegate release];
 	}
-
-	[settings release];
 }
 
 %end
@@ -773,11 +780,9 @@ static BOOL kCRUnlocked;
 - (void)finishedUnscattering{
 	%orig();
 
-	NSMutableDictionary *settings = [[NSMutableDictionary alloc] initWithDictionary:CRSETTINGS];
-	if(!settings[@"didRun"]){
-		CRLOG(@"Detected novel (ancient) run, creating new plist...");
-		[settings setObject:@(YES) forKey:@"didRun"];
-		[settings writeToFile:CRPATH atomically:YES];
+	if (kCRUnlocked && ![sharedPreferencesManager() objectForKey:@"didRun"]) {
+		CRLOG(@"Detected novel (ancient) run...");
+		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
 
 		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
@@ -785,8 +790,6 @@ static BOOL kCRUnlocked;
 		[alert release];
 		[circletAVDelegate release];
 	}
-
-	[settings release];
 }
 
 %end
@@ -798,12 +801,6 @@ static BOOL kCRUnlocked;
 /***************************************************************************************/
 
 %ctor {
-	NSDictionary *settings = CRSETTINGS;
-	if (!settings || !settings[@"didRun"]) {
-		CRLOG(@"Clearing antiquated settings...");
-		[@{} writeToFile:CRPATH atomically:YES];
-	}
-
 	%init(Shared);
 	if (MODERN_IOS) {
 		%init(Modern);

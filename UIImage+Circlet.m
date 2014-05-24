@@ -99,7 +99,7 @@
 		// ➉ or ➓
 		else {
 			NSString *circletText = [NSString stringWithFormat:@"%i", (int)percent];
-			CGFloat circletTextSize = [self circletLargestFontSizeForString:circletText inFrame:frame prediction:(diameter - thickness) / circletText.length];
+			CGFloat circletTextSize = [self circletLargestFontSizeForString:circletText inFrame:frame prediction:diameter / circletText.length];
 			
 			UIFont *circletTextFont = [UIFont fontWithName:CIRCLET_FONT size:circletTextSize];
 			NSMutableParagraphStyle *circletTextParagraphStyle = [[NSMutableParagraphStyle alloc] init];
@@ -197,7 +197,7 @@
 	CGContextSetFillColorWithColor(context, colorRef);
 	CGContextStrokePath(context);
 	
-	CGFloat circletTextSize = [self circletLargestFontSizeForString:string inFrame:frame prediction:(diameter - thickness) / string.length];
+	CGFloat circletTextSize = [self circletLargestFontSizeForString:string inFrame:frame prediction:diameter / string.length];
 	UIFont *circletTextFont = [UIFont fontWithName:CIRCLET_FONT size:circletTextSize];
 	NSMutableParagraphStyle *circletTextParagraphStyle = [[NSMutableParagraphStyle alloc] init];
 	circletTextParagraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;

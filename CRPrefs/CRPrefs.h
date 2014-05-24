@@ -1,5 +1,6 @@
 #include "../CRHeaders.h"
 #import "../UIImage+Circlet.h"
+#import "../CRPrefsManager.h"
 
 #include <Preferences/Preferences.h>
 #include <UIKit/UIActivityViewController.h>

@@ -33,7 +33,7 @@
 
 	if (arg2.row == 0) {
 		NSString *key = [[self specifier] propertyForKey:@"key"];
-		NSString *colorString = CRVALUE([key stringByAppendingString:@"Custom"]);
+		NSString *colorString = [[CRPrefsManager sharedManager] stringForKey:[key stringByAppendingString:@"Custom"]];
 		if (!colorString) {
 			[cell.imageView setImage:[UIImage imageNamed:@"rainbow.png" inBundle:[NSBundle bundleForClass:self.class]]];
 			return cell;
@@ -76,7 +76,7 @@
 
 	if (indexPath.row == 0) {	
 		NSString *key = [[self specifier] propertyForKey:@"key"];
-		NSString *colorString = CRVALUE([key stringByAppendingString:@"Custom"]);
+		NSString *colorString = [[CRPrefsManager sharedManager] stringForKey:[key stringByAppendingString:@"Custom"]];
 		
 		UIColor *customColor;
 		if (!colorString) {
@@ -161,14 +161,10 @@
 		NKOColorPickerView *picker = MODERN_IOS ? (NKOColorPickerView *)[alertView valueForKey:@"accessoryView"] : (NKOColorPickerView *)[alertView viewWithTag:913];
 		CIColor *color = [CIColor colorWithCGColor:picker.color.CGColor];
 
-		NSMutableDictionary *settings = [[NSMutableDictionary alloc] initWithDictionary:CRSETTINGS];
 		NSString *key = [[self specifier] propertyForKey:@"key"];
 		NSString *colorKey = [key stringByAppendingString:@"Custom"];
 
-		[settings setObject:[color stringRepresentation] forKey:colorKey];
-		[settings writeToFile:CRPATH atomically:YES];
-		[settings release];
-
+		[[CRPrefsManager sharedManager] setObject:[color stringRepresentation] forKey:colorKey];
 		[[self table] reloadData];
 	}
 }

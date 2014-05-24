@@ -1,6 +1,7 @@
 #import "CRPrefs.h"
 
-static void circletSidesDisable(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
+void circletSidesDisable(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLSmartDisable" object:nil];
 
 	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
@@ -47,7 +48,8 @@ static void circletSidesDisable(CFNotificationCenterRef center, void *observer, 
 	}];
 }
 
-static void circletMiddleDisable(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
+void circletMiddleDisable(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLSmartDisable" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshTime" object:nil];
 }
@@ -117,39 +119,30 @@ static void circletMiddleDisable(CFNotificationCenterRef center, void *observer,
 }
 
 - (void)smartDisable {
-	CRLOG(@"Smart disabling...");
-	NSDictionary *settings = [NSDictionary dictionaryWithContentsOfFile:[NSHomeDirectory() stringByAppendingPathComponent:@"/Library/Preferences/com.insanj.circlet.plist"]];
-	
-	NSNumber *signalValue = [settings objectForKey:@"signalEnabled"];
-	NSNumber *carrierValue = [settings objectForKey:@"carrierEnabled"];
-	NSNumber *wifiValue = [settings objectForKey:@"wifiEnabled"];
-	NSNumber *timeValue = [settings objectForKey:@"timeEnabled"];
-	NSNumber *batteryValue = [settings objectForKey:@"batteryEnabled"];
-	
+	CRLOG(@"Smart disabling...");	
 	PSSpecifier *signalAdjustmentsSpecifier = [self specifierForID:@"SignalAdjustments"];
 	PSSpecifier *carrierTextSpecifier = [self specifierForID:@"CarrierText"];
 	PSSpecifier *wifiAdjustmentsSpecifier = [self specifierForID:@"WifiAdjustments"];
 	PSSpecifier *timeAdjustmentsSpecifier = [self specifierForID:@"TimeAdjustments"];
 	PSSpecifier *batteryAdjustmentsSpecifier = [self specifierForID:@"BatteryAdjustments"];
 
+	CRPrefsManager *manager = [CRPrefsManager sharedManager];
+
+	NSNumber *signalValue = [manager numberForKey:@"signalEnabled"];
 	BOOL signalEnabled = !signalValue || [signalValue boolValue];
 	[signalAdjustmentsSpecifier setProperty:@(signalEnabled) forKey:@"enabled"];
 	[self reloadSpecifier:signalAdjustmentsSpecifier];
 
-	BOOL carrierEnabled = carrierValue && [carrierValue boolValue];
-	[carrierTextSpecifier setProperty:@(carrierEnabled) forKey:@"enabled"];
+	[carrierTextSpecifier setProperty:[manager objectForKey:@"carrierEnabled"] forKey:@"enabled"];
 	[self reloadSpecifier:carrierTextSpecifier];
 
-	BOOL wifiEnabled = wifiValue && [wifiValue boolValue];
-	[wifiAdjustmentsSpecifier setProperty:@(wifiEnabled) forKey:@"enabled"];
+	[wifiAdjustmentsSpecifier setProperty:[manager objectForKey:@"wifiEnabled"] forKey:@"enabled"];
 	[self reloadSpecifier:wifiAdjustmentsSpecifier];
 	
-	BOOL timeEnabled = timeValue && [timeValue boolValue];
-	[timeAdjustmentsSpecifier setProperty:@(timeEnabled) forKey:@"enabled"];
+	[timeAdjustmentsSpecifier setProperty:[manager objectForKey:@"timeEnabled"] forKey:@"enabled"];
 	[self reloadSpecifier:timeAdjustmentsSpecifier];
 
-	BOOL batteryEnaled = batteryValue && [batteryValue boolValue];
-	[batteryAdjustmentsSpecifier setProperty:@(batteryEnaled) forKey:@"enabled"];
+	[batteryAdjustmentsSpecifier setProperty:[manager objectForKey:@"batteryEnabled"] forKey:@"enabled"];
 	[self reloadSpecifier:batteryAdjustmentsSpecifier];
 }
 
