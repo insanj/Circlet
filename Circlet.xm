@@ -325,21 +325,23 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		[radioTechnology release];
 
 		NSString* representativeString;
-		if (style == CircletStyleTextual) {
-			representativeString = @"t";
+		if ([radioType isEqualToString:@"GPRS"]) {
+			representativeString = @"o";
+			percentage = 0.0;
 		}
 
-		else if (style == CircletStyleTextualInverse) {
-			representativeString = @"i";
-		}
-
-		if ([radioType rangeOfString:@"Edge"].location != NSNotFound) {
+		if ([radioType isEqualToString:@"Edge"]) {
 			representativeString = @"E";
+			percentage = 0.25;
+		}
+
+		else if ([radioType isEqualToString:@"WCDMA"]) {
+			representativeString = @"3G";
 			percentage = 0.5;
 		}
 
-		else if ([radioType rangeOfString:@"HSDPA"].location != NSNotFound) {
-			representativeString = @"G";
+		else if ([@[@"HSDPA", @"HSUPA", @"CDMA1x", @"CDMAEVDORev0", @"CDMAEVDORevA", @"CDMAEVDORevB", @"HRPD"] containsObject:radioType]) {
+			representativeString = @"4G";
 			percentage = 0.75;
 		}
 
@@ -349,8 +351,8 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		}
 
 		else {
-			representativeString = @"o";
-			percentage = 0.25;
+			representativeString= @"!";
+			percentage = 0.0;
 		}
 
 		if (textualStyle || inverseTextualStyle) {
