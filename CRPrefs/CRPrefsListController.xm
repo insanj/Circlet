@@ -216,8 +216,13 @@ void circletMiddleDisable(CFNotificationCenterRef center, void *observer, CFStri
 	[super dealloc];
 }
 
+// iPad seems to obey all laws. -smartDisable doesn't work here, too, for some reason.
 - (BOOL)canBeShownFromSuspendedState {
-	return NO;
+	if (IPAD) {
+		[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLGTFO" object:nil userInfo:@{ @"sender" : NSStringFromClass([UIApplication sharedApplication].class)} ];
+	}
+
+	return NO; 
 }
 
 @end

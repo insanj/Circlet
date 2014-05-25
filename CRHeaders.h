@@ -17,11 +17,13 @@
                                             [settings setObject:value forKey:key];\
                                             [settings writeToFile:CRPATH atomically:YES]
 */
-                                            
+
 #define CRDEFAULTRADIUS 5.0
 #define CRBOLTLEEWAY 7.0
 
 #define MODERN_IOS ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
+#define IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+
 #ifdef DEBUG
 	#define CRLOG(fmt, ...) NSLog((@"[Circlet] %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else

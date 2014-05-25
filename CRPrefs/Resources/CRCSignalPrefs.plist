@@ -78,19 +78,9 @@
 			<key>defaults</key>    <string>com.insanj.circlet</string>
 			<key>detail</key> 	   <string>CRListItemsController</string>
 			<key>key</key> 	  	   <string>signalLightColor</string>
-			<key>label</key> 	   <string>Light Color</string>
+			<key>label</key> 	   <string>Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
-		</dict>
-
-		<dict>
-			<key>cell</key>  	   <string>PSLinkListCell</string>
-			<key>defaults</key>    <string>com.insanj.circlet</string>
-			<key>detail</key> 	   <string>CRListItemsController</string>
-			<key>key</key> 		   <string>signalDarkColor</string>
-			<key>label</key> 	   <string>Dark Color</string>
-            <key>titlesDataSource</key>  <string>darkColorTitles:</string>
-            <key>valuesDataSource</key>  <string>darkColorValues:</string>
 		</dict>
 
         <dict>

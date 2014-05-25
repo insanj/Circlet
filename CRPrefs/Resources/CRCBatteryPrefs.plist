@@ -84,31 +84,11 @@
 		</dict>
 
 		<dict>
-			<key>cell</key>  		<string>PSLinkListCell</string>
-    		<key>defaults</key> 	<string>com.insanj.circlet</string>
-			<key>detail</key> 		<string>CRListItemsController</string>
-			<key>key</key> 			<string>batteryDarkColor</string>
-			<key>label</key> 		<string>Dark Color</string>
-            <key>titlesDataSource</key>  <string>darkColorTitles:</string>
-            <key>valuesDataSource</key>  <string>darkColorValues:</string>
-		</dict>
-
-		<dict>
             <key>cell</key>  		<string>PSLinkListCell</string>
             <key>defaults</key> 	<string>com.insanj.circlet</string>
             <key>detail</key> 	  	<string>CRListItemsController</string>
             <key>key</key> 		 	<string>chargingLightColor</string>
-            <key>label</key> 	   	<string>Charging Light Color</string>
-            <key>titlesDataSource</key>  <string>chargingColorTitles:</string>
-            <key>valuesDataSource</key>  <string>chargingColorTitles:</string>
-		</dict>
-
-		<dict>
-		<key>cell</key>  		    <string>PSLinkListCell</string>
-		<key>defaults</key> 	    <string>com.insanj.circlet</string>
-			<key>detail</key> 	    <string>CRListItemsController</string>
-			<key>key</key> 		    <string>chargingDarkColor</string>
-			<key>label</key> 		<string>Charging Dark Color</string>
+            <key>label</key> 	   	<string>Charging Color</string>
             <key>titlesDataSource</key>  <string>chargingColorTitles:</string>
             <key>valuesDataSource</key>  <string>chargingColorTitles:</string>
 		</dict>
@@ -118,17 +98,7 @@
             <key>defaults</key>     <string>com.insanj.circlet</string>
             <key>detail</key>       <string>CRListItemsController</string>
             <key>key</key>          <string>lowBatteryLightColor</string>
-            <key>label</key>        <string>Low Power Light Color</string>
-            <key>titlesDataSource</key>  <string>lowPowerColorTitles:</string>
-            <key>valuesDataSource</key>  <string>lowPowerColorValues:</string>
-        </dict>
-
-        <dict>
-        <key>cell</key>             <string>PSLinkListCell</string>
-        <key>defaults</key>         <string>com.insanj.circlet</string>
-            <key>detail</key>       <string>CRListItemsController</string>
-            <key>key</key>          <string>lowBatteryDarkColor</string>
-            <key>label</key>        <string>Low Power Dark Color</string>
+            <key>label</key>        <string>Low Power Color</string>
             <key>titlesDataSource</key>  <string>lowPowerColorTitles:</string>
             <key>valuesDataSource</key>  <string>lowPowerColorValues:</string>
         </dict>

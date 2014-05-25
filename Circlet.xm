@@ -827,4 +827,14 @@ static BOOL kCRUnlocked;
 			[statusBar crossfadeTime:YES duration:animationDuration];
 		});
 	}];
+
+	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CLGTFO" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+		NSString *sender = notification.userInfo[@"sender"];
+
+		if ([sender isEqualToString:@"SpringBoard"]) {
+			CRLOG(@"GTFO! %@", sender);
+			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=General"]];
+		}
+	}];
+
 }

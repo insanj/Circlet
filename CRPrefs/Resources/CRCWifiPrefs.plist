@@ -78,7 +78,7 @@
 			<key>defaults</key> 	<string>com.insanj.circlet</string>
 			<key>detail</key> 		<string>CRListItemsController</string>
 			<key>key</key> 			<string>wifiLightColor</string>
-			<key>label</key> 		<string>Wifi Light Color</string>
+			<key>label</key> 		<string>Wifi Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
     	</dict>
@@ -87,32 +87,11 @@
 			<key>cell</key>  		<string>PSLinkListCell</string>
 			<key>defaults</key> 	<string>com.insanj.circlet</string>
 			<key>detail</key> 		<string>CRListItemsController</string>
-			<key>key</key> 			<string>wifiDarkColor</string>
-			<key>label</key> 		<string>Wifi Dark Color</string>
-            <key>titlesDataSource</key>  <string>darkColorTitles:</string>
-            <key>valuesDataSource</key>  <string>darkColorValues:</string>
-		</dict>
-
-		<dict>
-			<key>cell</key>  		<string>PSLinkListCell</string>
-			<key>defaults</key> 	<string>com.insanj.circlet</string>
-			<key>detail</key> 		<string>CRListItemsController</string>
 			<key>key</key> 			<string>dataLightColor</string>
-			<key>label</key> 		<string>Data Light Color</string>
+			<key>label</key> 		<string>Data Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
 		</dict>
-
-		<dict>
-			<key>cell</key>  		<string>PSLinkListCell</string>
-			<key>defaults</key> 	<string>com.insanj.circlet</string>
-			<key>detail</key> 		<string>CRListItemsController</string>
-			<key>key</key> 			<string>dataDarkColor</string>
-			<key>label</key> 		<string>Data Dark Color</string>
-            <key>titlesDataSource</key>  <string>darkColorTitles:</string>
-            <key>valuesDataSource</key>  <string>darkColorValues:</string>
-		</dict>
-
         <dict>
             <key>cell</key>             <string>PSGroupCell</string>
             <key>footerText</key>       <string>No respring required.</string>

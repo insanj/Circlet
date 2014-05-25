@@ -14,9 +14,7 @@
 - (void)loadView {
 	[super loadView];
 
-	NSDictionary *settings = CRSETTINGS;
-
-	if (![settings objectForKey:@"signalStyle"]) {
+	if (![[CRPrefsManager sharedManager] objectForKey:@"signalStyle"]) {
 		PSSpecifier *signalStyleSpecifier = [self specifierForID:@"SignalStyle"];
 		[self setPreferenceValue:@(1) specifier:signalStyleSpecifier];
 		[self reloadSpecifier:signalStyleSpecifier];
@@ -39,9 +37,7 @@
 - (void)loadView {
 	[super loadView];
 
-	NSDictionary *settings = CRSETTINGS;
-
-	if (![settings objectForKey:@"wifiStyle"]) {
+	if (![[CRPrefsManager sharedManager] objectForKey:@"wifiStyle"]) {
 		PSSpecifier *wifiStyleSpecifier = [self specifierForID:@"WifiStyle"];
 		[self setPreferenceValue:@(1) specifier:wifiStyleSpecifier];
 		[self reloadSpecifier:wifiStyleSpecifier];
@@ -64,9 +60,7 @@
 - (void)loadView {
 	[super loadView];
 
-	NSDictionary *settings = CRSETTINGS;
-
-	if (![settings objectForKey:@"timeStyle"]) {
+	if ([[CRPrefsManager sharedManager] objectForKey:@"timeStyle"]) {
 		PSSpecifier *timeStyleSpecifier = [self specifierForID:@"TimeStyle"];
 		[self setPreferenceValue:@(1) specifier:timeStyleSpecifier];
 		[self reloadSpecifier:timeStyleSpecifier];
@@ -88,10 +82,8 @@
 
 - (void)loadView {
 	[super loadView];
-
-	NSDictionary *settings = CRSETTINGS;
 	
-	if (![settings objectForKey:@"batteryStyle"]) {
+	if (![[CRPrefsManager sharedManager] objectForKey:@"batteryStyle"]) {
 		PSSpecifier *batteryStyleSpecifier = [self specifierForID:@"BatteryStyle"];
 		[self setPreferenceValue:@(1) specifier:batteryStyleSpecifier];
 		[self reloadSpecifier:batteryStyleSpecifier];
