@@ -324,8 +324,36 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		NSString *radioType = [radioTechnology.radioAccessTechnology stringByReplacingOccurrencesOfString:@"CTRadioAccessTechnology" withString:@""];
 		[radioTechnology release];
 
-		percentage = ((CGFloat)networkType) / 4.0;
-		NSString *representativeString = [radioType substringToIndex:1];
+		NSString* representativeString;
+		if ([radioType isEqualToString:@"GPRS"]) {
+			representativeString = @"o";
+			percentage = 0.0;
+		}
+
+		if ([radioType isEqualToString:@"Edge"]) {
+			representativeString = @"E";
+			percentage = 0.25;
+		}
+
+		else if ([radioType isEqualToString:@"WCDMA"]) {
+			representativeString = @"3G";
+			percentage = 0.5;
+		}
+
+		else if ([@[@"HSDPA", @"HSUPA", @"CDMA1x", @"CDMAEVDORev0", @"CDMAEVDORevA", @"CDMAEVDORevB", @"HRPD"] containsObject:radioType]) {
+			representativeString = @"4G";
+			percentage = 0.75;
+		}
+
+		else if ([radioType rangeOfString:@"LTE"].location != NSNotFound) {
+			representativeString = @"L";
+			percentage = 1.0;
+		}
+
+		else {
+			representativeString= @"!";
+			percentage = 0.0;
+		}
 
 		if (textualStyle || inverseTextualStyle) {
 			if (showOutline) {
@@ -468,13 +496,13 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
 	CGFloat radius = circletRadiusFromPosition(CircletPositionTimeOuter);
 	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
-	CGFloat hour = fmod([components hour], 12.0) / 12.0;
-	CGFloat minute = [components minute] / 60.0;
+	CGFloat hour = [components hour] <= 12.0 ? [components hour] : [components hour] - 12.0;
+	CGFloat minute = [components minute];
 		
 	CircletStyle style = circletStyleFromPosition(CircletPositionTimeOuter);
-	if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
-		hour *= 12.0;
-		minute *= 60.0;
+	if (style != CircletStyleTextual && style != CircletStyleTextualInverse) {
+		hour /= 12.0;
+		minute /= 60.0;
 	}
 
 	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"timeOutline"];
@@ -545,7 +573,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		imageColor = circletColorForPosition(white, CircletPositionCharging);
 	}
 
-	else if (percentage <= 0.20) {
+	else if (level <= 20) {
 		imageColor = circletColorForPosition(white, CircletPositionLowBattery);
 	}
 
