@@ -324,36 +324,8 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		NSString *radioType = [radioTechnology.radioAccessTechnology stringByReplacingOccurrencesOfString:@"CTRadioAccessTechnology" withString:@""];
 		[radioTechnology release];
 
-		NSString* representativeString;
-		if ([radioType isEqualToString:@"GPRS"]) {
-			representativeString = @"o";
-			percentage = 0.0;
-		}
-
-		if ([radioType isEqualToString:@"Edge"]) {
-			representativeString = @"E";
-			percentage = 0.25;
-		}
-
-		else if ([radioType isEqualToString:@"WCDMA"]) {
-			representativeString = @"3G";
-			percentage = 0.5;
-		}
-
-		else if ([@[@"HSDPA", @"HSUPA", @"CDMA1x", @"CDMAEVDORev0", @"CDMAEVDORevA", @"CDMAEVDORevB", @"HRPD"] containsObject:radioType]) {
-			representativeString = @"4G";
-			percentage = 0.75;
-		}
-
-		else if ([radioType rangeOfString:@"LTE"].location != NSNotFound) {
-			representativeString = @"L";
-			percentage = 1.0;
-		}
-
-		else {
-			representativeString= @"!";
-			percentage = 0.0;
-		}
+		percentage = ((CGFloat)networkType) / 4.0;
+		NSString *representativeString = [radioType substringToIndex:1];
 
 		if (textualStyle || inverseTextualStyle) {
 			if (showOutline) {
