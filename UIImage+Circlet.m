@@ -225,6 +225,27 @@
 	return image;
 }
 
++ (UIImage *)circletWithInnerColor:(UIColor *)inner outerColor:(UIColor *)outer radius:(CGFloat)radius innerString:(NSString *)innerString outerString:(NSString *)outerString style:(CircletStyle)style {
+	return [self circletWithInnerColor:inner outerColor:outer radius:radius innerString:innerString outerString:outerString style:style thickness:(radius / 10.0)];
+}
+
++ (UIImage *)circletWithInnerColor:(UIColor *)inner outerColor:(UIColor *)outer radius:(CGFloat)radius innerString:(NSString *)innerString outerString:(NSString *)outerString style:(CircletStyle)style thickness:(CGFloat)thickness {
+	// Side-by-side:
+	CGFloat smallRadius = (radius / 2.0) - thickness;
+	
+	UIImage *outerCirclet = [UIImage circletWithColor:outer radius:smallRadius string:outerString invert:(style == CircletStyleTextualInverse) thickness:thickness];
+	UIImage *innerCirclet = [UIImage circletWithColor:outer radius:smallRadius string:innerString invert:(style == CircletStyleTextualInverse) thickness:thickness];
+	
+	CGSize comboSize = CGSizeMake((radius * 2.0) - thickness, (smallRadius * 2.0) + thickness);
+	UIGraphicsBeginImageContextWithOptions(comboSize, NO, [UIScreen mainScreen].scale);
+	[innerCirclet drawAtPoint:CGPointZero blendMode:kCGBlendModeMultiply alpha:1.0];
+	[outerCirclet drawAtPoint:CGPointMake(outerCirclet.size.width + thickness, 0.0) blendMode:kCGBlendModeMultiply alpha:1.0];
+	UIImage *comboCirclet = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+
+	return comboCirclet;
+}
+
 + (CGFloat)circletLargestFontSizeForString:(NSString *)string inFrame:(CGRect)frame prediction:(CGFloat)pointSize {
 	UIFont *font = [UIFont fontWithName:CIRCLET_FONT size:pointSize];
 	CGSize stringSize = [string sizeWithFont:font];

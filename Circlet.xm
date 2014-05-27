@@ -255,6 +255,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 @interface UIStatusBarItemView (Circlet)
 - (UIImage *)circletContentsImageForWhite:(BOOL)white;
+- (UIImage *)circletContentsImageForWhite:(BOOL)white string:(NSString *)timeString;
 @end
 
 %hook UIStatusBarSignalStrengthItemView
@@ -493,43 +494,58 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 %hook UIStatusBarTimeItemView
 
-%new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
+%new - (UIImage *)circletContentsImageForWhite:(BOOL)white string:(NSString *)timeString {
 	CGFloat radius = circletRadiusFromPosition(CircletPositionTimeOuter);
 	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
-	CGFloat hour = fmod([components hour], 12.0);
-	CGFloat minute = [components minute];
-		
+	
 	CircletStyle style = circletStyleFromPosition(CircletPositionTimeOuter);
-	if (style != CircletStyleTextual && style != CircletStyleTextualInverse) {
-		hour /= 12.0;
-		minute /= 60.0;
-	}
-
-	else {
-		hour = (hour ?: hour + 1);
-	}
-
 	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"timeOutline"];
 	BOOL showOutline = !outline || [outline boolValue];
 
+	if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+		@try {
+			NSArray *split = [timeString componentsSeparatedByString:@":"];
+			NSString *hour = split[0];
+			NSString *minute = [split[1] componentsSeparatedByString:@" "][0];
+
+			if (showOutline) {
+				return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerString:hour outerString:minute style:style];
+			}
+
+			else {
+				return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerString:hour outerString:minute style:style thickness:0.0];
+			}
+		}
+
+		@catch (NSException * e) {
+			NSLog(@"Fatal error trying to split up time string: %@", e);
+		}
+	}
+
+	CGFloat hour = fmod([components hour], 12.0) / 12.0;
+	CGFloat minute = [components minute] / 60.0;
+
 	if (showOutline) {
 		return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
-	}
+	} 
 
 	else {
 		return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style thickness:0.0];
 	}
+
 }
 
 - (_UILegibilityImageSet *)contentsImage {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+	NSString *trimmedTimeString = [MSHookIvar<NSString *>(self, "_timeString") stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	
+	CRLOG(@"%@, %@", shouldOverride ? @"override" : @"ignore", trimmedTimeString);
 
-	if (shouldOverride) {
+	if (shouldOverride && trimmedTimeString.length > 0) {
 		CGFloat w, a;
 		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
 
-		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5)];
+		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5) string:trimmedTimeString];
 		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:image];
 	}
 
@@ -538,8 +554,10 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 - (UIImage *)contentsImageForStyle:(int)arg1 {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-	return shouldOverride ? [self circletContentsImageForWhite:YES] : %orig();
+	NSString *trimmedTimeString = [MSHookIvar<NSString *>(self, "_timeString") stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+	CRLOG(@"%@, %@", shouldOverride ? @"override" : @"ignore", trimmedTimeString);
+	return shouldOverride ? [self circletContentsImageForWhite:YES string:trimmedTimeString] : %orig();
 }
 
 %end
