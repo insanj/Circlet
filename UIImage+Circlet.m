@@ -17,7 +17,7 @@
 
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius percentage:(CGFloat)percent style:(CircletStyle)style thickness:(CGFloat)thickness {
 	CGFloat diameter = (radius * 2.0) + thickness;
-	CGRect frame = (CGRect){CGPointMake(thickness / 2.0, thickness / 2.0), CGSizeMake(diameter, diameter)};
+	// CGRect frame = (CGRect){CGPointMake(thickness / 2.0, thickness / 2.0), CGSizeMake(diameter, diameter)};
 	CGRect bounds = (CGRect){CGPointZero, CGSizeMake(diameter, diameter)};
 	CGPoint center = CGPointMake(bounds.size.width / 2.0, bounds.size.height / 2.0);
 	CGColorRef colorRef = color.CGColor; // Light color
@@ -102,7 +102,8 @@
 		
 		// ⦿
 		else if (style == CircletStyleConcentric) {
-			CGRect minor = CGRectInset(frame, percent * radius, percent * radius);
+			CGFloat inset = percent * (radius + (thickness / 2.0)) ;
+			CGRect minor = CGRectInset(bounds, inset, inset);
 			CGContextAddEllipseInRect(context, minor);
 		}
 	}
