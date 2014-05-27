@@ -60,7 +60,7 @@
 - (void)loadView {
 	[super loadView];
 
-	if ([[CRPrefsManager sharedManager] objectForKey:@"timeStyle"]) {
+	if (![[CRPrefsManager sharedManager] objectForKey:@"timeStyle"]) {
 		PSSpecifier *timeStyleSpecifier = [self specifierForID:@"TimeStyle"];
 		[self setPreferenceValue:@(1) specifier:timeStyleSpecifier];
 		[self reloadSpecifier:timeStyleSpecifier];

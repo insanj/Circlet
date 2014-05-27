@@ -496,13 +496,17 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
 	CGFloat radius = circletRadiusFromPosition(CircletPositionTimeOuter);
 	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
-	CGFloat hour = [components hour] <= 12.0 ? [components hour] : [components hour] - 12.0;
+	CGFloat hour = fmod([components hour], 12.0);
 	CGFloat minute = [components minute];
 		
 	CircletStyle style = circletStyleFromPosition(CircletPositionTimeOuter);
 	if (style != CircletStyleTextual && style != CircletStyleTextualInverse) {
 		hour /= 12.0;
 		minute /= 60.0;
+	}
+
+	else {
+		hour = (hour ?: hour + 1);
 	}
 
 	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"timeOutline"];
