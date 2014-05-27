@@ -10,6 +10,8 @@
 #import "UIImage+Circlet.h"
 #import "CRPrefsManager.h"
 
+#define LESSENED_THICKNESS(sty) ((sty == CircletStyleTextual || sty == CircletStyleTextualInverse) ? 1.0 / 8.0 : 0.0);
+
 static CRPrefsManager *preferencesManager;
 
 static CRPrefsManager * sharedPreferencesManager () {
@@ -59,6 +61,7 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 
 static CGFloat circletWidthFromPosition(CircletPosition posit) {
 	NSNumber *value;
+
 	if (posit == CircletPositionSignal) {
 		NSNumber *value = [sharedPreferencesManager() numberForKey:@"signalSize"];
 		CGFloat diameter = value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
@@ -273,8 +276,16 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"signalOutline"];
 	BOOL showOutline = !outline || [outline boolValue];
 
+	CGFloat lessenedThickness = radius * LESSENED_THICKNESS(style);
+
 	if (showOutline) {
-		return [UIImage circletWithColor:circletColorForPosition(white, CircletPositionSignal) radius:radius percentage:percentage style:style];
+		if (lessenedThickness > 0.0) {
+			return [UIImage circletWithColor:circletColorForPosition(white, CircletPositionSignal) radius:radius percentage:percentage style:style thickness:lessenedThickness];
+		}
+
+		else {
+			return [UIImage circletWithColor:circletColorForPosition(white, CircletPositionSignal) radius:radius percentage:percentage style:style];
+		}
 	}
 
 	else {
@@ -317,7 +328,8 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	
 	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"wifiOutline"];
 	BOOL showOutline = !outline || [outline boolValue];
-	BOOL textualStyle = (style == CircletStyleTextual), inverseTextualStyle = (style == CircletStyleTextualInverse);
+
+	CGFloat lessenedThickness = radius * LESSENED_THICKNESS(style);
 
 	UIImage *image;
 	if (networkType != 5) {
@@ -356,13 +368,13 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 			percentage = 0.0;
 		}
 
-		if (textualStyle || inverseTextualStyle) {
+		if (lessenedThickness > 0.0) {
 			if (showOutline) {
-				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius string:representativeString invert:inverseTextualStyle];
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius string:representativeString invert:(style == CircletStyleTextualInverse) thickness:lessenedThickness];
 			}
 
 			else {
-				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius string:representativeString invert:inverseTextualStyle thickness:0.0];
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionData) radius:radius string:representativeString invert:(style == CircletStyleTextualInverse) thickness:0.0];
 			}
 		}
 
@@ -378,12 +390,17 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	}
 
 	else {
-		if (textualStyle || inverseTextualStyle) {
-			percentage *= 3;
-		}
-
 		if (showOutline) {
-			image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style];
+			percentage *= 3;
+
+			if (lessenedThickness > 0.0) {
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style thickness:lessenedThickness];
+			}
+
+			else {
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style thickness:lessenedThickness];
+
+			}
 		}
 
 		else {
@@ -442,9 +459,12 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	NSString *savedText = [sharedPreferencesManager() stringForKey:@"carrierText"];
 	NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
+	CGFloat radius = CRDEFAULTRADIUS;
+	CGFloat lessenedThickness = radius * LESSENED_THICKNESS(CircletStyleTextualInverse);
+
 	// If the saved carrier text is a valid, non-empty string
 	if (savedText && clipped.length > 0) {
-		return [UIImage circletWithColor:light radius:CRDEFAULTRADIUS string:clipped invert:YES];
+		return [UIImage circletWithColor:light radius:radius string:clipped invert:YES thickness:lessenedThickness];
 	}
 
 	// If the saved carrier text is an empty string
@@ -457,7 +477,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		NSString *serviceString = MSHookIvar<NSString *>(self, "_serviceString");
 		NSString *serviceSingleString = serviceString && serviceString.length > 0 ? [serviceString substringToIndex:1] : @"C";
 	 
-		return [UIImage circletWithColor:light radius:CRDEFAULTRADIUS string:serviceSingleString invert:YES];
+		return [UIImage circletWithColor:light radius:radius string:serviceSingleString invert:YES thickness:lessenedThickness];
 	}
 }
 
@@ -502,14 +522,17 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"timeOutline"];
 	BOOL showOutline = !outline || [outline boolValue];
 
-	if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+	CGFloat lessenedThickness = radius * LESSENED_THICKNESS(style);
+	lessenedThickness /= 3.0;
+
+	if (lessenedThickness > 0.0) {
 		@try {
 			NSArray *split = [timeString componentsSeparatedByString:@":"];
 			NSString *hour = split[0];
 			NSString *minute = [split[1] componentsSeparatedByString:@" "][0];
 
 			if (showOutline) {
-				return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerString:hour outerString:minute style:style];
+				return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerString:hour outerString:minute style:style thickness:lessenedThickness];
 			}
 
 			else {
@@ -526,7 +549,14 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	CGFloat minute = [components minute] / 60.0;
 
 	if (showOutline) {
-		return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
+		// Just in case...
+		if (lessenedThickness > 0.0) {
+			return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style thickness:lessenedThickness];
+		}
+
+		else {
+			return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
+		}
 	} 
 
 	else {
@@ -582,10 +612,11 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	int state = MSHookIvar<int>(self, "_state");
 	// not supported on iOS 6: BOOL needsBolt = [self _needsAccessoryImage];
 	CGFloat radius = circletRadiusFromPosition(CircletPositionBattery);
-
 	CircletStyle style = circletStyleFromPosition(CircletPositionBattery);
+	CGFloat lessenedThickness = radius * LESSENED_THICKNESS(style);
+
 	CGFloat percentage = level / 100.0;
-	if (style == CircletStyleTextual || style == CircletStyleTextualInverse) {
+	if (lessenedThickness > 0.0) {
 		percentage *= 100;
 	}
 
@@ -607,7 +638,13 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	BOOL showOutline = !outline || [outline boolValue];
 
 	if (showOutline) {
-		image = [UIImage circletWithColor:imageColor radius:radius percentage:percentage style:style];
+		if (lessenedThickness > 0.0) {
+			image = [UIImage circletWithColor:imageColor radius:radius percentage:percentage style:style thickness:lessenedThickness];
+		}
+
+		else {
+			image = [UIImage circletWithColor:imageColor radius:radius percentage:percentage style:style];
+		}
 	}
 
 	else {
