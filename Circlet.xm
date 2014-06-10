@@ -320,16 +320,16 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 %hook UIStatusBarDataNetworkItemView
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
-	int networkType = MSHookIvar<int>(self, "_dataNetworkType");
-	int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
 	CGFloat radius = circletRadiusFromPosition(CircletPositionWifi);
 	CircletStyle style = circletStyleFromPosition(CircletPositionWifi);
-	CGFloat percentage = wifiState / 3.0;
 	
 	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"wifiOutline"];
 	BOOL showOutline = !outline || [outline boolValue];
-
+	
 	CGFloat lessenedThickness = radius * LESSENED_THICKNESS(style);
+
+	int networkType = MSHookIvar<int>(self, "_dataNetworkType");
+	CGFloat percentage;
 
 	UIImage *image;
 	if (networkType != 5) {
@@ -337,7 +337,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		NSString *radioType = [radioTechnology.radioAccessTechnology stringByReplacingOccurrencesOfString:@"CTRadioAccessTechnology" withString:@""];
 		[radioTechnology release];
 
-		NSString* representativeString;
+		NSString *representativeString;
 		if ([radioType isEqualToString:@"GPRS"]) {
 			representativeString = @"o";
 			percentage = 0.0;
@@ -390,21 +390,30 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	}
 
 	else {
-		if (showOutline) {
-			percentage *= 3;
+		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
 
-			if (lessenedThickness > 0.0) {
-				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style thickness:lessenedThickness];
+		if (lessenedThickness > 0.0) {
+			percentage = wifiState;
+
+			if (showOutline) {
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius string:[@(percentage) stringValue] invert:(style == CircletStyleTextualInverse) thickness:lessenedThickness];
 			}
 
 			else {
-				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style thickness:lessenedThickness];
-
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style thickness:0.0];
 			}
 		}
 
 		else {
-			image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style thickness:0.0];
+			percentage = ((CGFloat)wifiState) / 3.0;
+
+			if (showOutline) {
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style thickness:lessenedThickness];
+			}
+
+			else {
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style thickness:0.0];
+			}
 		}
 	}
 

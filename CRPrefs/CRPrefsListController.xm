@@ -87,10 +87,10 @@ void circletMiddleDisable(CFNotificationCenterRef center, void *observer, CFStri
 	    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
 	}
 
+	[self smartDisable];
 	[self pullHeaderPin];
 
 	[super viewWillAppear:animated];
-	[self smartDisable];
 }
 
 - (void)pullHeaderPin {
@@ -133,16 +133,16 @@ void circletMiddleDisable(CFNotificationCenterRef center, void *observer, CFStri
 	[signalAdjustmentsSpecifier setProperty:@(signalEnabled) forKey:@"enabled"];
 	[self reloadSpecifier:signalAdjustmentsSpecifier];
 
-	[carrierTextSpecifier setProperty:[manager objectForKey:@"carrierEnabled"] forKey:@"enabled"];
+	[carrierTextSpecifier setProperty:@([manager boolForKey:@"carrierEnabled"]) forKey:@"enabled"];
 	[self reloadSpecifier:carrierTextSpecifier];
 
-	[wifiAdjustmentsSpecifier setProperty:[manager objectForKey:@"wifiEnabled"] forKey:@"enabled"];
+	[wifiAdjustmentsSpecifier setProperty:@([manager boolForKey:@"wifiEnabled"]) forKey:@"enabled"];
 	[self reloadSpecifier:wifiAdjustmentsSpecifier];
 	
-	[timeAdjustmentsSpecifier setProperty:[manager objectForKey:@"timeEnabled"] forKey:@"enabled"];
+	[timeAdjustmentsSpecifier setProperty:@([manager boolForKey:@"timeEnabled"]) forKey:@"enabled"];
 	[self reloadSpecifier:timeAdjustmentsSpecifier];
 
-	[batteryAdjustmentsSpecifier setProperty:[manager objectForKey:@"batteryEnabled"] forKey:@"enabled"];
+	[batteryAdjustmentsSpecifier setProperty:@([manager boolForKey:@"batteryEnabled"]) forKey:@"enabled"];
 	[self reloadSpecifier:batteryAdjustmentsSpecifier];
 }
 
