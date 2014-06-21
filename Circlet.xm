@@ -419,6 +419,8 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
 
+		// Don't forget -- lessenedThickness is equivalent to a boolean "is textual." Here, we exploit
+		// that privilege to intelligently employ the -::string alternative Circlet category method.
 		if (lessenedThickness > 0.0) {
 			percentage = wifiState;
 
@@ -435,7 +437,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 			percentage = ((CGFloat)wifiState) / 3.0;
 
 			if (showOutline) {
-				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style thickness:lessenedThickness];
+				image = [UIImage circletWithColor:circletColorForPosition(white, CircletPositionWifi) radius:radius percentage:percentage style:style];
 			}
 
 			else {
