@@ -62,7 +62,7 @@
         <dict>
             <key>cell</key>             <string>PSSwitchCell</string>
             <key>defaults</key>         <string>com.insanj.circlet</string>
-            <key>label</key>            <string>Wifi and Data</string>
+            <key>label</key>            <string>Wifi</string>
             <key>key</key>              <string>wifiEnabled</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <false/>
@@ -75,6 +75,28 @@
             <key>detail</key>            <string>CRWifiPrefsListController</string>
             <key>label</key>             <string>Adjustments</string>
             <key>id</key>         	 	 <string>WifiAdjustments</string>
+        </dict>
+
+         <dict>
+            <key>cell</key>             <string>PSGroupCell</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>             <string>PSSwitchCell</string>
+            <key>defaults</key>         <string>com.insanj.circlet</string>
+            <key>label</key>            <string>Data</string>
+            <key>key</key>              <string>dataEnabled</string>
+            <key>enabled</key>          <true/>
+            <key>default</key>          <false/>
+            <key>PostNotification</key> <string>com.insanj.circlet/SidesDisable</string>
+        </dict>
+
+        <dict>
+            <key>cell</key>              <string>PSLinkListCell</string>
+            <key>defaults</key>          <string>com.insanj.circlet</string>
+            <key>detail</key>            <string>CRDataPrefsListController</string>
+            <key>label</key>             <string>Adjustments</string>
+            <key>id</key>                <string>DataAdjustments</string>
         </dict>
 
         <dict>

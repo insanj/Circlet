@@ -3,6 +3,8 @@
 #include <QuartzCore/QuartzCore.h>
 #include <UIKit/UIKit.h>
 #include <Foundation/NSDistributedNotificationCenter.h>
+
+#import "Reachability/Reachability.h"
 #import "substrate.h"
 #import "CRPrefsManager.h"
 
@@ -17,6 +19,7 @@
                                             [settings setObject:value forKey:key];\
                                             [settings writeToFile:CRPATH atomically:YES]
 */
+#define WIFI_CONNECTED [[Reachability reachabilityForLocalWiFi] currentReachabilityStatus] == ReachableViaWiFi
 
 #define CRDEFAULTRADIUS 5.0
 #define CRBOLTLEEWAY 7.0

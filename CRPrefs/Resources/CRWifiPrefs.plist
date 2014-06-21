@@ -7,7 +7,7 @@
         <dict>
             <key>cell</key>         <string>PSGroupCell</string>
             <key>label</key>        <string>Style</string>
-            <key>footerText</key>   <string>GPRS shows as empty, EDGE shows as 1/4, 3G shows as half full, 4G / HSDPA / CDMA shows as 3/4, LTE shows as full.&#10;&#10;Radial fills left-to-right like a clock, Fill fills from bottom to top, Concentric expands and contracts an inner-circle, and Textual encircles text. Inverting reverses how the circle fills.</string>
+            <key>footerText</key>   <string>Radial fills left-to-right like a clock, Fill fills from bottom to top, Concentric expands and contracts an inner-circle, and Textual encircles text. Inverting reverses how the circle fills.</string>
         </dict>
         
         <dict>
@@ -72,7 +72,7 @@
 			<key>defaults</key> 	<string>com.insanj.circlet</string>
 			<key>detail</key> 		<string>CRListItemsController</string>
 			<key>key</key> 			<string>wifiLightColor</string>
-			<key>label</key> 		<string>Wifi Light Color</string>
+			<key>label</key> 		<string>Light Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
     	</dict>
@@ -82,27 +82,7 @@
 			<key>defaults</key> 	<string>com.insanj.circlet</string>
 			<key>detail</key> 		<string>CRListItemsController</string>
 			<key>key</key> 			<string>wifiDarkColor</string>
-			<key>label</key> 		<string>Wifi Dark Color</string>
-            <key>titlesDataSource</key>  <string>darkColorTitles:</string>
-            <key>valuesDataSource</key>  <string>darkColorValues:</string>
-		</dict>
-
-		<dict>
-			<key>cell</key>  		<string>PSLinkListCell</string>
-			<key>defaults</key> 	<string>com.insanj.circlet</string>
-			<key>detail</key> 		<string>CRListItemsController</string>
-			<key>key</key> 			<string>dataLightColor</string>
-			<key>label</key> 		<string>Data Light Color</string>
-            <key>titlesDataSource</key>  <string>lightColorTitles:</string>
-            <key>valuesDataSource</key>  <string>lightColorValues:</string>
-		</dict>
-
-		<dict>
-			<key>cell</key>  		<string>PSLinkListCell</string>
-			<key>defaults</key> 	<string>com.insanj.circlet</string>
-			<key>detail</key> 		<string>CRListItemsController</string>
-			<key>key</key> 			<string>dataDarkColor</string>
-			<key>label</key> 		<string>Data Dark Color</string>
+			<key>label</key> 		<string>Dark Color</string>
             <key>titlesDataSource</key>  <string>darkColorTitles:</string>
             <key>valuesDataSource</key>  <string>darkColorValues:</string>
 		</dict>
@@ -114,12 +94,12 @@
 
         <dict>
             <key>cell</key>             <string>PSButtonCell</string>
-            <key>label</key>            <string>Refresh Wifi and Data</string>
+            <key>label</key>            <string>Refresh Wifi</string>
             <key>action</key>           <string>sidesReplenish</string>
         </dict>
 
     </array>
-    <key>title</key>    <string>Wifi and Data</string>
+    <key>title</key>    <string>Wifi</string>
 </dict>
 
 </plist>

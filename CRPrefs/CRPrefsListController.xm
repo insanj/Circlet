@@ -123,6 +123,7 @@ void circletMiddleDisable(CFNotificationCenterRef center, void *observer, CFStri
 	PSSpecifier *signalAdjustmentsSpecifier = [self specifierForID:@"SignalAdjustments"];
 	PSSpecifier *carrierTextSpecifier = [self specifierForID:@"CarrierText"];
 	PSSpecifier *wifiAdjustmentsSpecifier = [self specifierForID:@"WifiAdjustments"];
+	PSSpecifier *dataAdjustmentsSpecifier = [self specifierForID:@"DataAdjustments"];
 	PSSpecifier *timeAdjustmentsSpecifier = [self specifierForID:@"TimeAdjustments"];
 	PSSpecifier *batteryAdjustmentsSpecifier = [self specifierForID:@"BatteryAdjustments"];
 
@@ -139,6 +140,9 @@ void circletMiddleDisable(CFNotificationCenterRef center, void *observer, CFStri
 	[wifiAdjustmentsSpecifier setProperty:@([manager boolForKey:@"wifiEnabled"]) forKey:@"enabled"];
 	[self reloadSpecifier:wifiAdjustmentsSpecifier];
 	
+	[dataAdjustmentsSpecifier setProperty:@([manager boolForKey:@"dataEnabled"]) forKey:@"enabled"];
+	[self reloadSpecifier:dataAdjustmentsSpecifier];
+
 	[timeAdjustmentsSpecifier setProperty:@([manager boolForKey:@"timeEnabled"]) forKey:@"enabled"];
 	[self reloadSpecifier:timeAdjustmentsSpecifier];
 

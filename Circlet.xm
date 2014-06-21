@@ -20,13 +20,13 @@ static CRPrefsManager * sharedPreferencesManager () {
 
 typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionSignal = 0,
-    CircletPositionWifi, // == 1
-    CircletPositionData, // == 2
-    CircletPositionTimeOuter, // == 3
-	CircletPositionTimeInner, // == 4
-    CircletPositionBattery, // == 5
-    CircletPositionCharging, // == 6
-    CircletPositionLowBattery, // == 7
+    CircletPositionWifi,
+    CircletPositionData,
+    CircletPositionTimeOuter,
+	CircletPositionTimeInner,
+    CircletPositionBattery,
+    CircletPositionCharging,
+    CircletPositionLowBattery,
 };
 
 /***************************************************************************************/
@@ -42,8 +42,10 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 			value = [sharedPreferencesManager() numberForKey:@"signalSize"];
 			break;
 		case CircletPositionWifi:
-		case CircletPositionData:
 			value = [sharedPreferencesManager() numberForKey:@"wifiSize"];
+			break;
+		case CircletPositionData:
+			value = [sharedPreferencesManager() numberForKey:@"dataSize"];
 			break;
 		case CircletPositionTimeOuter:
 		case CircletPositionTimeInner:
@@ -61,28 +63,31 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 
 static CGFloat circletWidthFromPosition(CircletPosition posit) {
 	NSNumber *value;
+	CGFloat diameter;
 
-	if (posit == CircletPositionSignal) {
-		NSNumber *value = [sharedPreferencesManager() numberForKey:@"signalSize"];
-		CGFloat diameter = value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
-		return diameter + (diameter / 10.0);
+	switch (posit) {
+		case CircletPositionSignal:
+			value = [sharedPreferencesManager() numberForKey:@"signalSize"];
+			diameter = value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
+			return diameter + (diameter / 10.0);
+		case CircletPositionWifi: 
+			value = [sharedPreferencesManager() numberForKey:@"wifiSize"];
+			break;
+		case CircletPositionData:
+			value = [sharedPreferencesManager() numberForKey:@"dataSize"];
+			break;
+		case CircletPositionTimeOuter:
+		case CircletPositionTimeInner:
+			value = [sharedPreferencesManager() numberForKey:@"timeSize"];
+			diameter = [value floatValue] * 2.0;
+			return (diameter * 2.0) + (diameter / 10.0);
+		case CircletPositionBattery:
+		case CircletPositionCharging:
+		case CircletPositionLowBattery:
+			value = [sharedPreferencesManager() numberForKey:@"batterySize"];
 	}
 
-	else if (posit == CircletPositionWifi || posit == CircletPositionData) {
-		value = [sharedPreferencesManager() numberForKey:@"wifiSize"];
-	}
-
-	else if (posit == CircletPositionTimeOuter || posit == CircletPositionTimeInner) {
-		value = [sharedPreferencesManager() numberForKey:@"timeSize"];
-		CGFloat diameter = [value floatValue] * 2.0;
-		return (diameter * 2.0) + (diameter / 10.0);
-	}
-	
-	else {
-		value = [sharedPreferencesManager() numberForKey:@"batterySize"];
-	}
-
-	CGFloat diameter = [value floatValue] * 2.0;
+	diameter = [value floatValue] * 2.0;
 	return diameter + (diameter / 10.0);
 }
 
@@ -97,9 +102,12 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 			invert = [sharedPreferencesManager() boolForKey:@"signalInvert"];
 			break;
 		case CircletPositionWifi:
-		case CircletPositionData:
 			value = [sharedPreferencesManager() numberForKey:@"wifiStyle"];
-			invert =[sharedPreferencesManager() boolForKey:@"wifiInvert"];
+			invert = [sharedPreferencesManager() boolForKey:@"wifiInvert"];
+			break;
+		case CircletPositionData:
+			value = [sharedPreferencesManager() numberForKey:@"dataStyle"];
+			invert = [sharedPreferencesManager() boolForKey:@"dataInvert"];
 			break;
 		case CircletPositionTimeOuter:
 		case CircletPositionTimeInner:
@@ -129,7 +137,6 @@ static UIColor * circletColorForKey(BOOL light, NSString *key) {
 	UIColor *valueInDict = titleToColor[value];
 
 	if (value && !valueInDict) {
-		CRLOG(@"CUSTOM COLOR: %@", value);
 		NSString *colorString = [sharedPreferencesManager() stringForKey:[key stringByAppendingString:@"Custom"]];
 		CIColor *customColor = [CIColor colorWithString:colorString];
 		return [UIColor colorWithRed:customColor.red green:customColor.green blue:customColor.blue alpha:customColor.alpha];
@@ -227,7 +234,13 @@ static BOOL circletEnabledForClassname(NSString *className) {
 	}
 
 	else if ([className isEqualToString:@"UIStatusBarDataNetworkItemView"]) {
-		return [sharedPreferencesManager() boolForKey:@"wifiEnabled"];
+		if (WIFI_CONNECTED) {
+			return [sharedPreferencesManager() boolForKey:@"wifiEnabled"];
+		}
+
+		else {
+			return [sharedPreferencesManager() boolForKey:@"dataEnabled"];
+		}
 	}
 
 	else if ([className isEqualToString:@"UIStatusBarTimeItemView"]) {
@@ -320,19 +333,25 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 %hook UIStatusBarDataNetworkItemView
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
-	CGFloat radius = circletRadiusFromPosition(CircletPositionWifi);
-	CircletStyle style = circletStyleFromPosition(CircletPositionWifi);
+	CGFloat radius;
+	CircletStyle style;
 	
-	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"wifiOutline"];
-	BOOL showOutline = !outline || [outline boolValue];
-	
-	CGFloat lessenedThickness = radius * LESSENED_THICKNESS(style);
+	BOOL showOutline;
+	CGFloat lessenedThickness;
 
 	int networkType = MSHookIvar<int>(self, "_dataNetworkType");
 	CGFloat percentage;
 
 	UIImage *image;
 	if (networkType != 5) {
+		radius = circletRadiusFromPosition(CircletPositionData);
+		style = circletStyleFromPosition(CircletPositionData);
+	
+		NSNumber *outline = [sharedPreferencesManager() numberForKey:@"dataOutline"];
+		showOutline = !outline || [outline boolValue];
+	
+		lessenedThickness = radius * LESSENED_THICKNESS(style);
+
 		CTRadioAccessTechnology *radioTechnology = [[CTRadioAccessTechnology alloc] init];
 		NSString *radioType = [radioTechnology.radioAccessTechnology stringByReplacingOccurrencesOfString:@"CTRadioAccessTechnology" withString:@""];
 		[radioTechnology release];
@@ -390,6 +409,14 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	}
 
 	else {
+		radius = circletRadiusFromPosition(CircletPositionWifi);
+		style = circletStyleFromPosition(CircletPositionWifi);
+	
+		NSNumber *outline = [sharedPreferencesManager() numberForKey:@"wifiOutline"];
+		showOutline = !outline || [outline boolValue];
+	
+		lessenedThickness = radius * LESSENED_THICKNESS(style);
+
 		int wifiState = MSHookIvar<int>(self, "_wifiStrengthBars");
 
 		if (lessenedThickness > 0.0) {
@@ -730,7 +757,13 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarDataNetworkItemView"]) {
-			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
+			if (WIFI_CONNECTED) {
+				frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionWifi), frame.size.height);
+			}
+
+			else {
+				frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionData), frame.size.height);
+			}
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarTimeItemView"]) {

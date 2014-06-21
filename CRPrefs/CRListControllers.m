@@ -46,6 +46,29 @@
 
 @end
 
+@implementation CRDataPrefsListController
+
+- (NSArray *)specifiers{
+	if (!_specifiers) {
+		NSString *compatibleName = MODERN_IOS ? @"CRDataPrefs" : @"CRCDataPrefs";
+		_specifiers = [[self loadSpecifiersFromPlistName:compatibleName target:self] retain];
+	}
+
+	return _specifiers;
+}
+
+- (void)loadView {
+	[super loadView];
+
+	if (![[CRPrefsManager sharedManager] objectForKey:@"dataStyle"]) {
+		PSSpecifier *dataStyleSpecifier = [self specifierForID:@"DataStyle"];
+		[self setPreferenceValue:@(1) specifier:dataStyleSpecifier];
+		[self reloadSpecifier:dataStyleSpecifier];
+	}
+}
+
+@end
+
 @implementation CRTimePrefsListController
 
 - (NSArray *)specifiers{
