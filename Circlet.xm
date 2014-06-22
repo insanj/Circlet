@@ -564,43 +564,31 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	lessenedThickness /= 3.0;
 
 	if (lessenedThickness > 0.0) {
-		@try {
-			NSArray *split = [timeString componentsSeparatedByString:@":"];
-			NSString *hour = split[0];
-			NSString *minute = [split[1] componentsSeparatedByString:@" "][0];
+		NSArray *split = [timeString componentsSeparatedByString:@":"];
+		NSString *hour = split[0];
+		NSString *minute = [split[1] componentsSeparatedByString:@" "][0];
 
-			if (showOutline) {
-				return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerString:hour outerString:minute style:style thickness:lessenedThickness];
-			}
-
-			else {
-				return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerString:hour outerString:minute style:style thickness:0.0];
-			}
+		if (showOutline) {
+			return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerString:hour outerString:minute style:style thickness:lessenedThickness];
 		}
 
-		@catch (NSException * e) {
-			NSLog(@"Fatal error trying to split up time string: %@", e);
+		else {
+			return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerString:hour outerString:minute style:style thickness:0.0];
 		}
 	}
 
 	CGFloat hour = fmod([components hour], 12.0) / 12.0;
 	CGFloat minute = [components minute] / 60.0;
 
+	// Site of the mis-matched Minute color bug of the 1.2.1 - 1.2.2 gap. Please report all
+	// sightings to the Department of Transient, Terrifying Bugs in Production Code (TM).
 	if (showOutline) {
-		// Just in case...
-		if (lessenedThickness > 0.0) {
-			return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style thickness:lessenedThickness];
-		}
-
-		else {
-			return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
-		}
+		return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
 	} 
 
 	else {
 		return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style thickness:0.0];
 	}
-
 }
 
 - (_UILegibilityImageSet *)contentsImage {
