@@ -1,7 +1,7 @@
 Package: com.insanj.circlet
 Name: Circlet
 Depends: mobilesubstrate
-Version: 1.2.2
+Version: 1.2.3
 Architecture: iphoneos-arm
 Description: A simpler status bar, one circle at a time.
 Maintainer: insanj <insanjmail@gmail.com>

@@ -1,6 +1,6 @@
 //
 //  UIImage+Circlet.h
-//  testing
+//  Circlet
 //
 //  Created by Julian Weiss on 5/3/14.
 //  Copyright (c) 2014 Julian Weiss. All rights reserved.
@@ -28,11 +28,11 @@ typedef NS_ENUM(NSUInteger, CircletStyle) {
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius percentage:(CGFloat)percent style:(CircletStyle)style;
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius percentage:(CGFloat)percent style:(CircletStyle)style thickness:(CGFloat)thickness;
 
-+ (UIImage *)circletWithInnerColor:(UIColor *)inner outerColor:(UIColor *)outer radius:(CGFloat)radius innerPercentage:(CGFloat)innerPercent outerPercentage:(CGFloat)outerPercent style:(CircletStyle)style;
-+ (UIImage *)circletWithInnerColor:(UIColor *)inner outerColor:(UIColor *)outer radius:(CGFloat)radius innerPercentage:(CGFloat)innerPercent outerPercentage:(CGFloat)outerPercent style:(CircletStyle)style thickness:(CGFloat)thickness;
++ (UIImage *)doubleCircletWithLeftColor:(UIColor *)leftColor rightColor:(UIColor *)rightColor radius:(CGFloat)radius leftPercentage:(CGFloat)leftPercent rightPercentage:(CGFloat)rightPercent style:(CircletStyle)style;
++ (UIImage *)doubleCircletWithLeftColor:(UIColor *)leftColor rightColor:(UIColor *)rightColor radius:(CGFloat)radius leftPercentage:(CGFloat)leftPercent rightPercentage:(CGFloat)rightPercent style:(CircletStyle)style thickness:(CGFloat)thickness;
 
-+ (UIImage *)circletWithInnerColor:(UIColor *)inner outerColor:(UIColor *)outer radius:(CGFloat)radius innerString:(NSString *)innerString outerString:(NSString *)outerString style:(CircletStyle)style thickness:(CGFloat)thickness;
-+ (UIImage *)circletWithInnerColor:(UIColor *)inner outerColor:(UIColor *)outer radius:(CGFloat)radius innerString:(NSString *)innerString outerString:(NSString *)outerString style:(CircletStyle)style;
++ (UIImage *)doubleCircletWithLeftColor:(UIColor *)leftColor rightColor:(UIColor *)rightColor radius:(CGFloat)radius leftString:(NSString *)leftString rightString:(NSString *)rightString style:(CircletStyle)style thickness:(CGFloat)thickness;
++ (UIImage *)doubleCircletWithLeftColor:(UIColor *)leftColor rightColor:(UIColor *)rightColor radius:(CGFloat)radius leftString:(NSString *)leftString rightString:(NSString *)rightString style:(CircletStyle)style;
 
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius string:(NSString *)string invert:(BOOL)invert;
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius string:(NSString *)string invert:(BOOL)invert thickness:(CGFloat)thickness;

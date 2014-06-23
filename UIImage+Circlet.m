@@ -1,6 +1,6 @@
 //
 //  UIImage+Circlet.m
-//  testing
+//  Circlet
 //
 //  Created by Julian Weiss on 5/3/14.
 //  Copyright (c) 2014 Julian Weiss. All rights reserved.
@@ -115,51 +115,45 @@
 	return image;
 }
 
-+ (UIImage *)circletWithInnerColor:(UIColor *)inner outerColor:(UIColor *)outer radius:(CGFloat)radius innerPercentage:(CGFloat)innerPercent outerPercentage:(CGFloat)outerPercent style:(CircletStyle)style {
-	return [self circletWithInnerColor:inner outerColor:outer radius:radius innerPercentage:innerPercent outerPercentage:outerPercent style:style thickness:(radius / 10.0)];
++ (UIImage *)doubleCircletWithLeftColor:(UIColor *)leftColor rightColor:(UIColor *)rightColor radius:(CGFloat)radius leftPercentage:(CGFloat)leftPercent rightPercentage:(CGFloat)rightPercent style:(CircletStyle)style {
+	return [self doubleCircletWithLeftColor:leftColor rightColor:rightColor radius:radius leftPercentage:leftPercent rightPercentage:rightPercent style:style thickness:(radius / 10.0)];
 }
 
-+ (UIImage *)circletWithInnerColor:(UIColor *)inner outerColor:(UIColor *)outer radius:(CGFloat)radius innerPercentage:(CGFloat)innerPercent outerPercentage:(CGFloat)outerPercent style:(CircletStyle)style thickness:(CGFloat)thickness {
-	// Side-by-side:
++ (UIImage *)doubleCircletWithLeftColor:(UIColor *)leftColor rightColor:(UIColor *)rightColor radius:(CGFloat)radius leftPercentage:(CGFloat)leftPercent rightPercentage:(CGFloat)rightPercent style:(CircletStyle)style thickness:(CGFloat)thickness {
 	CGFloat smallRadius = (radius / 2.0) + thickness;
 	
-	UIImage *outerCirclet = [UIImage circletWithColor:outer radius:smallRadius percentage:outerPercent style:style thickness:thickness];
-	UIImage *innerCirclet = [UIImage circletWithColor:inner radius:smallRadius percentage:innerPercent style:style thickness:thickness];
+	UIImage *leftCirclet = [UIImage circletWithColor:leftColor radius:smallRadius percentage:leftPercent style:style thickness:thickness];
+	UIImage *rightCirclet = [UIImage circletWithColor:rightColor radius:smallRadius percentage:rightPercent style:style thickness:thickness];
 	
-	CGSize comboSize = CGSizeMake(outerCirclet.size.width + innerCirclet.size.width + thickness, (smallRadius * 2.0) + thickness);
-	UIGraphicsBeginImageContextWithOptions(comboSize, NO, [UIScreen mainScreen].scale);
-	[innerCirclet drawAtPoint:CGPointZero blendMode:kCGBlendModeMultiply alpha:1.0];
-	[outerCirclet drawAtPoint:CGPointMake(outerCirclet.size.width + thickness, 0.0) blendMode:kCGBlendModeMultiply alpha:1.0];
-	UIImage *comboCirclet = UIGraphicsGetImageFromCurrentImageContext();
+	CGSize doubleSize = CGSizeMake(leftCirclet.size.width + rightCirclet.size.width + thickness, (smallRadius * 2.0) + thickness);
+	UIGraphicsBeginImageContextWithOptions(doubleSize, NO, [UIScreen mainScreen].scale);
+	[leftCirclet drawAtPoint:CGPointZero blendMode:kCGBlendModeMultiply alpha:1.0];
+	[rightCirclet drawAtPoint:CGPointMake(leftCirclet.size.width + thickness, 0.0) blendMode:kCGBlendModeMultiply alpha:1.0];
+	UIImage *doubleCirclet = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
 	
-	/*
-	 Inner/Outer:
-	 UIImage *outerCirclet = [UIImage circletWithColor:outer radius:radius percentage:outerPercent style:style];
-	 UIImage *innerCirclet = [UIImage circletWithColor:inner radius:(radius / 2.0) percentage:innerPercent style:style];
-	 
-	 UIGraphicsBeginImageContextWithOptions(outerCirclet.size, NO, [UIScreen mainScreen].scale);
-	 [outerCirclet drawAtPoint:CGPointZero blendMode:kCGBlendModeMultiply alpha:1.0];
-	 [innerCirclet drawAtPoint:CGPointMake(innerCirclet.size.width / 2.0, innerCirclet.size.height / 2.0) blendMode:kCGBlendModeMultiply alpha:1.0];
-	 UIImage *comboCirclet = UIGraphicsGetImageFromCurrentImageContext();
-	 UIGraphicsEndImageContext();
-	 
-	 Diagonal:
-	 CGFloat spacer = radius / 30.0;
-	 CGFloat smallRadius = (radius / 2.0) - spacer;
-	 CGFloat thickness = (smallRadius * 2.0) / 10.0;
-	 UIImage *outerCirclet = [UIImage circletWithColor:outer radius:(smallRadius + spacer) percentage:outerPercent style:style thickness:thickness];
-	 UIImage *innerCirclet = [UIImage circletWithColor:inner radius:(smallRadius + spacer) percentage:innerPercent style:style thickness:thickness];
-	 
-	 CGSize comboSize = CGSizeMake(radius * 2.0, radius * 2.0);
-	 UIGraphicsBeginImageContextWithOptions(comboSize, NO, [UIScreen mainScreen].scale);
-	 [outerCirclet drawAtPoint:CGPointZero blendMode:kCGBlendModeMultiply alpha:1.0];
-	 [innerCirclet drawAtPoint:CGPointMake((smallRadius * 2.0), (smallRadius * 2.0)) blendMode:kCGBlendModeMultiply alpha:1.0];
-	 UIImage *comboCirclet = UIGraphicsGetImageFromCurrentImageContext();
-	 UIGraphicsEndImageContext();
-	 */
+	return doubleCirclet;
+}
+
++ (UIImage *)doubleCircletWithLeftColor:(UIColor *)leftColor rightColor:(UIColor *)rightColor radius:(CGFloat)radius leftString:(NSString *)leftString rightString:(NSString *)rightString style:(CircletStyle)style {
+	return [self doubleCircletWithLeftColor:leftColor rightColor:rightColor radius:radius leftString:leftString rightString:rightString style:style thickness:(radius / 10.0)];
+}
+
++ (UIImage *)doubleCircletWithLeftColor:(UIColor *)leftColor rightColor:(UIColor *)rightColor radius:(CGFloat)radius leftString:(NSString *)leftString rightString:(NSString *)rightString style:(CircletStyle)style thickness:(CGFloat)thickness {
+	CGFloat smallRadius = (radius / 2.0) + thickness;
+	BOOL invert = style == CircletStyleTextualInverse;
+
+	UIImage *leftCirclet = [UIImage circletWithColor:leftColor radius:smallRadius string:leftString invert:invert thickness:thickness];
+	UIImage *rightCirclet = [UIImage circletWithColor:rightColor radius:smallRadius string:rightString invert:invert thickness:thickness];
 	
-	return comboCirclet;
+	CGSize doubleSize = CGSizeMake(leftCirclet.size.width + rightCirclet.size.width + thickness, (smallRadius * 2.0) + thickness);
+	UIGraphicsBeginImageContextWithOptions(doubleSize, NO, [UIScreen mainScreen].scale);
+	[leftCirclet drawAtPoint:CGPointZero blendMode:kCGBlendModeMultiply alpha:1.0];
+	[rightCirclet drawAtPoint:CGPointMake(leftCirclet.size.width + thickness, 0.0) blendMode:kCGBlendModeMultiply alpha:1.0];
+	UIImage *doubleCirclet = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+
+	return doubleCirclet;
 }
 
 + (UIImage *)circletWithColor:(UIColor *)color radius:(CGFloat)radius string:(NSString *)string invert:(BOOL)invert {
@@ -212,27 +206,6 @@
 	UIGraphicsEndImageContext();
 	
 	return image;
-}
-
-+ (UIImage *)circletWithInnerColor:(UIColor *)inner outerColor:(UIColor *)outer radius:(CGFloat)radius innerString:(NSString *)innerString outerString:(NSString *)outerString style:(CircletStyle)style {
-	return [self circletWithInnerColor:inner outerColor:outer radius:radius innerString:innerString outerString:outerString style:style thickness:(radius / 10.0)];
-}
-
-+ (UIImage *)circletWithInnerColor:(UIColor *)inner outerColor:(UIColor *)outer radius:(CGFloat)radius innerString:(NSString *)innerString outerString:(NSString *)outerString style:(CircletStyle)style thickness:(CGFloat)thickness {
-	// Side-by-side:
-	CGFloat smallRadius = (radius / 2.0) + thickness;
-	
-	UIImage *outerCirclet = [UIImage circletWithColor:outer radius:smallRadius string:outerString invert:(style == CircletStyleTextualInverse) thickness:thickness];
-	UIImage *innerCirclet = [UIImage circletWithColor:outer radius:smallRadius string:innerString invert:(style == CircletStyleTextualInverse) thickness:thickness];
-	
-	CGSize comboSize = CGSizeMake(outerCirclet.size.width + innerCirclet.size.width + thickness, (smallRadius * 2.0) + thickness);
-	UIGraphicsBeginImageContextWithOptions(comboSize, NO, [UIScreen mainScreen].scale);
-	[innerCirclet drawAtPoint:CGPointZero blendMode:kCGBlendModeMultiply alpha:1.0];
-	[outerCirclet drawAtPoint:CGPointMake(outerCirclet.size.width + thickness, 0.0) blendMode:kCGBlendModeMultiply alpha:1.0];
-	UIImage *comboCirclet = UIGraphicsGetImageFromCurrentImageContext();
-	UIGraphicsEndImageContext();
-
-	return comboCirclet;
 }
 
 + (CGFloat)circletLargestFontSizeForString:(NSString *)string inFrame:(CGRect)frame prediction:(CGFloat)pointSize {

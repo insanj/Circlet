@@ -66,12 +66,17 @@
             <key>max</key>                  <real>10.0</real>
         </dict>
 
+         <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+            <key>label</key>        <string>Hour</string>
+        </dict>
+
 		<dict>
 			<key>cell</key>  	   <string>PSLinkListCell</string>
 			<key>defaults</key>    <string>com.insanj.circlet</string>
 			<key>detail</key> 	   <string>CRListItemsController</string>
-			<key>key</key> 		   <string>timeInnerLightColor</string>
-			<key>label</key> 	   <string>Hour Light Color</string>
+			<key>key</key> 		   <string>timeHourLightColor</string>
+			<key>label</key> 	   <string>Light Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorTitles:</string>
 		</dict>
@@ -81,18 +86,23 @@
             <key>cell</key>        <string>PSLinkListCell</string>
             <key>defaults</key>    <string>com.insanj.circlet</string>
             <key>detail</key>      <string>CRListItemsController</string>
-            <key>key</key>         <string>timeInnerDarkColor</string>
-            <key>label</key>       <string>Hour Dark Color</string>
+            <key>key</key>         <string>timeHourDarkColor</string>
+            <key>label</key>       <string>Dark Color</string>
             <key>titlesDataSource</key>  <string>darkColorTitles:</string>
             <key>valuesDataSource</key>  <string>darkColorValues:</string>
+        </dict>
+
+         <dict>
+            <key>cell</key>         <string>PSGroupCell</string>
+            <key>label</key>        <string>Minute</string>
         </dict>
 
         <dict>
             <key>cell</key>        <string>PSLinkListCell</string>
             <key>defaults</key>    <string>com.insanj.circlet</string>
             <key>detail</key>      <string>CRListItemsController</string>
-            <key>key</key>         <string>timeOuterLightColor</string>
-            <key>label</key>       <string>Minute Light Color</string>
+            <key>key</key>         <string>timeMinuteLightColor</string>
+            <key>label</key>       <string>Light Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
         </dict>
@@ -101,8 +111,8 @@
             <key>cell</key>        <string>PSLinkListCell</string>
             <key>defaults</key>    <string>com.insanj.circlet</string>
             <key>detail</key>      <string>CRListItemsController</string>
-            <key>key</key>         <string>timeOuterDarkColor</string>
-            <key>label</key>       <string>Minute Dark Color</string>
+            <key>key</key>         <string>timeMinuteDarkColor</string>
+            <key>label</key>       <string>Dark Color</string>
             <key>titlesDataSource</key>  <string>darkColorTitles:</string>
             <key>valuesDataSource</key>  <string>darkColorTitles:</string>
         </dict>

@@ -77,7 +77,7 @@
 			<key>cell</key>  	   <string>PSLinkListCell</string>
 			<key>defaults</key>    <string>com.insanj.circlet</string>
 			<key>detail</key> 	   <string>CRListItemsController</string>
-			<key>key</key> 		   <string>timeInnerLightColor</string>
+			<key>key</key> 		   <string>timeHourLightColor</string>
 			<key>label</key> 	   <string>Hour Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorTitles:</string>
@@ -87,7 +87,7 @@
             <key>cell</key>        <string>PSLinkListCell</string>
             <key>defaults</key>    <string>com.insanj.circlet</string>
             <key>detail</key>      <string>CRListItemsController</string>
-            <key>key</key>         <string>timeOuterLightColor</string>
+            <key>key</key>         <string>timeMinuteLightColor</string>
             <key>label</key>       <string>Minute Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>

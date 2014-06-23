@@ -10,6 +10,7 @@
 #import "UIImage+Circlet.h"
 #import "CRPrefsManager.h"
 
+// Tiny algorithm to cheat the Textual style of some of its overbearing outline thickness
 #define LESSENED_THICKNESS(sty) ((sty == CircletStyleTextual || sty == CircletStyleTextualInverse) ? 1.0 / 8.0 : 0.0);
 
 static CRPrefsManager *preferencesManager;
@@ -22,8 +23,8 @@ typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionSignal = 0,
     CircletPositionWifi,
     CircletPositionData,
-    CircletPositionTimeOuter,
-	CircletPositionTimeInner,
+    CircletPositionTimeMinute,
+	CircletPositionTimeHour,
     CircletPositionBattery,
     CircletPositionCharging,
     CircletPositionLowBattery,
@@ -47,8 +48,8 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 		case CircletPositionData:
 			value = [sharedPreferencesManager() numberForKey:@"dataSize"];
 			break;
-		case CircletPositionTimeOuter:
-		case CircletPositionTimeInner:
+		case CircletPositionTimeMinute:
+		case CircletPositionTimeHour:
 			value = [sharedPreferencesManager() numberForKey:@"timeSize"];
 			return value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
 		case CircletPositionBattery:
@@ -76,8 +77,8 @@ static CGFloat circletWidthFromPosition(CircletPosition posit) {
 		case CircletPositionData:
 			value = [sharedPreferencesManager() numberForKey:@"dataSize"];
 			break;
-		case CircletPositionTimeOuter:
-		case CircletPositionTimeInner:
+		case CircletPositionTimeMinute:
+		case CircletPositionTimeHour:
 			value = [sharedPreferencesManager() numberForKey:@"timeSize"];
 			diameter = [value floatValue] * 2.0;
 			return (diameter * 2.0) + (diameter / 10.0);
@@ -109,8 +110,8 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 			value = [sharedPreferencesManager() numberForKey:@"dataStyle"];
 			invert = [sharedPreferencesManager() boolForKey:@"dataInvert"];
 			break;
-		case CircletPositionTimeOuter:
-		case CircletPositionTimeInner:
+		case CircletPositionTimeMinute:
+		case CircletPositionTimeHour:
 			value = [sharedPreferencesManager() numberForKey:@"timeStyle"];
 			invert = [sharedPreferencesManager() boolForKey:@"timeInvert"];
 			break;
@@ -130,7 +131,8 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 	return style;
 }
 
-// Returns color value based on preferences saved value
+// Returns color value based on preferences saved value. Boolean parameter
+// is only for default fallbacks, if the key is not found in preferences.
 static UIColor * circletColorForKey(BOOL light, NSString *key) {
 	NSString *value = [sharedPreferencesManager() stringForKey:key];
 	NSDictionary *titleToColor = CRTITLETOCOLOR;
@@ -157,68 +159,38 @@ static UIColor * circletColorForKey(BOOL light, NSString *key) {
 	return valueInDict;
 }
 
-// Retrieves saved color value based on position given
+// Retrieves proper color value key for preferences, based on position and light-ness given
 static UIColor * circletColorForPosition(BOOL light, CircletPosition posit){
-	NSString *key;
-	if (light) {
-		switch (posit) {
-			default:
-			case CircletPositionSignal:
-				key = @"signalLightColor";
-				break;
-			case CircletPositionWifi:
-				key = @"wifiLightColor";
-				break;
-			case CircletPositionData:
-				key = @"dataLightColor";
-				break;
-			case CircletPositionTimeOuter:
-				key = @"timeOuterLightColor";
-				break;
-			case CircletPositionTimeInner:
-				key = @"timeInnerLightColor";
-				break;
-			case CircletPositionBattery:
-				key = @"batteryLightColor";
-				break;
-			case CircletPositionCharging:
-				key = @"chargingLightColor";
-				break;
-			case CircletPositionLowBattery:
-				key = @"lowBatteryLightColor";
-				break;
-		}
+	NSString *positionPrefix;
+	switch (posit) {
+		default:
+		case CircletPositionSignal:
+			positionPrefix = @"signal";
+			break;
+		case CircletPositionWifi:
+			positionPrefix = @"wifi";
+			break;
+		case CircletPositionData:
+			positionPrefix = @"data";
+			break;
+		case CircletPositionTimeMinute:
+			positionPrefix = @"timeMinute";
+			break;
+		case CircletPositionTimeHour:
+			positionPrefix = @"timeHour";
+			break;
+		case CircletPositionBattery:
+			positionPrefix = @"battery";
+			break;
+		case CircletPositionCharging:
+			positionPrefix = @"charging";
+			break;
+		case CircletPositionLowBattery:
+			positionPrefix = @"lowBattery";
+			break;
 	}
 
-	else {
-		switch (posit) {
-			case CircletPositionSignal:
-				key = @"signalDarkColor";
-				break;
-			case CircletPositionWifi:
-				key = @"wifiDarkColor";
-				break;
-			case CircletPositionData:
-				key = @"dataDarkColor";
-				break;
-			case CircletPositionTimeOuter:
-				key = @"timeOuterDarkColor";
-				break;
-			case CircletPositionTimeInner:
-				key = @"timeInnerDarkColor";
-				break;
-			case CircletPositionBattery:
-				key = @"batteryDarkColor";
-				break;
-			case CircletPositionCharging:
-				key = @"chargingDarkColor";
-				break;
-			case CircletPositionLowBattery:
-				key = @"lowBatteryDarkColor";
-				break;
-		}
-	}
-
+	NSString *key = [NSString stringWithFormat:@"%@%@Color", positionPrefix, light ? @"Light" : @"Dark"];
 	return circletColorForKey(light, key);
 }
 
@@ -553,10 +525,10 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 %hook UIStatusBarTimeItemView
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white string:(NSString *)timeString {
-	CGFloat radius = circletRadiusFromPosition(CircletPositionTimeOuter);
+	CGFloat radius = circletRadiusFromPosition(CircletPositionTimeMinute);
 	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
 	
-	CircletStyle style = circletStyleFromPosition(CircletPositionTimeOuter);
+	CircletStyle style = circletStyleFromPosition(CircletPositionTimeMinute);
 	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"timeOutline"];
 	BOOL showOutline = !outline || [outline boolValue];
 
@@ -569,25 +541,24 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		NSString *minute = [split[1] componentsSeparatedByString:@" "][0];
 
 		if (showOutline) {
-			return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerString:hour outerString:minute style:style thickness:lessenedThickness];
+			CRLOG(@"calling for an outlined textual time double circlet, left color based on hour position and white (%@): %@, right color: %@", white ? @"YES" : @"NO", circletColorForPosition(white, CircletPositionTimeHour), circletColorForPosition(white, CircletPositionTimeMinute));
+			return [UIImage doubleCircletWithLeftColor:circletColorForPosition(white, CircletPositionTimeHour) rightColor:circletColorForPosition(white, CircletPositionTimeMinute) radius:radius leftString:hour rightString:minute style:style thickness:lessenedThickness];
 		}
 
 		else {
-			return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerString:hour outerString:minute style:style thickness:0.0];
+			return [UIImage doubleCircletWithLeftColor:circletColorForPosition(white, CircletPositionTimeHour) rightColor:circletColorForPosition(white, CircletPositionTimeMinute) radius:radius leftString:hour rightString:minute style:style thickness:0.0];
 		}
 	}
 
 	CGFloat hour = fmod([components hour], 12.0) / 12.0;
 	CGFloat minute = [components minute] / 60.0;
 
-	// Site of the mis-matched Minute color bug of the 1.2.1 - 1.2.2 gap. Please report all
-	// sightings to the Department of Transient, Terrifying Bugs in Production Code (TM).
 	if (showOutline) {
-		return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style];
+		return [UIImage doubleCircletWithLeftColor:circletColorForPosition(white, CircletPositionTimeHour) rightColor:circletColorForPosition(white, CircletPositionTimeMinute) radius:radius leftPercentage:hour rightPercentage:minute style:style];
 	} 
 
 	else {
-		return [UIImage circletWithInnerColor:circletColorForPosition(white, CircletPositionTimeInner) outerColor:circletColorForPosition(white, CircletPositionTimeOuter) radius:radius innerPercentage:hour outerPercentage:minute style:style thickness:0.0];
+		return [UIImage doubleCircletWithLeftColor:circletColorForPosition(white, CircletPositionTimeHour) rightColor:circletColorForPosition(white, CircletPositionTimeMinute) radius:radius leftPercentage:hour rightPercentage:minute style:style thickness:0.0];
 	}
 }
 
@@ -757,7 +728,7 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarTimeItemView"]) {
-			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionTimeOuter), frame.size.height);
+			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionTimeMinute), frame.size.height);
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarBatteryItemView"]) {
