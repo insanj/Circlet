@@ -801,27 +801,12 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 %group Modern
 
 static CRAlertViewDelegate *circletAVDelegate;
-static BOOL kCRUnlocked;
 
-%hook SBUIController
-
-- (void)_deviceLockStateChanged:(NSNotification *)changed {
+%hook SBLockScreenManager
+- (void)_finishUIUnlockFromSource:(int)source withOptions:(id)options {
 	%orig();
 
-	NSNumber *state = changed.userInfo[@"kSBNotificationKeyState"];
-	if (!state.boolValue) {
-		kCRUnlocked = YES;
-	}
-}
-
-%end
-
-%hook SBUIAnimationController
-
-- (void)endAnimation {
-	%orig();
-
-	if (kCRUnlocked && ![sharedPreferencesManager() objectForKey:@"didRun"]) {
+	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
 		CRLOG(@"Detected novel (modern) run...");
 		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
 
