@@ -826,10 +826,10 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 %hook SBUIController
 
-- (void)finishedUnscattering{
+- (void)finishedUnscattering {
 	%orig();
 
-	if (kCRUnlocked && ![sharedPreferencesManager() objectForKey:@"didRun"]) {
+	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
 		CRLOG(@"Detected novel (ancient) run...");
 		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
 
