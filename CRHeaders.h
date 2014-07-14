@@ -24,6 +24,7 @@
 #define CRDEFAULTRADIUS 5.0
 #define CRBOLTLEEWAY 7.0
 
+#define NEWEST_IOS ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.1)
 #define MODERN_IOS ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
 #define IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 
@@ -82,6 +83,13 @@ struct _rawData {
 	unsigned int quietModeInactive : 1;
 	unsigned int tetheringConnectionCount;
 };
+
+@interface SBStatusBarStateAggregator
+
++ (SBStatusBarStateAggregator *)sharedInstance;
+- (BOOL)_setItem:(int)item enabled:(BOOL)enabled;
+
+@end
 
 @interface UIStatusBarComposedData : NSObject
 @property(readonly) void* rawData;

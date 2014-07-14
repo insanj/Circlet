@@ -29,6 +29,7 @@ static CRPrefsManager *sharedManager;
 }
 
 - (void)reloadPreferences {
+	[_cachedPreferences release];
 	_cachedPreferences = [[NSDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"];
 }
 

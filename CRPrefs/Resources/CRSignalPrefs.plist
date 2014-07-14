@@ -93,7 +93,7 @@
         <dict>
             <key>cell</key>             <string>PSButtonCell</string>
             <key>label</key>            <string>Refresh Signal</string>
-            <key>action</key>           <string>sidesReplenish</string>
+            <key>action</key>           <string>signalReplenish</string>
         </dict>
 
     </array>

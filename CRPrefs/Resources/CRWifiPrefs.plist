@@ -95,7 +95,7 @@
         <dict>
             <key>cell</key>             <string>PSButtonCell</string>
             <key>label</key>            <string>Refresh Wifi</string>
-            <key>action</key>           <string>sidesReplenish</string>
+            <key>action</key>           <string>dataReplenish</string>
         </dict>
 
     </array>

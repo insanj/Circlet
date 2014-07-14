@@ -125,7 +125,7 @@
         <dict>
             <key>cell</key>             <string>PSButtonCell</string>
             <key>label</key>            <string>Refresh Time</string>
-            <key>action</key>           <string>middleReplenish</string>
+            <key>action</key>           <string>timeReplenish</string>
         </dict>
 
     </array>

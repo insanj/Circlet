@@ -17,7 +17,7 @@
 			<key>key</key> 				<string>signalEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<true/>
-            <key>PostNotification</key> <string>com.insanj.circlet/SidesDisable</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Signal</string>
 		</dict>
 
         <dict>
@@ -40,7 +40,7 @@
 			<key>key</key> 				<string>carrierEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
-            <key>PostNotification</key> <string>com.insanj.circlet/SidesDisable</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Carrier</string>
 		</dict>
 
         <dict>
@@ -52,7 +52,7 @@
 			<key>key</key> 				 <string>carrierText</string>
             <key>placeholder</key> 		 <string>ℒ, o, ⓥ, etc.</string>
             <key>noAutoCorrect</key> 	 <true/>
-            <key>PostNotification</key>  <string>com.insanj.circlet/SidesDisable</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/Carrier</string>
         </dict>
 
         <dict>
@@ -66,7 +66,7 @@
             <key>key</key>              <string>wifiEnabled</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <false/>
-            <key>PostNotification</key> <string>com.insanj.circlet/SidesDisable</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Data</string>
         </dict>
 
         <dict>
@@ -88,7 +88,7 @@
             <key>key</key>              <string>dataEnabled</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <false/>
-            <key>PostNotification</key> <string>com.insanj.circlet/SidesDisable</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Data</string>
         </dict>
 
         <dict>
@@ -110,7 +110,7 @@
 			<key>key</key> 				<string>timeEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
-            <key>PostNotification</key> <string>com.insanj.circlet/MiddleDisable</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Time</string>
 		</dict>
 
         <dict>
@@ -132,7 +132,7 @@
 			<key>key</key> 				<string>batteryEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
-            <key>PostNotification</key> <string>com.insanj.circlet/SidesDisable</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Battery</string>
 		</dict>
 
         <dict>

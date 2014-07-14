@@ -31,7 +31,7 @@ typedef NS_ENUM(NSUInteger, CircletPosition) {
 };
 
 /***************************************************************************************/
-/***************************** Static C-irclet Functions *******************************/
+/***************************** Shared C-irclet Functions *******************************/
 /***************************************************************************************/
 
 // Retrieves saved radius value (or default radius, CRDEFAULTRADIUS)
@@ -234,17 +234,66 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	return tiny;
 }
 
-// All iOS 7 and iOS 6 hooks
-%group Shared
+/***************************************************************************************/
+/******************************* Forward-Declared Hooks  *******************************/
+/***************************************************************************************/
+
+@interface UIStatusBarItemView (Circlet)
+
+- (UIImage *)circletContentsImageForWhite:(BOOL)white;
+- (UIImage *)circletContentsImageForWhite:(BOOL)white string:(NSString *)timeString;
+
+@end
+
+
+/**************************************************************************************/
+/************************ CRAVDelegate (used from first run) ****************************/
+/***************************************************************************************/
+
+@interface CRAlertViewDelegate : NSObject <UIAlertViewDelegate>
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
+@end
+
+@implementation CRAlertViewDelegate
+
+- (id)init {
+	self = [super init];
+
+	if (self) {
+		[self retain]; // This class manages the memory management itself
+	}
+
+	return self;
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+	if (buttonIndex == [alertView cancelButtonIndex]) {
+		return;
+	}
+
+	else {
+		if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer.dylib"]) {
+			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Cydia&path=Circlet"]];
+		}
+
+		else {
+			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Circlet"]];
+		}
+	}
+
+	// Die already
+	[self release];
+}
+
+@end
 
 /***************************************************************************************/
 /***************************** UIStatusBarItemView Hooks  ******************************/
 /***************************************************************************************/
 
-@interface UIStatusBarItemView (Circlet)
-- (UIImage *)circletContentsImageForWhite:(BOOL)white;
-- (UIImage *)circletContentsImageForWhite:(BOOL)white string:(NSString *)timeString;
-@end
+static CRAlertViewDelegate *circletAVDelegate;
+
+%group Shared
 
 %hook UIStatusBarSignalStrengthItemView
 
@@ -276,28 +325,6 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	else {
 		return [UIImage circletWithColor:circletColorForPosition(white, CircletPositionSignal) radius:radius percentage:percentage style:style thickness:0.0];
 	}
-}
-
-- (_UILegibilityImageSet *)contentsImage {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarSignalStrengthItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
-	if (shouldOverride) {
-		CGFloat w, a;
-		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		
-		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5)];
-		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:image];
-	}
-
-	return %orig();
-}
-
-- (UIImage *)contentsImageForStyle:(int)arg1 {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarSignalStrengthItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
-	return shouldOverride ? [self circletContentsImageForWhite:YES] : %orig();
 }
 
 %end
@@ -421,35 +448,6 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	return image;
 }
 
-- (_UILegibilityImageSet *)contentsImage {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarDataNetworkItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
-	if (shouldOverride) {
-		CGFloat w, a;
-		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		
-		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5)];
-		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:image];
-	}
-
-	return %orig();
-}
-
-- (CGFloat)extraLeftPadding {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarDataNetworkItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
-	return shouldOverride ? 0.0 : %orig();
-}
-
-- (UIImage *)contentsImageForStyle:(int)arg1 {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarDataNetworkItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
-	return shouldOverride ? [self circletContentsImageForWhite:YES] : %orig();
-}
-
 %end
 
 %hook UIStatusBarServiceItemView
@@ -489,35 +487,6 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	 
 		return [UIImage circletWithColor:light radius:radius string:serviceSingleString invert:YES thickness:lessenedThickness];
 	}
-}
-
-- (_UILegibilityImageSet *)contentsImage {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
-	if (shouldOverride) {
-		CGFloat w, a;
-		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		
-		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5)];
-		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:image];
-	}
-
-	return %orig();
-}
-
-- (CGFloat)standardPadding {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView") && [self circletContentsImageForWhite:YES].size.width <= 1.0;
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
-	return shouldOverride ? 0.0 : %orig();
-}
-
-- (UIImage *)contentsImageForStyle:(int)arg1 {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
-	return shouldOverride ? [self circletContentsImageForWhite:YES] : %orig();
 }
 
 %end
@@ -560,31 +529,6 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	else {
 		return [UIImage doubleCircletWithLeftColor:circletColorForPosition(white, CircletPositionTimeHour) rightColor:circletColorForPosition(white, CircletPositionTimeMinute) radius:radius leftPercentage:hour rightPercentage:minute style:style thickness:0.0];
 	}
-}
-
-- (_UILegibilityImageSet *)contentsImage {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
-	NSString *trimmedTimeString = [MSHookIvar<NSString *>(self, "_timeString") stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-	
-	CRLOG(@"%@, %@", shouldOverride ? @"override" : @"ignore", trimmedTimeString);
-
-	if (shouldOverride && trimmedTimeString.length > 0) {
-		CGFloat w, a;
-		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-
-		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5) string:trimmedTimeString];
-		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:image];
-	}
-
-	return %orig();
-}
-
-- (UIImage *)contentsImageForStyle:(int)arg1 {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
-	NSString *trimmedTimeString = [MSHookIvar<NSString *>(self, "_timeString") stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-
-	CRLOG(@"%@, %@", shouldOverride ? @"override" : @"ignore", trimmedTimeString);
-	return shouldOverride ? [self circletContentsImageForWhite:YES string:trimmedTimeString] : %orig();
 }
 
 %end
@@ -665,8 +609,37 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	return image;
 }
 
+%end
+
+%end // %group Shared
+
+
+
+%group Newest
+
+%hook SBLockScreenManager
+
+- (void)_finishUIUnlockFromSource:(int)source withOptions:(id)options {
+	%orig();
+
+	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
+		CRLOG(@"Detected novel (newest) run...");
+		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
+
+		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
+		[alert show];
+		[alert release];
+		[circletAVDelegate release];
+	}
+}
+
+%end
+
+%hook UIStatusBarItemView
+
 - (_UILegibilityImageSet *)contentsImage {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
 	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
 
 	if (shouldOverride) {
@@ -680,17 +653,73 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	return %orig();
 }
 
-- (UIImage *)contentsImageForStyle:(int)arg1 {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-	return shouldOverride ? [self circletContentsImageForWhite:YES] : %orig();
+%end // %group Newest
+
+%end
+
+
+
+%group Modern
+
+%hook SBLockScreenManager
+
+- (void)_finishUIUnlockFromSource:(int)source withOptions:(id)options {
+	%orig();
+
+	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
+		CRLOG(@"Detected novel (modern) run...");
+		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
+
+		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
+		[alert show];
+		[alert release];
+		[circletAVDelegate release];
+	}
 }
 
 %end
 
-/***************************************************************************************/
-/********************************* Foreground Layout  **********************************/
-/***************************************************************************************/
+%hook UIStatusBarItemView
+
+- (_UILegibilityImageSet *)contentsImage {
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+
+	if (shouldOverride) {
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		
+		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5)];
+		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:image];
+	}
+
+	return %orig();
+}
+
+%end
+
+%hook UIStatusBarDataNetworkItemView
+
+- (CGFloat)extraLeftPadding {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarDataNetworkItemView");
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+
+	return shouldOverride ? 0.0 : %orig();
+}
+
+%end
+
+%hook UIStatusBarServiceItemView
+
+- (CGFloat)standardPadding {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView") && [self circletContentsImageForWhite:YES].size.width <= 1.0;
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+
+	return shouldOverride ? 0.0 : %orig();
+}
+
+%end
 
 %hook UIStatusBarLayoutManager
 
@@ -751,76 +780,9 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 %end
 
-%end // %group Shared
-
-/**************************************************************************************/
-/************************ CRAVDelegate (used from first run) ****************************/
-/***************************************************************************************/
-
-@interface CRAlertViewDelegate : NSObject <UIAlertViewDelegate>
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
-@end
-
-@implementation CRAlertViewDelegate
-
-- (id)init {
-	self = [super init];
-
-	if (self) {
-		[self retain]; // This class manages the memory management itself
-	}
-
-	return self;
-}
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-	if (buttonIndex == [alertView cancelButtonIndex]) {
-		return;
-	}
-
-	else {
-		if ([[NSFileManager defaultManager] fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/PreferenceOrganizer.dylib"]) {
-			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Cydia&path=Circlet"]];
-		}
-
-		else {
-			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Circlet"]];
-		}
-	}
-
-	// Die already
-	[self release];
-}
-
-@end
-
-/***************************************************************************************/
-/********************************* First Run Prompts  **********************************/
-/***************************************************************************************/
-
-%group Modern
-
-static CRAlertViewDelegate *circletAVDelegate;
-
-%hook SBLockScreenManager
-- (void)_finishUIUnlockFromSource:(int)source withOptions:(id)options {
-	%orig();
-
-	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
-		CRLOG(@"Detected novel (modern) run...");
-		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
-
-		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
-		[alert show];
-		[alert release];
-		[circletAVDelegate release];
-	}
-}
-
-%end
-
 %end // %group Modern
+
+
 
 %group Ancient
 
@@ -843,7 +805,21 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 %end
 
+%hook UIStatusBarSignalStrengthItemView
+
+- (UIImage *)contentsImageForStyle:(int)arg1 {
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
+	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+
+	return shouldOverride ? [self circletContentsImageForWhite:YES] : %orig();
+}
+
+%end
+
 %end // %group Ancient
+
+
+
 
 /***************************************************************************************/
 /****************************** Pulling it all togctor   *******************************/
@@ -851,35 +827,81 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 %ctor {
 	%init(Shared);
+
+	if (NEWEST_IOS) {
+		%init(Newest);
+	}
+
 	if (MODERN_IOS) {
 		%init(Modern);
+
+		[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+			CRLOG(@"Fixing up statusBar now...");
+
+			UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+			[statusBar setShowsOnlyCenterItems:YES];
+			[statusBar setShowsOnlyCenterItems:NO];
+		}];
 	}
 
 	else {
+		[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+			CRLOG(@"Fixing up statusBar now...");
+
+			UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+			[statusBar setShowsOnlyCenterItems:YES];
+			[statusBar setShowsOnlyCenterItems:NO];
+		}];
+
 		%init(Ancient);
 	}
 
-	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-		CRLOG(@"Fixing up statusBar now...");
+	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshSignal" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+		CRLOG(@"Fixing up signal now...");
+		[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:3 enabled:NO];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:3 enabled:YES];
+		});
+	}];
 
-		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
-		[statusBar setShowsOnlyCenterItems:YES];
-		[statusBar setShowsOnlyCenterItems:NO];
+	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshCarrier" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+		CRLOG(@"Fixing up carrier now...");
+		[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:4 enabled:NO];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:4 enabled:YES];
+		});
+	}];
+
+	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshData" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+		CRLOG(@"Fixing up data now...");
+		[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:5 enabled:NO];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:5 enabled:YES];
+		});
 	}];
 
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshTime" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+		CRLOG(@"Fixing up time now...");
 		CGFloat animationDuration = 0.6;
-
 		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
 		[statusBar crossfadeTime:NO duration:animationDuration];
+
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, animationDuration * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 			[statusBar crossfadeTime:YES duration:animationDuration];
+		});
+
+	}];
+
+	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshBattery" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+		CRLOG(@"Fixing up battery now...");
+		[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:7 enabled:NO];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:7 enabled:YES];
 		});
 	}];
 
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CLGTFO" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
 		NSString *sender = notification.userInfo[@"sender"];
-
 		if ([sender isEqualToString:@"SpringBoard"]) {
 			CRLOG(@"GTFO! %@", sender);
 			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=General"]];
