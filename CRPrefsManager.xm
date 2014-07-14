@@ -16,7 +16,10 @@ static CRPrefsManager *sharedManager;
 	self = [super init];
 
 	if (self) {
-		_cachedPreferences = [[NSDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"];
+		_cachedPreferences = [NSDictionary dictionaryWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"];
+		if (!_cachedPreferences) {
+			_cachedPreferences = [NSDictionary dictionary];
+		}
 
 		// Maybe shift to kirb's NSUserDefaults solution someday...
 		// [[NSUserDefaults standardUserDefaults] boolForKey:@"didRun" inDomain:@"com.insanj.circlet"];
@@ -29,8 +32,10 @@ static CRPrefsManager *sharedManager;
 }
 
 - (void)reloadPreferences {
-	[_cachedPreferences release];
-	_cachedPreferences = [[NSDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"];
+	_cachedPreferences = [NSDictionary dictionaryWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"];
+	if (!_cachedPreferences) {
+		_cachedPreferences = [NSDictionary dictionary];
+	}
 }
 
 - (void)setObject:(NSObject *)object forKey:(NSString *)key {
@@ -38,7 +43,8 @@ static CRPrefsManager *sharedManager;
 	[mutablePreferences setObject:object forKey:key];
 	[mutablePreferences writeToFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist" atomically:YES];
 
-	_cachedPreferences = mutablePreferences;
+	// Ensures that all active preference managers stay in sync
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
 }
 
 - (NSObject *)objectForKey:(NSString *)key {
@@ -64,6 +70,7 @@ static CRPrefsManager *sharedManager;
 - (void)dealloc {
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self name:@"CRReloadPreferences" object:nil];
 	[_cachedPreferences release];
+
 	[super dealloc];
 }
 

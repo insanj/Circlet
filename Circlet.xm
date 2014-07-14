@@ -6,29 +6,15 @@
 //  Copyright (c) 2014 insanj. All rights reserved.
 //
 
-#import "CRHeaders.h"
+#import "Circlet.h"
 #import "UIImage+Circlet.h"
 #import "CRPrefsManager.h"
-
-// Tiny algorithm to cheat the Textual style of some of its overbearing outline thickness
-#define LESSENED_THICKNESS(sty) ((sty == CircletStyleTextual || sty == CircletStyleTextualInverse) ? 1.0 / 8.0 : 0.0);
 
 static CRPrefsManager *preferencesManager;
 
 static CRPrefsManager * sharedPreferencesManager () {
 	return ((preferencesManager = [CRPrefsManager sharedManager]));
 }
-
-typedef NS_ENUM(NSUInteger, CircletPosition) {
-    CircletPositionSignal = 0,
-    CircletPositionWifi,
-    CircletPositionData,
-    CircletPositionTimeMinute,
-	CircletPositionTimeHour,
-    CircletPositionBattery,
-    CircletPositionCharging,
-    CircletPositionLowBattery,
-};
 
 /***************************************************************************************/
 /***************************** Shared C-irclet Functions *******************************/
@@ -234,25 +220,10 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 	return tiny;
 }
 
-/***************************************************************************************/
-/******************************* Forward-Declared Hooks  *******************************/
-/***************************************************************************************/
-
-@interface UIStatusBarItemView (Circlet)
-
-- (UIImage *)circletContentsImageForWhite:(BOOL)white;
-- (UIImage *)circletContentsImageForWhite:(BOOL)white string:(NSString *)timeString;
-
-@end
-
-
 /**************************************************************************************/
 /************************ CRAVDelegate (used from first run) ****************************/
 /***************************************************************************************/
 
-@interface CRAlertViewDelegate : NSObject <UIAlertViewDelegate>
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
-@end
 
 @implementation CRAlertViewDelegate
 
@@ -510,7 +481,6 @@ static CRAlertViewDelegate *circletAVDelegate;
 		NSString *minute = [split[1] componentsSeparatedByString:@" "][0];
 
 		if (showOutline) {
-			CRLOG(@"calling for an outlined textual time double circlet, left color based on hour position and white (%@): %@, right color: %@", white ? @"YES" : @"NO", circletColorForPosition(white, CircletPositionTimeHour), circletColorForPosition(white, CircletPositionTimeMinute));
 			return [UIImage doubleCircletWithLeftColor:circletColorForPosition(white, CircletPositionTimeHour) rightColor:circletColorForPosition(white, CircletPositionTimeMinute) radius:radius leftString:hour rightString:minute style:style thickness:lessenedThickness];
 		}
 
@@ -534,19 +504,6 @@ static CRAlertViewDelegate *circletAVDelegate;
 %end
 
 %hook UIStatusBarBatteryItemView
-
-- (id)_accessoryImage {	
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
-	NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
-
-	if (shouldOverride && (!showBolt || ![showBolt boolValue])) {
-		return circletBlankImage();
-	}
-
-	return %orig();
-}
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
 	int level = MSHookIvar<int>(self, "_capacity");
@@ -622,6 +579,8 @@ static CRAlertViewDelegate *circletAVDelegate;
 - (void)_finishUIUnlockFromSource:(int)source withOptions:(id)options {
 	%orig();
 
+	CRLOG(@"finish ui unlock from source %i", source);
+
 	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
 		CRLOG(@"Detected novel (newest) run...");
 		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
@@ -639,8 +598,9 @@ static CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarItemView
 
 - (_UILegibilityImageSet *)contentsImage {
+	CRLOG(@"about to check override status");
 	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+	CRLOG(@"shouldOverride: %@", shouldOverride ? @"YES" : @"NO");
 
 	if (shouldOverride) {
 		CGFloat w, a;
@@ -653,9 +613,26 @@ static CRAlertViewDelegate *circletAVDelegate;
 	return %orig();
 }
 
-%end // %group Newest
+%end
+
+%hook UIStatusBarBatteryItemView
+
+- (id)_accessoryImage {	
+	CRLOG(@"accessory image checking");
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
+	NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
+
+	if (shouldOverride && (!showBolt || ![showBolt boolValue])) {
+		return circletBlankImage();
+	}
+
+	return %orig();
+}
 
 %end
+
+%end // %group Newest
+
 
 
 
@@ -663,7 +640,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 %hook SBLockScreenManager
 
-- (void)_finishUIUnlockFromSource:(int)source withOptions:(id)options {
+- (void)_finishUIUnlockFromSource:(int)source withOptions:(id)options { 
 	%orig();
 
 	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
@@ -717,6 +694,21 @@ static CRAlertViewDelegate *circletAVDelegate;
 	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
 
 	return shouldOverride ? 0.0 : %orig();
+}
+
+%end
+
+%hook UIStatusBarBatteryItemView
+
+- (id)_accessoryImage {	
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
+	NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
+
+	if (shouldOverride && (!showBolt || ![showBolt boolValue])) {
+		return circletBlankImage();
+	}
+
+	return %orig();
 }
 
 %end
@@ -828,77 +820,35 @@ static CRAlertViewDelegate *circletAVDelegate;
 %ctor {
 	%init(Shared);
 
-	if (NEWEST_IOS) {
+	// Can't wait for iOS 8, huh?
+	NSArray *versionComponents = [[[UIDevice currentDevice] systemVersion] componentsSeparatedByString:@"."];
+	int majorVersion = [(NSString *)versionComponents[0] intValue];
+	int minorVersion = versionComponents.count > 1 ? [(NSString *)versionComponents[1] intValue] : 0;
+	CRLOG(@"initializing logos groups as per majorVersion: %i, minorVersion: %i", majorVersion, minorVersion);
+
+	if (majorVersion >= 7 && minorVersion >= 1) {
+		CRLOG(@"welcome, iOS 7.1.x+");
 		%init(Newest);
 	}
 
-	if (MODERN_IOS) {
+	else if (majorVersion == 7) {
+		CRLOG(@"welcome, iOS 7.0-7.0.x");
 		%init(Modern);
-
-		[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-			CRLOG(@"Fixing up statusBar now...");
-
-			UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
-			[statusBar setShowsOnlyCenterItems:YES];
-			[statusBar setShowsOnlyCenterItems:NO];
-		}];
 	}
 
 	else {
-		[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-			CRLOG(@"Fixing up statusBar now...");
-
-			UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
-			[statusBar setShowsOnlyCenterItems:YES];
-			[statusBar setShowsOnlyCenterItems:NO];
-		}];
-
+		CRLOG(@"welcome, iOS 6.x");
 		%init(Ancient);
 	}
 
-	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshSignal" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-		CRLOG(@"Fixing up signal now...");
-		[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:3 enabled:NO];
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-			[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:3 enabled:YES];
-		});
-	}];
+	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+		CRLOG(@"Fixing up statusbar now...");
 
-	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshCarrier" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-		CRLOG(@"Fixing up carrier now...");
-		[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:4 enabled:NO];
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-			[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:4 enabled:YES];
-		});
-	}];
-
-	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshData" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-		CRLOG(@"Fixing up data now...");
-		[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:5 enabled:NO];
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-			[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:5 enabled:YES];
-		});
-	}];
-
-	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshTime" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-		CRLOG(@"Fixing up time now...");
-		CGFloat animationDuration = 0.6;
 		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
-		[statusBar crossfadeTime:NO duration:animationDuration];
-
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, animationDuration * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-			[statusBar crossfadeTime:YES duration:animationDuration];
-		});
-
+		[statusBar setShowsOnlyCenterItems:YES];
+		[statusBar setShowsOnlyCenterItems:NO];
 	}];
 
-	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshBattery" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
-		CRLOG(@"Fixing up battery now...");
-		[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:7 enabled:NO];
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-			[[%c(SBStatusBarStateAggregator) sharedInstance] _setItem:7 enabled:YES];
-		});
-	}];
 
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CLGTFO" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
 		NSString *sender = notification.userInfo[@"sender"];

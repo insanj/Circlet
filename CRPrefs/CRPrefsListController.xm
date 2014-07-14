@@ -53,22 +53,21 @@ void circletAnimate() {
 	}];
 }
 
-
 void circletSignal(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
 	circletPrepareToAnimate();
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshSignal" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
 	circletAnimate();
 }
 
 void circletCarrier(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
 	circletPrepareToAnimate();
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshCarrier" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
 	circletAnimate();
 }
 
 void circletData(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
 	circletPrepareToAnimate();
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshData" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
 	circletAnimate();
 }
 
@@ -80,7 +79,7 @@ void circletTime(CFNotificationCenterRef center, void *observer, CFStringRef nam
 
 void circletBattery(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
 	circletPrepareToAnimate();
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshBattery" object:nil];
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
 	circletAnimate();
 }
 

@@ -1,4 +1,4 @@
-#include "../CRHeaders.h"
+#include "../Circlet.h"
 #import "../UIImage+Circlet.h"
 #import "../CRPrefsManager.h"
 

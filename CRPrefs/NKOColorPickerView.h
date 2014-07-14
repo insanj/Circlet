@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <Preferences/PreferencesAppController.h>
 #import <Preferences/PrefsRootController.h>
-#import "../CRHeaders.h"
+#import "../Circlet.h"
 
 typedef void (^NKOColorPickerDidChangeColorBlock)(UIColor *color);
 

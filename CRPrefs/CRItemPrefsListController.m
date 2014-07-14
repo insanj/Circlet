@@ -19,6 +19,7 @@
 
 - (void)sidesReplenish {
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
+	
 	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
 	UIView *fakeStatusBar;
 
@@ -66,6 +67,26 @@
 - (void)middleReplenish {
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshTime" object:nil];
+}
+
+- (void)signalReplenish {
+	[self sidesReplenish];
+}
+
+- (void)carrierReplenish {
+	[self sidesReplenish];
+}
+
+- (void)dataReplenish {
+	[self sidesReplenish];
+}
+
+- (void)timeReplenish {
+	[self middleReplenish];
+}
+
+- (void)batteryReplenish {
+	[self sidesReplenish];
 }
 
 - (void)tableView:(id)arg1 didSelectRowAtIndexPath:(id)arg2 {

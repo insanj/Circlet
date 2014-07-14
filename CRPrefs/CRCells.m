@@ -6,7 +6,7 @@
 	self = [super initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:reuseIdentifier specifier:specifier];
 
 	if (self) {
-		NSString *rawCredits = @"Circlet (1.2.3) was created by Julian Weiss with lots of love from Benno, A³Tweaks, and the entire Hashbang crew. Uses NKOColorPickerView and UIDiscreteSlider for finer settings control. Inspired by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects), make sure to follow me on Twitter. Enjoy!";
+		NSString *rawCredits = @"Circlet (1.3) was created by Julian Weiss with lots of love from Benno, A³Tweaks, and the entire Hashbang crew. Uses NKOColorPickerView and UIDiscreteSlider for finer settings control. Inspired by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects), make sure to follow me on Twitter. Enjoy!";
 
 		if (IPAD) {
 			[self setTitle:rawCredits];
