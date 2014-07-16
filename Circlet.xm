@@ -27,7 +27,6 @@
 #import "Circlet.h"
 #import "UIImage+Circlet.h"
 #import "CRPrefsManager.h"
-#import <sys/utsname.h>
 
 static CRPrefsManager *preferencesManager;
 
@@ -35,40 +34,19 @@ static CRPrefsManager * sharedPreferencesManager() {
 	return ((preferencesManager = [CRPrefsManager sharedManager]));
 }
 
-// Derived from http://stackoverflow.com/questions/11197509/ios-iphone-get-device-model-and-make/11197770#11197770
+// derived with help from rpetrich's amazing work on
+// https://github.com/a3tweaks/Flipswitch/blob/master/Switches/3G/Switch.x
 static BOOL circletHasLTECapability() {
-	@try {
-	    struct utsname systemInfo;
-	    uname(&systemInfo);
-
-	    NSString *machineString = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
-
-	    if ([machineString rangeOfString:@"iPhone"].location != NSNotFound) {
-		    NSString *versionTag = [machineString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"iPhone"]];
-		    NSInteger mainVersionNumber = [(NSString *)[versionTag componentsSeparatedByString:@","][0] integerValue];
-		    return mainVersionNumber > 4;
-		}
-
-		else if ([machineString rangeOfString:@"iPod"].location != NSNotFound) {
-		    NSString *versionTag = [machineString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"iPod"]];
-		    NSInteger mainVersionNumber = [(NSString *)[versionTag componentsSeparatedByString:@","][0] integerValue];
-		    return mainVersionNumber > 4;
-		}
-
-		else {
-		    NSString *versionTag = [machineString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"iPad"]];
-		    NSInteger mainVersionNumber = [(NSString *)[versionTag componentsSeparatedByString:@","][0] integerValue];
-		    return mainVersionNumber > 3;
+	CFArrayRef supportedDataRates = CTRegistrationCopySupportedDataRates();
+	if (supportedDataRates) {
+		if ([(NSArray *)supportedDataRates containsObject:(id)kCTRegistrationDataRate3G]) {
+			if ([(NSArray *)supportedDataRates containsObject:(id)kCTRegistrationDataRate4G]) {
+				return YES;
+			}
 		}
 	}
 
-	@catch(NSException *e) {
-		NSLog(@"[Circlet] Fatal error trying to test LTE capability: %@", e);
-	}
-
-	@finally {
-		return NO;
-	}
+	return NO;
 }
 
 /***************************************************************************************/

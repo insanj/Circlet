@@ -20,6 +20,10 @@
 #define CRDEFAULTRADIUS 5.0
 #define CRBOLTLEEWAY 7.0
 
+extern "C" CFArrayRef CTRegistrationCopySupportedDataRates();
+extern "C" CFStringRef const kCTRegistrationDataRate3G;
+extern "C" CFStringRef const kCTRegistrationDataRate4G;
+
 typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionSignal = 0,
     CircletPositionWifi,
@@ -30,7 +34,6 @@ typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionCharging,
     CircletPositionLowBattery,
 };
-
 
 @interface UIStatusBarItemView (Circlet)
 
