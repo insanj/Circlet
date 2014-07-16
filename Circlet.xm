@@ -27,11 +27,48 @@
 #import "Circlet.h"
 #import "UIImage+Circlet.h"
 #import "CRPrefsManager.h"
+#import <sys/utsname.h>
 
 static CRPrefsManager *preferencesManager;
 
-static CRPrefsManager * sharedPreferencesManager () {
+static CRPrefsManager * sharedPreferencesManager() {
 	return ((preferencesManager = [CRPrefsManager sharedManager]));
+}
+
+// Derived from http://stackoverflow.com/questions/11197509/ios-iphone-get-device-model-and-make/11197770#11197770
+static BOOL circletHasLTECapability() {
+	@try {
+	    struct utsname systemInfo;
+	    uname(&systemInfo);
+
+	    NSString *machineString = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+
+	    if ([machineString rangeOfString:@"iPhone"].location != NSNotFound) {
+		    NSString *versionTag = [machineString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"iPhone"]];
+		    NSInteger mainVersionNumber = [(NSString *)[versionTag componentsSeparatedByString:@","][0] integerValue];
+		    return mainVersionNumber > 4;
+		}
+
+		else if ([machineString rangeOfString:@"iPod"].location != NSNotFound) {
+		    NSString *versionTag = [machineString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"iPod"]];
+		    NSInteger mainVersionNumber = [(NSString *)[versionTag componentsSeparatedByString:@","][0] integerValue];
+		    return mainVersionNumber > 4;
+		}
+
+		else {
+		    NSString *versionTag = [machineString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"iPad"]];
+		    NSInteger mainVersionNumber = [(NSString *)[versionTag componentsSeparatedByString:@","][0] integerValue];
+		    return mainVersionNumber > 3;
+		}
+	}
+
+	@catch(NSException *e) {
+		NSLog(@"[Circlet] Fatal error trying to test LTE capability: %@", e);
+	}
+
+	@finally {
+		return NO;
+	}
 }
 
 /***************************************************************************************/
@@ -333,7 +370,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 	CGFloat lessenedThickness;
 
 	int networkType = MSHookIvar<int>(self, "_dataNetworkType");
-	CGFloat percentage;
+	CGFloat percentage = circletHasLTECapability() ? 0.0 : 0.25;
 
 	UIImage *image;
 	if (networkType != 5) {
@@ -352,32 +389,32 @@ static CRAlertViewDelegate *circletAVDelegate;
 		NSString *representativeString;
 		if ([radioType isEqualToString:@"GPRS"]) {
 			representativeString = @"o";
-			percentage = 0.0;
+			percentage += 0.0;
 		}
 
 		if ([radioType isEqualToString:@"Edge"]) {
 			representativeString = @"E";
-			percentage = 0.25;
+			percentage += 0.25;
 		}
 
 		else if ([radioType isEqualToString:@"WCDMA"]) {
 			representativeString = @"3G";
-			percentage = 0.5;
+			percentage += 0.5;
 		}
 
 		else if ([@[@"HSDPA", @"HSUPA", @"CDMA1x", @"CDMAEVDORev0", @"CDMAEVDORevA", @"CDMAEVDORevB", @"HRPD"] containsObject:radioType]) {
 			representativeString = @"4G";
-			percentage = 0.75;
+			percentage += 0.75;
 		}
 
 		else if ([radioType rangeOfString:@"LTE"].location != NSNotFound) {
 			representativeString = @"L";
-			percentage = 1.0;
+			percentage += 1.0;
 		}
 
 		else {
 			representativeString= @"!";
-			percentage = 0.0;
+			percentage += 0.0;
 		}
 
 		if (lessenedThickness > 0.0) {
