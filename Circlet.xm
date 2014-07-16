@@ -5,6 +5,24 @@
 //  Created by Julian Weiss on 1/5/14.
 //  Copyright (c) 2014 insanj. All rights reserved.
 //
+//
+// 	NOTE:
+//		Welcome to the famous codebase of Circlet, this crazy tweak that's been in
+//		extreme development for many months. You'll notice, right off the bat, many
+//		components seem redudant, strange, and maybe even terribly inefficient. Ha!
+//		I agree! Unfortunately, these are only appearances-- every line that appears
+//		blatantly excessive has most definitely been tested for alternatives and speed,
+//		and although there are always better solutions to all programming problems,
+//		these are guaranteed to NOT be the terrible things of which they resemble.
+//
+//		I very much welcome refinements and refactoring to all portions of this project,
+//		which comprises the vast majority of my own work in the first place. There are
+//		_definitely_ better approaches to a few hurdles Circlet strides over, but they
+//		were chosen out of (1) simplicity, (2) extensibility, and (3) stability. If you
+//		can provide the same quality of all three, and improve the functionality, don't
+//		hesitate for a moment to SUBMIT A PULL REQUEST.
+//
+//		Enjoy!
 
 #import "Circlet.h"
 #import "UIImage+Circlet.h"
@@ -264,11 +282,14 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 static CRAlertViewDelegate *circletAVDelegate;
 
+// neat methods that works on all iOS
 %group Shared
 
 %hook UIStatusBarSignalStrengthItemView
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
+	CRLOG(@"signal circlet contents image for %@", self);
+
 	int bars = MSHookIvar<int>(self, "_signalStrengthBars");
 	CGFloat radius = circletRadiusFromPosition(CircletPositionSignal);
 	CGFloat percentage = bars / 5.0;
@@ -303,6 +324,8 @@ static CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarDataNetworkItemView
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
+	CRLOG(@"data circlet contents image for %@", self);
+
 	CGFloat radius;
 	CircletStyle style;
 	
@@ -424,6 +447,8 @@ static CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarServiceItemView
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
+	CRLOG(@"service circlet contents image for %@", self);
+
 	UIColor *light, *dark;
 	if (white) {
 		light = [UIColor whiteColor];
@@ -463,8 +488,10 @@ static CRAlertViewDelegate *circletAVDelegate;
 %end
 
 %hook UIStatusBarTimeItemView
-
+ 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white string:(NSString *)timeString {
+	CRLOG(@"time circlet contents image for %@", self);
+
 	CGFloat radius = circletRadiusFromPosition(CircletPositionTimeMinute);
 	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
 	
@@ -506,6 +533,8 @@ static CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarBatteryItemView
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
+	CRLOG(@"battery circlet contents image for %@", self);
+
 	int level = MSHookIvar<int>(self, "_capacity");
 	int state = MSHookIvar<int>(self, "_state");
 	// not supported on iOS 6: BOOL needsBolt = [self _needsAccessoryImage];
@@ -570,37 +599,14 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 %end // %group Shared
 
+// methods that work on all iOS 7
+%group Ive
 
-
-%group Newest
-
-%hook SBLockScreenManager
-
-- (void)_finishUIUnlockFromSource:(int)source withOptions:(id)options {
-	%orig();
-
-	CRLOG(@"finish ui unlock from source %i", source);
-
-	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
-		CRLOG(@"Detected novel (newest) run...");
-		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
-
-		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
-		[alert show];
-		[alert release];
-		[circletAVDelegate release];
-	}
-}
-
-%end
-
-%hook UIStatusBarItemView
+%hook UIStatusBarSignalStrengthItemView
 
 - (_UILegibilityImageSet *)contentsImage {
-	CRLOG(@"about to check override status");
 	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
-	CRLOG(@"shouldOverride: %@", shouldOverride ? @"YES" : @"NO");
+	CRLOG(@"%@, shouldOverride: %@", self, shouldOverride ? @"YES" : @"NO");
 
 	if (shouldOverride) {
 		CGFloat w, a;
@@ -615,11 +621,71 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 %end
 
+%hook UIStatusBarDataNetworkItemView
+
+- (_UILegibilityImageSet *)contentsImage {
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
+	CRLOG(@"%@, shouldOverride: %@", self, shouldOverride ? @"YES" : @"NO");
+
+	if (shouldOverride) {
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		
+		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5)];
+		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:image];
+	}
+
+	return %orig();
+}
+
+%end
+
+%hook UIStatusBarServiceItemView
+
+- (_UILegibilityImageSet *)contentsImage {
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
+	CRLOG(@"%@, shouldOverride: %@", self, shouldOverride ? @"YES" : @"NO");
+
+	if (shouldOverride) {
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		
+		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5)];
+		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:image];
+	}
+
+	return %orig();
+}
+
+%end
+
+%hook UIStatusBarTimeItemView
+
+- (_UILegibilityImageSet *)contentsImage {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
+	NSString *trimmedTimeString = [MSHookIvar<NSString *>(self, "_timeString") stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+	CRLOG(@"%@, shouldOverride: %@", self, shouldOverride ? @"YES" : @"NO");
+
+	if (shouldOverride && trimmedTimeString.length > 0) {
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+
+		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5) string:trimmedTimeString];
+		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:image];
+	}
+
+	return %orig();
+}
+
+%end
+
 %hook UIStatusBarBatteryItemView
 
 - (id)_accessoryImage {	
-	CRLOG(@"accessory image checking");
-	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
+	CRLOG(@"%@, shouldOverride: %@", self, shouldOverride ? @"override" : @"ignore");
+
 	NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
 
 	if (shouldOverride && (!showBolt || ![showBolt boolValue])) {
@@ -629,14 +695,53 @@ static CRAlertViewDelegate *circletAVDelegate;
 	return %orig();
 }
 
+
+- (_UILegibilityImageSet *)contentsImage {
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
+	CRLOG(@"%@, shouldOverride: %@", self, shouldOverride ? @"YES" : @"NO");
+
+	if (shouldOverride) {
+		CGFloat w, a;
+		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
+		
+		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5)];
+		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:image];
+	}
+
+	return %orig();
+}
+
 %end
 
-%end // %group Newest
+%hook UIStatusBarLayoutManager
+
+- (CGRect)_frameForItemView:(id)arg1 startPosition:(float)arg2 {
+	CGRect frame = %orig();
+	NSString *className = NSStringFromClass([arg1 class]);
+
+	if (circletEnabledForClassname(className) && [className isEqualToString:@"UIStatusBarBatteryItemView"]) {
+		NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
+
+		// Should only have that preference set if on iOS 7 (not in other plist)...
+		if (showBolt && [showBolt boolValue] && MSHookIvar<int>(arg1, "_state") != 0) {
+			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery) + CRBOLTLEEWAY, frame.size.height);
+		}
+
+		else {
+			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery), frame.size.height);
+		}
+	}
+
+	return frame;
+}
+
+%end
+
+%end // %group Ive
 
 
-
-
-%group Modern
+// pre iOS 7.1 methods
+%group LegacyIve
 
 %hook SBLockScreenManager
 
@@ -653,25 +758,6 @@ static CRAlertViewDelegate *circletAVDelegate;
 		[alert release];
 		[circletAVDelegate release];
 	}
-}
-
-%end
-
-%hook UIStatusBarItemView
-
-- (_UILegibilityImageSet *)contentsImage {
-	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
-	if (shouldOverride) {
-		CGFloat w, a;
-		[[[self foregroundStyle] textColorForStyle:[self legibilityStyle]] getWhite:&w alpha:&a];
-		
-		UIImage *image = [self circletContentsImageForWhite:(w >= 0.5)];
-		return [%c(_UILegibilityImageSet) imageFromImage:image withShadowImage:image];
-	}
-
-	return %orig();
 }
 
 %end
@@ -694,21 +780,6 @@ static CRAlertViewDelegate *circletAVDelegate;
 	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
 
 	return shouldOverride ? 0.0 : %orig();
-}
-
-%end
-
-%hook UIStatusBarBatteryItemView
-
-- (id)_accessoryImage {	
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
-	NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
-
-	if (shouldOverride && (!showBolt || ![showBolt boolValue])) {
-		return circletBlankImage();
-	}
-
-	return %orig();
 }
 
 %end
@@ -772,11 +843,11 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 %end
 
-%end // %group Modern
+%end // %group LegacyIve
 
 
-
-%group Ancient
+// iOS 6 methods
+%group Forstall
 
 %hook SBUIController
 
@@ -801,14 +872,60 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 - (UIImage *)contentsImageForStyle:(int)arg1 {
 	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
+	CRLOG(@"%@ shouldOverride: %@", self, shouldOverride ? @"override" : @"ignore");
 
 	return shouldOverride ? [self circletContentsImageForWhite:YES] : %orig();
 }
 
 %end
 
-%end // %group Ancient
+%hook UIStatusBarDataNetworkItemView
+
+- (UIImage *)contentsImageForStyle:(int)arg1 {
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
+	CRLOG(@"%@ shouldOverride: %@", self, shouldOverride ? @"override" : @"ignore");
+
+	return shouldOverride ? [self circletContentsImageForWhite:YES] : %orig();
+}
+
+%end
+
+%hook UIStatusBarServiceItemView
+
+- (UIImage *)contentsImageForStyle:(int)arg1 {
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
+	CRLOG(@"%@ shouldOverride: %@", self, shouldOverride ? @"override" : @"ignore");
+
+	return shouldOverride ? [self circletContentsImageForWhite:YES] : %orig();
+}
+
+%end
+
+%hook UIStatusBarTimeItemView
+
+- (UIImage *)contentsImage {
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
+	NSString *trimmedTimeString = [MSHookIvar<NSString *>(self, "_timeString") stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+	CRLOG(@"%@, shouldOverride: %@", self, shouldOverride ? @"YES" : @"NO");
+
+	return (shouldOverride && trimmedTimeString.length > 0) ? [self circletContentsImageForWhite:YES string:trimmedTimeString] : %orig();
+}
+
+%end
+
+%hook UIStatusBarBatteryItemView
+
+- (UIImage *)contentsImageForStyle:(int)arg1 {
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
+	CRLOG(@"%@ shouldOverride: %@", self, shouldOverride ? @"override" : @"ignore");
+
+	return shouldOverride ? [self circletContentsImageForWhite:YES] : %orig();
+}
+
+%end
+
+%end // %group Forstall
 
 
 
@@ -820,25 +937,21 @@ static CRAlertViewDelegate *circletAVDelegate;
 %ctor {
 	%init(Shared);
 
-	// Can't wait for iOS 8, huh?
-	NSArray *versionComponents = [[[UIDevice currentDevice] systemVersion] componentsSeparatedByString:@"."];
-	int majorVersion = [(NSString *)versionComponents[0] intValue];
-	int minorVersion = versionComponents.count > 1 ? [(NSString *)versionComponents[1] intValue] : 0;
-	CRLOG(@"initializing logos groups as per majorVersion: %i, minorVersion: %i", majorVersion, minorVersion);
+	if (MODERN_IOS) {
+		if (NEWEST_IOS) {
+			CRLOG(@"welcome, iOS 7.1.x+");
+			%init(Ive);
+		}
 
-	if (majorVersion >= 7 && minorVersion >= 1) {
-		CRLOG(@"welcome, iOS 7.1.x+");
-		%init(Newest);
-	}
-
-	else if (majorVersion == 7) {
-		CRLOG(@"welcome, iOS 7.0-7.0.x");
-		%init(Modern);
+		else {
+			CRLOG(@"welcome, iOS 7.0-7.0.x");
+			%init(LegacyIve);
+		}
 	}
 
 	else {
 		CRLOG(@"welcome, iOS 6.x");
-		%init(Ancient);
+		%init(Forstall);
 	}
 
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshStatusBar" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
@@ -849,6 +962,15 @@ static CRAlertViewDelegate *circletAVDelegate;
 		[statusBar setShowsOnlyCenterItems:NO];
 	}];
 
+	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CRRefreshTime" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
+		CGFloat animationDuration = 0.6;
+
+		UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+		[statusBar crossfadeTime:NO duration:animationDuration];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, animationDuration * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+			[statusBar crossfadeTime:YES duration:animationDuration];
+		});
+	}];
 
 	[[NSDistributedNotificationCenter defaultCenter] addObserverForName:@"CLGTFO" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification){
 		NSString *sender = notification.userInfo[@"sender"];

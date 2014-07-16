@@ -1,95 +1,54 @@
 #import "CRPrefs.h"
 
-static UIStatusBar *circlet_statusBar;
-static UIView *circlet_fakeStatusBar;
-
-void circletPrepareToAnimate() {
+void circletSidesRefresh(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLSmartDisable" object:nil];
 
-	circlet_statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
+	UIView *fakeStatusBar;
 
 	if (MODERN_IOS) {
-		circlet_fakeStatusBar = [circlet_statusBar snapshotViewAfterScreenUpdates:YES];
+		fakeStatusBar = [statusBar snapshotViewAfterScreenUpdates:YES];
 	}
 
 	else {
-		UIGraphicsBeginImageContextWithOptions(circlet_statusBar.frame.size, NO, [UIScreen mainScreen].scale);
+		UIGraphicsBeginImageContextWithOptions(statusBar.frame.size, NO, [UIScreen mainScreen].scale);
 		CGContextRef context = UIGraphicsGetCurrentContext();
-		[circlet_statusBar.layer renderInContext:context];
+		[statusBar.layer renderInContext:context];
 		UIImage *statusBarImage = UIGraphicsGetImageFromCurrentImageContext();
 		UIGraphicsEndImageContext();
-		circlet_fakeStatusBar = [[UIImageView alloc] initWithImage:statusBarImage];
+		fakeStatusBar = [[UIImageView alloc] initWithImage:statusBarImage];
 	}
 
-	CGRect upwards = circlet_statusBar.frame;
+	CGRect upwards = statusBar.frame;
 	upwards.origin.y -= upwards.size.height;
 
-	[circlet_statusBar.superview addSubview:circlet_fakeStatusBar];
-	circlet_statusBar.frame = upwards;
-}
+	[statusBar.superview addSubview:fakeStatusBar];
+	statusBar.frame = upwards;
 
-void circletAnimate() {
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
+
 	CGFloat shrinkAmount = 5.0;
 	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
 		CRLOG(@"Animating out...");
 		
-		CGRect shrinkFrame = circlet_fakeStatusBar.frame;
+		CGRect shrinkFrame = fakeStatusBar.frame;
 		shrinkFrame.origin.x += shrinkAmount;
 		shrinkFrame.origin.y += shrinkAmount;
 		shrinkFrame.size.width -= shrinkAmount;
 		shrinkFrame.size.height -= shrinkAmount;
-		circlet_fakeStatusBar.frame = shrinkFrame;
-		circlet_fakeStatusBar.alpha = 0.0;
+		fakeStatusBar.frame = shrinkFrame;
+		fakeStatusBar.alpha = 0.0;
 		
-		CGRect downwards = circlet_statusBar.frame;
+		CGRect downwards = statusBar.frame;
 		downwards.origin.y += downwards.size.height;
-		circlet_statusBar.frame = downwards;
+		statusBar.frame = downwards;
 	} completion: ^(BOOL finished) {
-		circlet_statusBar = nil;
-
-		[circlet_fakeStatusBar removeFromSuperview];
-		circlet_fakeStatusBar = nil;
+		[fakeStatusBar removeFromSuperview];
 	}];
 }
 
-void circletSignal(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
-	circletPrepareToAnimate();
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
-	circletAnimate();
-}
-
-void circletCarrier(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
-	circletPrepareToAnimate();
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
-	circletAnimate();
-}
-
-void circletData(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
-	circletPrepareToAnimate();
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
-	circletAnimate();
-}
-
-void circletTime(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLSmartDisable" object:nil];
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshTime" object:nil];
-}
-
-void circletBattery(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
-	circletPrepareToAnimate();
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
-	circletAnimate();
-}
-
-void circletSidesDisable(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
-	circletPrepareToAnimate();
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
-	circletAnimate();
-}
-
-void circletMiddleDisable(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
+void circletCenterRefresh(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLSmartDisable" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshTime" object:nil];
@@ -98,14 +57,8 @@ void circletMiddleDisable(CFNotificationCenterRef center, void *observer, CFStri
 @implementation CRPrefsListController
 
 - (void)loadView {
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletSignal, CFSTR("com.insanj.circlet/Signal"), NULL, 0);
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletCarrier, CFSTR("com.insanj.circlet/Carrier"), NULL, 0);
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletData, CFSTR("com.insanj.circlet/Data"), NULL, 0);
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletTime, CFSTR("com.insanj.circlet/Time"), NULL, 0);
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletBattery, CFSTR("com.insanj.circlet/Battery"), NULL, 0);
-
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletSidesDisable, CFSTR("com.insanj.circlet/SidesDisable"), NULL, 0);
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletMiddleDisable, CFSTR("com.insanj.circlet/MiddleDisable"), NULL, 0);
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletSidesRefresh, CFSTR("com.insanj.circlet/Sides"), NULL, 0);
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, &circletCenterRefresh, CFSTR("com.insanj.circlet/Center"), NULL, 0);
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(smartDisable) name:@"CLSmartDisable" object:nil];
 
 	[super loadView];

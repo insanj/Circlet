@@ -16,9 +16,9 @@ static CRPrefsManager *sharedManager;
 	self = [super init];
 
 	if (self) {
-		_cachedPreferences = [NSDictionary dictionaryWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"];
+		_cachedPreferences = [[NSDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"];
 		if (!_cachedPreferences) {
-			_cachedPreferences = [NSDictionary dictionary];
+			_cachedPreferences = [[NSDictionary alloc] init];
 		}
 
 		// Maybe shift to kirb's NSUserDefaults solution someday...
@@ -32,10 +32,8 @@ static CRPrefsManager *sharedManager;
 }
 
 - (void)reloadPreferences {
-	_cachedPreferences = [NSDictionary dictionaryWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"];
-	if (!_cachedPreferences) {
-		_cachedPreferences = [NSDictionary dictionary];
-	}
+	[_cachedPreferences release];
+	_cachedPreferences = [[NSDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/com.insanj.circlet.plist"];
 }
 
 - (void)setObject:(NSObject *)object forKey:(NSString *)key {
