@@ -28,6 +28,10 @@
 #import "UIImage+Circlet.h"
 #import "CRPrefsManager.h"
 
+extern "C" CFArrayRef CTRegistrationCopySupportedDataRates();
+extern "C" CFStringRef const kCTRegistrationDataRate3G;
+extern "C" CFStringRef const kCTRegistrationDataRate4G;
+
 static CRPrefsManager *preferencesManager;
 
 static CRPrefsManager * sharedPreferencesManager() {
@@ -617,6 +621,25 @@ static CRAlertViewDelegate *circletAVDelegate;
 // methods that work on all iOS 7
 %group Ive
 
+%hook SBLockScreenManager
+
+- (void)_finishUIUnlockFromSource:(int)source withOptions:(id)options { 
+	%orig();
+
+	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
+		CRLOG(@"Detected novel (newest) run...");
+		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
+
+		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
+		[alert show];
+		[alert release];
+		[circletAVDelegate release];
+	}
+}
+
+%end
+
 %hook UIStatusBarSignalStrengthItemView
 
 - (_UILegibilityImageSet *)contentsImage {
@@ -653,13 +676,17 @@ static CRAlertViewDelegate *circletAVDelegate;
 	return %orig();
 }
 
+- (CGFloat)extraLeftPadding {
+	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarDataNetworkItemView");
+	return shouldOverride ? 0.0 : %orig();
+}
+
 %end
 
 %hook UIStatusBarServiceItemView
 
 - (_UILegibilityImageSet *)contentsImage {
 	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
-	CRLOG(@"%@, shouldOverride: %@", self, shouldOverride ? @"YES" : @"NO");
 
 	if (shouldOverride) {
 		CGFloat w, a;
@@ -672,15 +699,18 @@ static CRAlertViewDelegate *circletAVDelegate;
 	return %orig();
 }
 
+- (CGFloat)standardPadding {
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class])) && [self circletContentsImageForWhite:YES].size.width <= 1.0;
+	return shouldOverride ? 0.0 : %orig();
+}
+
 %end
 
 %hook UIStatusBarTimeItemView
 
 - (_UILegibilityImageSet *)contentsImage {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarTimeItemView");
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
 	NSString *trimmedTimeString = [MSHookIvar<NSString *>(self, "_timeString") stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-
-	CRLOG(@"%@, shouldOverride: %@", self, shouldOverride ? @"YES" : @"NO");
 
 	if (shouldOverride && trimmedTimeString.length > 0) {
 		CGFloat w, a;
@@ -698,9 +728,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarBatteryItemView
 
 - (id)_accessoryImage {	
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarBatteryItemView");
-	CRLOG(@"%@, shouldOverride: %@", self, shouldOverride ? @"override" : @"ignore");
-
+	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
 	NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
 
 	if (shouldOverride && (!showBolt || ![showBolt boolValue])) {
@@ -713,7 +741,6 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 - (_UILegibilityImageSet *)contentsImage {
 	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
-	CRLOG(@"%@, shouldOverride: %@", self, shouldOverride ? @"YES" : @"NO");
 
 	if (shouldOverride) {
 		CGFloat w, a;
@@ -781,8 +808,6 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 - (CGFloat)extraLeftPadding {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarDataNetworkItemView");
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
 	return shouldOverride ? 0.0 : %orig();
 }
 
@@ -792,8 +817,6 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 - (CGFloat)standardPadding {
 	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView") && [self circletContentsImageForWhite:YES].size.width <= 1.0;
-	CRLOG(@"%@", shouldOverride ? @"override" : @"ignore");
-
 	return shouldOverride ? 0.0 : %orig();
 }
 

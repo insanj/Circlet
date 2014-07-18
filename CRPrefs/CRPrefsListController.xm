@@ -70,7 +70,7 @@ void circletCenterRefresh(CFNotificationCenterRef center, void *observer, CFStri
 
 - (NSArray *)specifiers {
 	if (!_specifiers) {
-		_specifiers = [[self loadSpecifiersFromPlistName:@"CRPrefs" target:self] retain];
+		_specifiers = [[self loadSpecifiersFromPlistName:(IPAD ? @"CRBPrefs" : @"CRPrefs") target:self] retain];
 	}
 
 	return _specifiers;
