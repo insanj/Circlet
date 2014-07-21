@@ -301,7 +301,8 @@ static UIImage * circletBlankImage() { /* WithScale(CGFloat scale) { */
 
 static CRAlertViewDelegate *circletAVDelegate;
 
-// neat methods that works on all iOS
+// Generation methods that work on all iOS. These methods "create" the circlets dynamically
+// and then compile them into image sets than can be swapped out for the standard icons.
 %group Shared
 
 %hook UIStatusBarSignalStrengthItemView
@@ -343,8 +344,6 @@ static CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarDataNetworkItemView
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
-	CRLOG(@"data circlet contents image for %@", self);
-
 	CGFloat radius;
 	CircletStyle style;
 	
@@ -618,7 +617,9 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 %end // %group Shared
 
-// methods that work on all iOS 7
+
+// Methods that are work on all iOS 7. Collections of code that's meant to be kept current,
+// and the legacy editions of which fallback to the LegacyIve group.
 %group Ive
 
 %hook SBLockScreenManager
@@ -782,45 +783,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 %end // %group Ive
 
 
-// pre iOS 7.1 methods
 %group LegacyIve
-
-%hook SBLockScreenManager
-
-- (void)_finishUIUnlockFromSource:(int)source withOptions:(id)options { 
-	%orig();
-
-	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
-		CRLOG(@"Detected novel (modern) run...");
-		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
-
-		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
-		[alert show];
-		[alert release];
-		[circletAVDelegate release];
-	}
-}
-
-%end
-
-%hook UIStatusBarDataNetworkItemView
-
-- (CGFloat)extraLeftPadding {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarDataNetworkItemView");
-	return shouldOverride ? 0.0 : %orig();
-}
-
-%end
-
-%hook UIStatusBarServiceItemView
-
-- (CGFloat)standardPadding {
-	BOOL shouldOverride = circletEnabledForClassname(@"UIStatusBarServiceItemView") && [self circletContentsImageForWhite:YES].size.width <= 1.0;
-	return shouldOverride ? 0.0 : %orig();
-}
-
-%end
 
 %hook UIStatusBarLayoutManager
 
@@ -966,8 +929,6 @@ static CRAlertViewDelegate *circletAVDelegate;
 %end // %group Forstall
 
 
-
-
 /***************************************************************************************/
 /****************************** Pulling it all togctor   *******************************/
 /***************************************************************************************/
@@ -976,13 +937,9 @@ static CRAlertViewDelegate *circletAVDelegate;
 	%init(Shared);
 
 	if (MODERN_IOS) {
-		if (NEWEST_IOS) {
-			CRLOG(@"welcome, iOS 7.1.x+");
-			%init(Ive);
-		}
+		%init(Ive);
 
-		else {
-			CRLOG(@"welcome, iOS 7.0-7.0.x");
+		if (!NEWEST_IOS) {
 			%init(LegacyIve);
 		}
 	}

@@ -6,7 +6,7 @@
 	self = [super initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:reuseIdentifier specifier:specifier];
 
 	if (self) {
-		NSString *rawCredits = @"Circlet (1.3.1) was created by Julian Weiss with lots of love from Benno, A³Tweaks, and the entire Hashbang crew. Uses NKOColorPickerView and UIDiscreteSlider for finer settings control. Inspired by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects), make sure to follow me on Twitter. Full support for iOS 7, limited iOS 6. Enjoy!";
+		NSString *rawCredits = @"Circlet (1.3.2) was created by Julian Weiss with lots of love from Benno, A³Tweaks, and the entire Hashbang crew. Uses NKOColorPickerView and UIDiscreteSlider for finer settings control. Inspired by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects), make sure to follow me on Twitter. Full support for iOS 7, limited iOS 6. Enjoy!";
 
 		if (IPAD) {
 			[self setTitle:rawCredits];
@@ -17,7 +17,7 @@
 		}
 
 		else {
-			CGFloat padding = 5.0, savedHeight = IPAD ? 144.0 : 116.0;
+			CGFloat padding = 5.0, savedHeight = IPAD ? 158.0 : 116.0;
 
 			_plainTextView = [[UITextView alloc] initWithFrame:CGRectMake(padding, MODERN_IOS ? 0.0 : padding, self.frame.size.width - (padding * 2.0), savedHeight)];
 			self.clipsToBounds = _plainTextView.clipsToBounds = NO;
