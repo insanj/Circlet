@@ -555,6 +555,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 	int level = MSHookIvar<int>(self, "_capacity");
 	int state = MSHookIvar<int>(self, "_state");
+	BOOL isPad = [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad;
 	// not supported on iOS 6: BOOL needsBolt = [self _needsAccessoryImage];
 	CGFloat radius = circletRadiusFromPosition(CircletPositionBattery);
 	CircletStyle style = circletStyleFromPosition(CircletPositionBattery);
@@ -571,7 +572,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 		imageColor = circletColorForPosition(white, CircletPositionCharging);
 	}
 
-	else if (level <= 20) {
+	else if ((level <= 20 && !isPad) || (level <=10 && isPad)) {
 		imageColor = circletColorForPosition(white, CircletPositionLowBattery);
 	}
 
