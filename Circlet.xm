@@ -27,16 +27,11 @@
 #import "Circlet.h"
 #import "UIImage+Circlet.h"
 #import "CRPrefsManager.h"
+#import <Cephei/HBPreferences.h>
 
 extern "C" CFArrayRef CTRegistrationCopySupportedDataRates();
 extern "C" CFStringRef const kCTRegistrationDataRate3G;
 extern "C" CFStringRef const kCTRegistrationDataRate4G;
-
-static CRPrefsManager *preferencesManager;
-
-static CRPrefsManager * sharedPreferencesManager() {
-	return ((preferencesManager = [CRPrefsManager sharedManager]));
-}
 
 // derived with help from rpetrich's amazing work on
 // https://github.com/a3tweaks/Flipswitch/blob/master/Switches/3G/Switch.x
@@ -59,94 +54,86 @@ static BOOL circletHasLTECapability() {
 
 // Retrieves saved radius value (or default radius, CRDEFAULTRADIUS)
 static CGFloat circletRadiusFromPosition(CircletPosition posit) {
-	NSNumber *value;
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 	switch (posit) {
 		default:
 		case CircletPositionSignal:
-			value = [sharedPreferencesManager() numberForKey:@"signalSize"];
-			break;
+			return [preferences floatForKey:@"signalSize" default:CRDEFAULTRADIUS];
 		case CircletPositionWifi:
-			value = [sharedPreferencesManager() numberForKey:@"wifiSize"];
-			break;
+			return [preferences floatForKey:@"wifiSize" default:CRDEFAULTRADIUS];
 		case CircletPositionData:
-			value = [sharedPreferencesManager() numberForKey:@"dataSize"];
-			break;
+			return [preferences floatForKey:@"dataSize" 
 		case CircletPositionTimeMinute:
 		case CircletPositionTimeHour:
-			value = [sharedPreferencesManager() numberForKey:@"timeSize"];
-			return value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
+			return [preferences floatForKey:@"timeSize" default:CRDEFAULTRADIUS] * 2.0;
 		case CircletPositionBattery:
 		case CircletPositionCharging:
 		case CircletPositionLowBattery:
-			value = [sharedPreferencesManager() numberForKey:@"batterySize"];
-			break;
+			return [preferences floatForKey:@"batterySize" default:CRDEFAULTRADIUS];
 	}
-
-	return value ? [value floatValue] : CRDEFAULTRADIUS;
 }
 
 static CGFloat circletWidthFromPosition(CircletPosition posit) {
-	NSNumber *value;
-	CGFloat diameter;
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+	CGFloat side, diameter;
 
 	switch (posit) {
 		case CircletPositionSignal:
-			value = [sharedPreferencesManager() numberForKey:@"signalSize"];
-			diameter = value ? [value floatValue] * 2.0 : CRDEFAULTRADIUS * 2.0;
-			return diameter + (diameter / 10.0);
+			side = [preferences floatForKey:@"signalSize" default:CRDEFAULTRADIUS];
+			break;
 		case CircletPositionWifi: 
-			value = [sharedPreferencesManager() numberForKey:@"wifiSize"];
+			side = [preferences floatForKey:@"wifiSize" default:CRDEFAULTRADIUS];
 			break;
 		case CircletPositionData:
-			value = [sharedPreferencesManager() numberForKey:@"dataSize"];
+			side = [preferences floatForKey:@"dataSize" default:CRDEFAULTRADIUS];
 			break;
 		case CircletPositionTimeMinute:
 		case CircletPositionTimeHour:
-			value = [sharedPreferencesManager() numberForKey:@"timeSize"];
-			diameter = [value floatValue] * 2.0;
-			return (diameter * 2.0) + (diameter / 10.0);
+			side = [preferences floatForKey:@"timeSize" default:CRDEFAULTRADIUS] * 2.0;
+			break;
 		case CircletPositionBattery:
 		case CircletPositionCharging:
 		case CircletPositionLowBattery:
-			value = [sharedPreferencesManager() numberForKey:@"batterySize"];
+			side = [preferences floatForKey:@"batterySize" default:CRDEFAULTRADIUS];
+			break;
 	}
 
-	diameter = [value floatValue] * 2.0;
+	diameter = side * 2.0;
 	return diameter + (diameter / 10.0);
 }
 
 static CircletStyle circletStyleFromPosition(CircletPosition posit) {
-	NSNumber *value;
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+	CircletStyle style;
 	BOOL invert;
 
 	switch (posit) {
 		default:
 		case CircletPositionSignal:
-			value = [sharedPreferencesManager() numberForKey:@"signalStyle"];
-			invert = [sharedPreferencesManager() boolForKey:@"signalInvert"];
+			style = [preferences integerForKey:@"signalStyle" default:CircletStyleFill];
+			invert = [preferences boolForKey:@"signalInvert"];
 			break;
 		case CircletPositionWifi:
-			value = [sharedPreferencesManager() numberForKey:@"wifiStyle"];
-			invert = [sharedPreferencesManager() boolForKey:@"wifiInvert"];
+			style = [preferences integerForKey:@"wifiStyle" default:CircletStyleFill];
+			invert = [preferences boolForKey:@"wifiInvert"];
 			break;
 		case CircletPositionData:
-			value = [sharedPreferencesManager() numberForKey:@"dataStyle"];
-			invert = [sharedPreferencesManager() boolForKey:@"dataInvert"];
+			style = [preferences integerForKey:@"dataStyle" default:CircletStyleFill];
+			invert = [preferences boolForKey:@"dataInvert"];
 			break;
 		case CircletPositionTimeMinute:
 		case CircletPositionTimeHour:
-			value = [sharedPreferencesManager() numberForKey:@"timeStyle"];
-			invert = [sharedPreferencesManager() boolForKey:@"timeInvert"];
+			style = [preferences integerForKey:@"timeStyle" default:CircletStyleFill];
+			invert = [preferences boolForKey:@"timeInvert"];
 			break;
 		case CircletPositionBattery:
 		case CircletPositionCharging:
 		case CircletPositionLowBattery:
-			value = [sharedPreferencesManager() numberForKey:@"batteryStyle"];
-			invert = [sharedPreferencesManager() boolForKey:@"batteryInvert"];
+			style = [preferences integerForKey:@"batteryStyle" default:CircletStyleFill];
+			invert = [preferences boolForKey:@"batteryInvert"];
 			break;
 	}
 
-	CircletStyle style = value ? [value integerValue] : CircletStyleFill;
 	if (invert) {
 		style += 4;
 	}
@@ -157,12 +144,13 @@ static CircletStyle circletStyleFromPosition(CircletPosition posit) {
 // Returns color value based on preferences saved value. Boolean parameter
 // is only for default fallbacks, if the key is not found in preferences.
 static UIColor * circletColorForKey(BOOL light, NSString *key) {
-	NSString *value = [sharedPreferencesManager() stringForKey:key];
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+	NSString *value = (NSString *)[preferences objectForKey:key];
 	NSDictionary *titleToColor = CRTITLETOCOLOR;
 	UIColor *valueInDict = titleToColor[value];
 
 	if (value && !valueInDict) {
-		NSString *colorString = [sharedPreferencesManager() stringForKey:[key stringByAppendingString:@"Custom"]];
+		NSString *colorString = [preferences objectForKey:[key stringByAppendingString:@"Custom"]];
 		CIColor *customColor = [CIColor colorWithString:colorString];
 		return [UIColor colorWithRed:customColor.red green:customColor.green blue:customColor.blue alpha:customColor.alpha];
 	}
@@ -219,31 +207,31 @@ static UIColor * circletColorForPosition(BOOL light, CircletPosition posit){
 
 // Returns whether or not the class is enabled in settings
 static BOOL circletEnabledForClassname(NSString *className) {
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 	if ([className isEqualToString:@"UIStatusBarSignalStrengthItemView"]) {
-		NSNumber *value = [sharedPreferencesManager() numberForKey:@"signalEnabled"];
-		return !value || [value boolValue];	// because of negation property
+		return [preferences boolForKey:@"signalEnabled" default:YES];
 	}
 
 	else if ([className isEqualToString:@"UIStatusBarServiceItemView"]) {
-		return [sharedPreferencesManager() boolForKey:@"carrierEnabled"];
+		return [preferences boolForKey:@"carrierEnabled"];
 	}
 
 	else if ([className isEqualToString:@"UIStatusBarDataNetworkItemView"]) {
 		if (WIFI_CONNECTED) {
-			return [sharedPreferencesManager() boolForKey:@"wifiEnabled"];
+			return [preferences boolForKey:@"wifiEnabled"];
 		}
 
 		else {
-			return [sharedPreferencesManager() boolForKey:@"dataEnabled"];
+			return [preferences boolForKey:@"dataEnabled"];
 		}
 	}
 
 	else if ([className isEqualToString:@"UIStatusBarTimeItemView"]) {
-		return [sharedPreferencesManager() boolForKey:@"timeEnabled"];
+		return [preferences boolForKey:@"timeEnabled"];
 	}
 
 	else if ([className isEqualToString:@"UIStatusBarBatteryItemView"]) {
-		return [sharedPreferencesManager() boolForKey:@"batteryEnabled"];
+		return [preferences boolForKey:@"batteryEnabled"];
 	}
 
 	return NO;
@@ -309,6 +297,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
 	CRLOG(@"signal circlet contents image for %@", self);
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 
 	int bars = MSHookIvar<int>(self, "_signalStrengthBars");
 	CGFloat radius = circletRadiusFromPosition(CircletPositionSignal);
@@ -319,8 +308,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 		percentage *= 5.0;
 	}
 
-	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"signalOutline"];
-	BOOL showOutline = !outline || [outline boolValue];
+	BOOL showOutline = [preferences boolForKey:@"signalOutline" default:YES];
 
 	CGFloat lessenedThickness = radius * LESSENED_THICKNESS(style);
 
@@ -344,6 +332,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarDataNetworkItemView
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 	CGFloat radius;
 	CircletStyle style;
 	
@@ -358,8 +347,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 		radius = circletRadiusFromPosition(CircletPositionData);
 		style = circletStyleFromPosition(CircletPositionData);
 	
-		NSNumber *outline = [sharedPreferencesManager() numberForKey:@"dataOutline"];
-		showOutline = !outline || [outline boolValue];
+		showOutline = [preferences boolForKey:@"dataOutline" default:YES];
 	
 		lessenedThickness = radius * LESSENED_THICKNESS(style);
 
@@ -423,8 +411,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 		radius = circletRadiusFromPosition(CircletPositionWifi);
 		style = circletStyleFromPosition(CircletPositionWifi);
 	
-		NSNumber *outline = [sharedPreferencesManager() numberForKey:@"wifiOutline"];
-		showOutline = !outline || [outline boolValue];
+		showOutline = [preferences boolForKey:@"wifiOutline" default:YES];
 	
 		lessenedThickness = radius * LESSENED_THICKNESS(style);
 
@@ -465,6 +452,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarServiceItemView
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 	CRLOG(@"service circlet contents image for %@", self);
 
 	UIColor *light, *dark;
@@ -478,7 +466,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 		dark = [UIColor whiteColor];
 	}
 
-	NSString *savedText = [sharedPreferencesManager() stringForKey:@"carrierText"];
+	NSString *savedText = [preferences stringForKey:@"carrierText"];
 	NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
 	CGFloat radius = CRDEFAULTRADIUS;
@@ -508,14 +496,14 @@ static CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarTimeItemView
  
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white string:(NSString *)timeString {
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 	CRLOG(@"time circlet contents image for %@", self);
 
 	CGFloat radius = circletRadiusFromPosition(CircletPositionTimeMinute);
 	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit) fromDate:[NSDate date]];
 	
 	CircletStyle style = circletStyleFromPosition(CircletPositionTimeMinute);
-	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"timeOutline"];
-	BOOL showOutline = !outline || [outline boolValue];
+	BOOL showOutline = [preferences boolForKey:@"timeOutline" default:YES];
 
 	CGFloat lessenedThickness = radius * LESSENED_THICKNESS(style);
 	lessenedThickness /= 3.0;
@@ -551,6 +539,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarBatteryItemView
 
 %new - (UIImage *)circletContentsImageForWhite:(BOOL)white {
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 	CRLOG(@"battery circlet contents image for %@", self);
 
 	int level = MSHookIvar<int>(self, "_capacity");
@@ -580,8 +569,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 		imageColor = circletColorForPosition(white, CircletPositionBattery);
 	}
 
-	NSNumber *outline = [sharedPreferencesManager() numberForKey:@"batteryOutline"];
-	BOOL showOutline = !outline || [outline boolValue];
+	BOOL showOutline = [preferences boolForKey;@"batteryOutline" default:YES];
 
 	if (showOutline) {
 		if (lessenedThickness > 0.0) {
@@ -597,9 +585,9 @@ static CRAlertViewDelegate *circletAVDelegate;
 		image = [UIImage circletWithColor:imageColor radius:radius percentage:percentage style:style thickness:0.0];
 	}
 
-	NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
+	BOOL showBolt = [preferences boolForKey:@"showBolt"];
 
-	if (showBolt && [showBolt boolValue] && state != 0) {
+	if (showBolt && state != 0) {
 		CGRect expanded = (CGRect){CGPointZero, image.size};
 		expanded.size.width += CRBOLTLEEWAY;
 
@@ -627,10 +615,11 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 - (void)_finishUIUnlockFromSource:(int)source withOptions:(id)options { 
 	%orig();
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 
-	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
+	if (![preferences boolForKey:@"didRun" default:NO]) {
 		CRLOG(@"Detected novel (newest) run...");
-		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
+		[preferences setBool:YES forKey:@"didRun"];
 
 		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
@@ -730,10 +719,11 @@ static CRAlertViewDelegate *circletAVDelegate;
 %hook UIStatusBarBatteryItemView
 
 - (id)_accessoryImage {	
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 	BOOL shouldOverride = circletEnabledForClassname(NSStringFromClass([self class]));
-	NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
+	BOOL showBolt = [preferences boolForKey:@"showBolt"];
 
-	if (shouldOverride && (!showBolt || ![showBolt boolValue])) {
+	if (shouldOverride && !showBolt) {
 		return circletBlankImage();
 	}
 
@@ -764,10 +754,11 @@ static CRAlertViewDelegate *circletAVDelegate;
 	NSString *className = NSStringFromClass([arg1 class]);
 
 	if (circletEnabledForClassname(className) && [className isEqualToString:@"UIStatusBarBatteryItemView"]) {
-		NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
+		HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+		BOOL showBolt = [preferences boolForKey:@"showBolt"];
 
 		// Should only have that preference set if on iOS 7 (not in other plist)...
-		if (showBolt && [showBolt boolValue] && MSHookIvar<int>(arg1, "_state") != 0) {
+		if (showBolt && MSHookIvar<int>(arg1, "_state") != 0) {
 			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery) + CRBOLTLEEWAY, frame.size.height);
 		}
 
@@ -793,12 +784,13 @@ static CRAlertViewDelegate *circletAVDelegate;
 	NSString *className = NSStringFromClass([arg1 class]);
 
 	if (circletEnabledForClassname(className)) {
+		HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 		if ([className isEqualToString:@"UIStatusBarSignalStrengthItemView"]) {
 			frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionSignal), frame.size.height);
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarServiceItemView"]) {
-			NSString *savedText = [sharedPreferencesManager() stringForKey:@"carrierText"];
+			NSString *savedText = [preferences objectForKey:@"carrierText"];
 			NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
 			if (savedText && clipped.length == 0 && savedText.length > 0) {
@@ -826,10 +818,10 @@ static CRAlertViewDelegate *circletAVDelegate;
 		}
 
 		else if ([className isEqualToString:@"UIStatusBarBatteryItemView"]) {
-			NSNumber *showBolt = [sharedPreferencesManager() numberForKey:@"showBolt"];
+			BOOL showBolt = [preferences boolForKey:@"showBolt"];
 
 			// Should only have that preference set if on iOS 7 (not in other plist)...
-			if (showBolt && [showBolt boolValue] && MSHookIvar<int>(arg1, "_state") != 0) {
+			if (showBolt && MSHookIvar<int>(arg1, "_state") != 0) {
 				frame = CGRectMake(frame.origin.x, frame.origin.y, circletWidthFromPosition(CircletPositionBattery) + CRBOLTLEEWAY, frame.size.height);
 			}
 
@@ -855,10 +847,11 @@ static CRAlertViewDelegate *circletAVDelegate;
 
 - (void)finishedUnscattering {
 	%orig();
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 
-	if (![sharedPreferencesManager() objectForKey:@"didRun"]) {
+	if (![preferences boolForKey:@"didRun" default:NO]) {
 		CRLOG(@"Detected novel (ancient) run...");
-		[sharedPreferencesManager() setObject:@(YES) forKey:@"didRun"];
+		[preferences setBool:YES forKey:@"didRun"];
 
 		circletAVDelegate = [[CRAlertViewDelegate alloc] init];
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Circlet" message:@"Welcome to Circlet. Set up your first circles by tapping Begin, or configure them later in Settings. Thanks for the dollar, I promise not to disappoint." delegate:circletAVDelegate cancelButtonTitle:@"Later" otherButtonTitles:@"Begin", nil];
