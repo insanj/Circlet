@@ -1,6 +1,4 @@
-#include "../Circlet.h"
 #import "../UIImage+Circlet.h"
-#import "../CRPrefsManager.h"
 
 #include <Preferences/Preferences.h>
 #include <UIKit/UIActivityViewController.h>
@@ -9,6 +7,7 @@
 
 #import "UIDiscreteSlider.h"
 #import "NKOColorPickerView.h"
+#import <Cephei/HBPreferences.h>
 
 #define URL_ENCODE(string) [(NSString *)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)(string), NULL, CFSTR(":/=,!$& '()*+;[]@#?"), kCFStringEncodingUTF8) autorelease]
 #define CRTINTCOLOR [UIColor colorWithRed:52/255.0 green:53/255.0 blue:46/255.0 alpha:1.0]

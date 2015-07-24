@@ -33,7 +33,8 @@
 
 	if (arg2.row == 0) {
 		NSString *key = [[self specifier] propertyForKey:@"key"];
-		NSString *colorString = [[CRPrefsManager sharedManager] stringForKey:[key stringByAppendingString:@"Custom"]];
+		HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+		NSString *colorString = [preferences objectForKey:[key stringByAppendingString:@"Custom"]];
 		if (!colorString) {
 			[cell.imageView setImage:[UIImage imageNamed:@"rainbow.png" inBundle:[NSBundle bundleForClass:self.class]]];
 			return cell;
@@ -76,7 +77,8 @@
 
 	if (indexPath.row == 0) {	
 		NSString *key = [[self specifier] propertyForKey:@"key"];
-		NSString *colorString = [[CRPrefsManager sharedManager] stringForKey:[key stringByAppendingString:@"Custom"]];
+		HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+		NSString *colorString = [preferences objectForKey:[key stringByAppendingString:@"Custom"]];
 		
 		UIColor *customColor;
 		if (!colorString) {
@@ -165,7 +167,8 @@
 		NSString *key = [[self specifier] propertyForKey:@"key"];
 		NSString *colorKey = [key stringByAppendingString:@"Custom"];
 
-		[[CRPrefsManager sharedManager] setObject:[color stringRepresentation] forKey:colorKey];
+		HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+		[preferences setObject:[color stringRepresentation] forKey:colorKey];
 		[[self table] reloadData];
 	}
 }

@@ -116,17 +116,21 @@
 - (void)layoutSubviews {
 	[super layoutSubviews];
 
-	NSNumber *value = [[CRPrefsManager sharedManager] numberForKey:[[self specifier] propertyForKey:@"key"]];
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+	CGFloat value = [preferences floatForKey:[[self specifier] propertyForKey:@"key"] default:5.0];
+	
 	UIDiscreteSlider *slider = (UIDiscreteSlider *) self.control;
-	slider.value = value ? [value floatValue] : 5.0;
+	slider.value = value;
 
 	CRLOG(@"Set prev-saved slider value as: %@", value);
 }
 
 - (void)saveSliderValue {
 	UIDiscreteSlider *slider = (UIDiscreteSlider *) self.control;
-	NSNumber *value = @(slider.value);
-	[[CRPrefsManager sharedManager] setObject:value forKey:[[self specifier] propertyForKey:@"key"]];
+	CGFloat value = slider.value;
+
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+	[preferences setFloat:value forKey:[[self specifier] propertyForKey:@"key"]];
 
 	CRLOG(@"Saved slider value as: %@", value);
 }

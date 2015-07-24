@@ -26,8 +26,6 @@
 
 #import "Circlet.h"
 #import "UIImage+Circlet.h"
-#import "CRPrefsManager.h"
-#import <Cephei/HBPreferences.h>
 
 extern "C" CFArrayRef CTRegistrationCopySupportedDataRates();
 extern "C" CFStringRef const kCTRegistrationDataRate3G;

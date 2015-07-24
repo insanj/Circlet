@@ -127,26 +127,24 @@ void circletCenterRefresh(CFNotificationCenterRef center, void *observer, CFStri
 	PSSpecifier *timeAdjustmentsSpecifier = [self specifierForID:@"TimeAdjustments"];
 	PSSpecifier *batteryAdjustmentsSpecifier = [self specifierForID:@"BatteryAdjustments"];
 
-	CRPrefsManager *manager = [CRPrefsManager sharedManager];
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 
-	NSNumber *signalValue = [manager numberForKey:@"signalEnabled"];
-	BOOL signalEnabled = !signalValue || [signalValue boolValue];
-	[signalAdjustmentsSpecifier setProperty:@(signalEnabled) forKey:@"enabled"];
+	[signalAdjustmentsSpecifier setProperty:@([preferences boolForKey:@"signalEnabled" default:YES]) forKey:@"enabled"];
 	[self reloadSpecifier:signalAdjustmentsSpecifier];
 
-	[carrierTextSpecifier setProperty:@([manager boolForKey:@"carrierEnabled"]) forKey:@"enabled"];
+	[carrierTextSpecifier setProperty:@([preferences boolForKey:@"carrierEnabled"]) forKey:@"enabled"];
 	[self reloadSpecifier:carrierTextSpecifier];
 
-	[wifiAdjustmentsSpecifier setProperty:@([manager boolForKey:@"wifiEnabled"]) forKey:@"enabled"];
+	[wifiAdjustmentsSpecifier setProperty:@([preferences boolForKey:@"wifiEnabled"]) forKey:@"enabled"];
 	[self reloadSpecifier:wifiAdjustmentsSpecifier];
 	
-	[dataAdjustmentsSpecifier setProperty:@([manager boolForKey:@"dataEnabled"]) forKey:@"enabled"];
+	[dataAdjustmentsSpecifier setProperty:@([preferences boolForKey:@"dataEnabled"]) forKey:@"enabled"];
 	[self reloadSpecifier:dataAdjustmentsSpecifier];
 
-	[timeAdjustmentsSpecifier setProperty:@([manager boolForKey:@"timeEnabled"]) forKey:@"enabled"];
+	[timeAdjustmentsSpecifier setProperty:@([preferences boolForKey:@"timeEnabled"]) forKey:@"enabled"];
 	[self reloadSpecifier:timeAdjustmentsSpecifier];
 
-	[batteryAdjustmentsSpecifier setProperty:@([manager boolForKey:@"batteryEnabled"]) forKey:@"enabled"];
+	[batteryAdjustmentsSpecifier setProperty:@([preferences boolForKey:@"batteryEnabled"]) forKey:@"enabled"];
 	[self reloadSpecifier:batteryAdjustmentsSpecifier];
 }
 

@@ -20,6 +20,8 @@
 #define CRDEFAULTRADIUS 5.0
 #define CRBOLTLEEWAY 7.0
 
+#import <Cephei/HBPreferences.h>
+
 typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionSignal = 0,
     CircletPositionWifi,

@@ -14,7 +14,8 @@
 - (void)loadView {
 	[super loadView];
 
-	if (![[CRPrefsManager sharedManager] objectForKey:@"signalStyle"]) {
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+	if (![preferences integerForKey:@"signalStyle" default:0]) {
 		PSSpecifier *signalStyleSpecifier = [self specifierForID:@"SignalStyle"];
 		[self setPreferenceValue:@(1) specifier:signalStyleSpecifier];
 		[self reloadSpecifier:signalStyleSpecifier];
@@ -37,7 +38,8 @@
 - (void)loadView {
 	[super loadView];
 
-	if (![[CRPrefsManager sharedManager] objectForKey:@"wifiStyle"]) {
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+	if (![preferences integerforKey:@"wifiStyle" default:0]) {
 		PSSpecifier *wifiStyleSpecifier = [self specifierForID:@"WifiStyle"];
 		[self setPreferenceValue:@(1) specifier:wifiStyleSpecifier];
 		[self reloadSpecifier:wifiStyleSpecifier];
@@ -60,7 +62,8 @@
 - (void)loadView {
 	[super loadView];
 
-	if (![[CRPrefsManager sharedManager] objectForKey:@"dataStyle"]) {
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+	if (![preferences integerForKey:@"dataStyle"]) {
 		PSSpecifier *dataStyleSpecifier = [self specifierForID:@"DataStyle"];
 		[self setPreferenceValue:@(1) specifier:dataStyleSpecifier];
 		[self reloadSpecifier:dataStyleSpecifier];
@@ -83,7 +86,8 @@
 - (void)loadView {
 	[super loadView];
 
-	if (![[CRPrefsManager sharedManager] objectForKey:@"timeStyle"]) {
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+	if (![preferences integerForKey:@"timeStyle" default:0]) {
 		PSSpecifier *timeStyleSpecifier = [self specifierForID:@"TimeStyle"];
 		[self setPreferenceValue:@(1) specifier:timeStyleSpecifier];
 		[self reloadSpecifier:timeStyleSpecifier];
@@ -106,7 +110,8 @@
 - (void)loadView {
 	[super loadView];
 	
-	if (![[CRPrefsManager sharedManager] objectForKey:@"batteryStyle"]) {
+	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
+	if (![preferences integerForKey:@"batteryStyle" default:0]) {
 		PSSpecifier *batteryStyleSpecifier = [self specifierForID:@"BatteryStyle"];
 		[self setPreferenceValue:@(1) specifier:batteryStyleSpecifier];
 		[self reloadSpecifier:batteryStyleSpecifier];
