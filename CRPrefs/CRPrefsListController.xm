@@ -63,7 +63,7 @@ void circletCenterRefresh(CFNotificationCenterRef center, void *observer, CFStri
 }
 
 + (NSString *)hb_specifierPlist {
-	return IPAD ? @"CRBPrefs" : @"CRPrefs";
+	return IPAD ? @"CRCPrefs" : @"CRPrefs";
 }
 
 + (UIColor *)hb_tintColor {

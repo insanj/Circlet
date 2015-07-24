@@ -1,4 +1,14 @@
-#import "CRHeaders.h"
+#include <stdlib.h>
+#include <objc/runtime.h>
+#include <QuartzCore/QuartzCore.h>
+#include <UIKit/UIKit.h>
+#include <Foundation/NSDistributedNotificationCenter.h>
+#import "Reachability/Reachability.h"
+#import "substrate.h"
+#import <SpringBoard/Springboard.h>
+#import <UIKit/UIKit+Private.h>
+#import <CoreTelephony/CoreTelephony.h>
+#import <Cephei/HBPreferences.h>
 
 #ifdef DEBUG
     #define CRLOG(fmt, ...) NSLog((@"[Circlet] %s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
@@ -19,8 +29,6 @@
 
 #define CRDEFAULTRADIUS 5.0
 #define CRBOLTLEEWAY 7.0
-
-#import <Cephei/HBPreferences.h>
 
 typedef NS_ENUM(NSUInteger, CircletPosition) {
     CircletPositionSignal = 0,
@@ -45,4 +53,3 @@ typedef NS_ENUM(NSUInteger, CircletPosition) {
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 
 @end
-

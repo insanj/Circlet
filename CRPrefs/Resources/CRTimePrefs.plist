@@ -58,16 +58,14 @@
         </dict>
 
         <dict>
-            <key>cell</key>                 <string>PSSliderCell</string>
-            <key>cellClass</key>            <string>CRSliderTableCell</string>
+            <key>cellClass</key>            <string>HBStepperTableCell</string>
+            <key>default</key>              <real>5.0</real>
+            <key>label</key>                <string>%ipt Radius</string>
             <key>defaults</key>             <string>com.insanj.circlet</string>
-            <key>id</key>                   <string>TimeSize</string>
             <key>key</key>                  <string>timeSize</string>
-            <key>leftImage</key>            <string>tiny.png</string>
-            <key>rightImage</key>           <string>big.png</string>
             <key>min</key>                  <real>3.0</real>
             <key>max</key>                  <real>10.0</real>
-            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
+            <key>PostNotification</key>     <string>com.insanj.circlet/ReloadPrefs</string>
         </dict>
 
          <dict>

@@ -153,31 +153,25 @@
 			<key>footerText</key>		  <string>Thanks for using Circlet! Please send all feedback and support directly from Cydia.</string>
 		</dict>
 
-		<dict>
-			<key>cell</key>			<string>PSButtonCell</string>
-			<key>label</key>		<string>Developer</string>
-			<key>icon</key> 	    <string>twitter.png</string>
-			<key>action</key>  		<string>twitter</string>
-		</dict>
+        <dict>
+            <key>big</key>              <true/>
+            <key>cellClass</key>        <string>HBTwitterCell</string>
+            <key>height</key>           <integer>56</integer>
+            <key>label</key>            <string>Julian Weiss</string>
+            <key>user</key>             <string>insanj</string>
+        </dict>
 
         <dict>
             <key>cell</key>         <string>PSButtonCell</string>
-            <key>label</key>        <string>Website</string>
+            <key>label</key>        <string>Website &amp; Source</string>
             <key>icon</key>         <string>icon.png</string>
             <key>action</key>       <string>website</string>
         </dict>
 
-		<dict>
-			<key>cell</key>				<string>PSGroupCell</string>
-            <key>footerText</key>       <string>© 2014 Julian Weiss</string>
-		</dict>
-
-		<dict>
-			<key>cell</key> 			<string>PSStaticTextCell</string>
-			<key>cellClass</key>		<string>CRCreditsCell</string>
-			<key>height</key> 	  	    <integer>158</integer>
-		</dict>
-
+        <dict>
+            <key>cell</key>             <string>PSGroupCell</string>
+            <key>footerText</key>       <string>© 2014-2015 Julian Weiss&#10;Source and credits available online.</string>
+        </dict>
 	</array>
 	<key>title</key>	<string>Circlet</string>
 </dict>
