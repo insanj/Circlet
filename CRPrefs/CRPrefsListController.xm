@@ -1,7 +1,7 @@
-#import "CRPrefs.h"
+#import "CRPrefsListController.h"
 
 void circletSidesRefresh(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
+    CFNotificationCenterPostNotification(center, CFSTR("com.insanj.circlet/ReloadPrefs"), nil, nil, TRUE);
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLSmartDisable" object:nil];
 
 	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
@@ -29,9 +29,7 @@ void circletSidesRefresh(CFNotificationCenterRef center, void *observer, CFStrin
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshStatusBar" object:nil];
 
 	CGFloat shrinkAmount = 5.0;
-	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
-		CRLOG(@"Animating out...");
-		
+	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){		
 		CGRect shrinkFrame = fakeStatusBar.frame;
 		shrinkFrame.origin.x += shrinkAmount;
 		shrinkFrame.origin.y += shrinkAmount;
@@ -49,7 +47,7 @@ void circletSidesRefresh(CFNotificationCenterRef center, void *observer, CFStrin
 }
 
 void circletCenterRefresh(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo) {
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
+    CFNotificationCenterPostNotification(center, CFSTR("com.insanj.circlet/ReloadPrefs"), nil, nil, TRUE);
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CLSmartDisable" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshTime" object:nil];
 }
@@ -62,18 +60,22 @@ void circletCenterRefresh(CFNotificationCenterRef center, void *observer, CFStri
 	[[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(smartDisable) name:@"CLSmartDisable" object:nil];
 
 	[super loadView];
-
-	[UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = CRTINTCOLOR;
-	[UISegmentedControl appearanceWhenContainedIn:self.class, nil].tintColor = CRTINTCOLOR;
-	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareTapped:)] autorelease];
 }
 
-- (NSArray *)specifiers {
-	if (!_specifiers) {
-		_specifiers = [[self loadSpecifiersFromPlistName:(IPAD ? @"CRBPrefs" : @"CRPrefs") target:self] retain];
-	}
++ (NSString *)hb_specifierPlist {
+	return IPAD ? @"CRBPrefs" : @"CRPrefs";
+}
 
-	return _specifiers;
++ (UIColor *)hb_tintColor {
+	return [UIColor colorWithRed:52/255.0 green:53/255.0 blue:46/255.0 alpha:1.0];
+}
+
++ (NSString *)hb_shareText {
+	return @"Life has never been simpler than with #Circlet by @insanj.";
+}
+
++ (NSURL *)hb_shareURL {
+	return [NSURL URLWithString:@"http://insanj.com/circlet"];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -82,11 +84,6 @@ void circletCenterRefresh(CFNotificationCenterRef center, void *observer, CFStri
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-	if (MODERN_IOS) {
-		self.view.tintColor = CRTINTCOLOR;
-	    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
-	}
-
 	[self smartDisable];
 	[self pullHeaderPin];
 
@@ -94,32 +91,28 @@ void circletCenterRefresh(CFNotificationCenterRef center, void *observer, CFStri
 }
 
 - (void)pullHeaderPin {
-	CRLOG(@"Pulling header pin...");
 	NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
 	CGFloat hour = [components hour];
 	CGFloat minute = [components minute] / 60.0;
 	CGFloat combined = (fmod(hour + minute, 12.0) + 1.0) / 12.0;
 
-	CRLOG(@"Percentage full: %f", combined);
-
 	if (!self.navigationItem.titleView) {
 		// Randomly pick radial, fill, concentric or their inverses
 		NSInteger style = arc4random_uniform(1) + arc4random_uniform(3);
 
-		self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage circletWithColor:CRTINTCOLOR radius:13.0 percentage:combined style:style]];
+		self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage circletWithColor:[UIColor colorWithRed:52/255.0 green:53/255.0 blue:46/255.0 alpha:1.0] radius:13.0 percentage:combined style:style]];
 		self.navigationItem.titleView.tag = style;
 	}
 
 	else {
 		UIImageView *titleView = (UIImageView *) self.navigationItem.titleView;
-		titleView.image = [UIImage circletWithColor:CRTINTCOLOR radius:13.0 percentage:combined style:titleView.tag];
+		titleView.image = [UIImage circletWithColor:[UIColor colorWithRed:52/255.0 green:53/255.0 blue:46/255.0 alpha:1.0] radius:13.0 percentage:combined style:titleView.tag];
 	}
 	
 	[self performSelector:@selector(pullHeaderPin) withObject:nil afterDelay:(60.0 - [components second])];
 }
 
 - (void)smartDisable {
-	CRLOG(@"Smart disabling...");	
 	PSSpecifier *signalAdjustmentsSpecifier = [self specifierForID:@"SignalAdjustments"];
 	PSSpecifier *carrierTextSpecifier = [self specifierForID:@"CarrierText"];
 	PSSpecifier *wifiAdjustmentsSpecifier = [self specifierForID:@"WifiAdjustments"];
@@ -148,39 +141,9 @@ void circletCenterRefresh(CFNotificationCenterRef center, void *observer, CFStri
 	[self reloadSpecifier:batteryAdjustmentsSpecifier];
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-	[super viewWillDisappear:animated];
-
-	if (MODERN_IOS) {
-		self.view.tintColor = nil;
-	    self.navigationController.navigationBar.tintColor = nil;
-	}
-}
-
 - (void)tableView:(id)arg1 didSelectRowAtIndexPath:(id)arg2 {
  	[super tableView:arg1 didSelectRowAtIndexPath:arg2];
 	[arg1 deselectRowAtIndexPath:arg2 animated:YES];
-}
-
-- (void)shareTapped:(UIBarButtonItem *)sender {
-	NSString *text = @"Life has never been simpler than with #Circlet by @insanj.";
-	NSURL *url = [NSURL URLWithString:@"http://insanj.com/circlet"];
-
-	if (%c(UIActivityViewController)) {
-		UIActivityViewController *viewController = [[[%c(UIActivityViewController) alloc] initWithActivityItems:[NSArray arrayWithObjects:text, url, nil] applicationActivities:nil] autorelease];
-		[self.navigationController presentViewController:viewController animated:YES completion:NULL];
-	}
-
-	else if (%c(TWTweetComposeViewController) && [TWTweetComposeViewController canSendTweet]) {
-		TWTweetComposeViewController *viewController = [[[TWTweetComposeViewController alloc] init] autorelease];
-		viewController.initialText = text;
-		[viewController addURL:url];
-		[self.navigationController presentViewController:viewController animated:YES completion:NULL];
-	}
-
-	else {
-		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://twitter.com/intent/tweet?text=%@%%20%@", URL_ENCODE(text), URL_ENCODE(url.absoluteString)]]];
-	}
 }
 
 - (void)twitter { 

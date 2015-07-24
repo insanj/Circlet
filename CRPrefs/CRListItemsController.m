@@ -1,29 +1,6 @@
-#import "CRPrefs.h"
+#import "CRListItemsController.h"
 
 @implementation CRListItemsController
-
-- (void)loadView {
-	_safeTitleToColor = [CRTITLETOCOLOR retain];
-	[super loadView];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-	if (MODERN_IOS) {
-		self.view.tintColor = CRTINTCOLOR;
-	    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
-	}
-
-    [super viewWillAppear:animated];
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-	[super viewWillDisappear:animated];
-
-	if (MODERN_IOS) {
-		self.view.tintColor = nil;
-	    self.navigationController.navigationBar.tintColor = nil;
-	}
-}
 
 - (id)tableView:(UITableView *)arg1 cellForRowAtIndexPath:(NSIndexPath *)arg2 {
 	PSTableCell *cell = [super tableView:arg1 cellForRowAtIndexPath:arg2];
@@ -64,7 +41,7 @@
 	}
 
 	else {
-		color = [_safeTitleToColor objectForKey:title];
+		color = [CRTITLETOCOLOR objectForKey:title];
 	}
 
 	UIImage *circletImage = [UIImage circletWithColor:color radius:10.0 percentage:percent style:CircletStyleRadial];
@@ -82,7 +59,7 @@
 		
 		UIColor *customColor;
 		if (!colorString) {
-			customColor = CRTINTCOLOR;
+			customColor = [UIColor colorWithRed:52/255.0 green:53/255.0 blue:46/255.0 alpha:1.0];;
 		}
 
 		else {
@@ -106,7 +83,6 @@
 		colorField.text = hexString;
 
 		CGFloat pickerHeight = IPAD ? 115.0 : self.view.frame.size.height / (MODERN_IOS ? 3.0 : 3.5);
-		CRLOG(@"pickerHeight decided on: %f", pickerHeight);
 
 		NKOColorPickerView *pickerView = [[NKOColorPickerView alloc] initWithFrame:CGRectMake(0.0, 0.0, 270.0, pickerHeight) color:customColor andDidChangeColorBlock:^(UIColor *color) {
 			const CGFloat *colorComponents = CGColorGetComponents(color.CGColor);

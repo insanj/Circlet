@@ -1,25 +1,8 @@
-#import "CRPrefs.h"
+#import "CRItemPrefsListController.h"
 
 @implementation CRItemPrefsListController
 
-- (void)loadView {
-	_titleToColor = CRTITLETOCOLOR;
-	[super loadView];
-
-	[UISwitch appearanceWhenContainedIn:self.class, nil].onTintColor = CRTINTCOLOR;
-	[UISegmentedControl appearanceWhenContainedIn:self.class, nil].tintColor = CRTINTCOLOR;
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-	if (MODERN_IOS) {
-		self.view.tintColor = CRTINTCOLOR;
-	    self.navigationController.navigationBar.tintColor = CRTINTCOLOR;
-	}
-}
-
-- (void)sidesReplenish {
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
-	
+- (void)sidesReplenish {	
 	UIStatusBar *statusBar = (UIStatusBar *)[[UIApplication sharedApplication] statusBar];
 	UIView *fakeStatusBar;
 
@@ -45,9 +28,7 @@
 	statusBar.frame = upwards;
 
 	CGFloat shrinkAmount = 5.0;
-	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){
-		CRLOG(@"Animating out...");
-		
+	[UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^(void){		
 		CGRect shrinkFrame = fakeStatusBar.frame;
 		shrinkFrame.origin.x += shrinkAmount;
 		shrinkFrame.origin.y += shrinkAmount;
@@ -65,7 +46,6 @@
 }
 
 - (void)middleReplenish {
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRReloadPreferences" object:nil];
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"CRRefreshTime" object:nil];
 }
 
@@ -95,7 +75,7 @@
 }
 
 - (NSArray *)lightColorTitles:(id)target {
-	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[[_titleToColor allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
+	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[[CRTITLETOCOLOR allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
 	[titles insertObject:@"Custom" atIndex:0];
 	[titles removeObject:@"Black (Default)"];
 	[titles removeObject:@"Red (Default)"];
@@ -109,7 +89,7 @@
 }
 
 - (NSArray *)darkColorTitles:(id)target {
-	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[[_titleToColor allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
+	NSMutableArray *titles = [[NSMutableArray alloc] initWithArray:[[CRTITLETOCOLOR allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]];
 	[titles insertObject:@"Custom" atIndex:0];
 	[titles removeObject:@"Black"];
 	[titles removeObject:@"Red (Default)"];
