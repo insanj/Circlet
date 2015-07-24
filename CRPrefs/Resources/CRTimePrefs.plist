@@ -17,6 +17,7 @@
             <key>key</key>          <string>timeStyle</string>
             <key>label</key>        <string>Time</string>
             <key>cellClass</key>    <string>CRSegmentTableCell</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>validTitles</key> <array>
                 <string>Radial</string>
                 <string>Fill</string>
@@ -38,6 +39,7 @@
             <key>key</key>              <string>timeInvert</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <false/>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
         </dict>
 
         <dict>
@@ -47,6 +49,7 @@
             <key>key</key>              <string>timeOutline</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <true/>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
         </dict>
 
         <dict>
@@ -64,6 +67,7 @@
             <key>rightImage</key>           <string>big.png</string>
             <key>min</key>                  <real>3.0</real>
             <key>max</key>                  <real>10.0</real>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
         </dict>
 
          <dict>
@@ -79,6 +83,7 @@
 			<key>label</key> 	   <string>Light Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorTitles:</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
 		</dict>
 
 
@@ -90,6 +95,7 @@
             <key>label</key>       <string>Dark Color</string>
             <key>titlesDataSource</key>  <string>darkColorTitles:</string>
             <key>valuesDataSource</key>  <string>darkColorValues:</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
         </dict>
 
          <dict>
@@ -105,6 +111,7 @@
             <key>label</key>       <string>Light Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
         </dict>
 
         <dict>
@@ -115,6 +122,7 @@
             <key>label</key>       <string>Dark Color</string>
             <key>titlesDataSource</key>  <string>darkColorTitles:</string>
             <key>valuesDataSource</key>  <string>darkColorTitles:</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
         </dict>
 
          <dict>

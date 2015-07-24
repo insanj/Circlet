@@ -17,8 +17,8 @@
 			<key>key</key> 				<string>signalEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<true/>
-            <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
             <key>PostNotification</key> <string>com.insanj.circlet/ReloadPrefs</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
 		</dict>
 
         <dict>
@@ -27,7 +27,6 @@
             <key>detail</key>            <string>CRSignalPrefsListController</string>
             <key>label</key>             <string>Adjustments</string>
             <key>id</key>         	 	 <string>SignalAdjustments</string>
-            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
         </dict>
 
         <dict>
@@ -42,8 +41,8 @@
 			<key>key</key> 				<string>carrierEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
-            <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
             <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
 		</dict>
 
         <dict>
@@ -55,8 +54,8 @@
 			<key>key</key> 				 <string>carrierText</string>
             <key>placeholder</key> 		 <string>ℒ, o, ⓥ, etc.</string>
             <key>noAutoCorrect</key> 	 <true/>
-            <key>PostNotification</key>  <string>com.insanj.circlet/Sides</string>
             <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/Sides</string>
         </dict>
 
         <dict>
@@ -70,8 +69,8 @@
             <key>key</key>              <string>wifiEnabled</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <false/>
-            <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
             <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
         </dict>
 
         <dict>
@@ -93,8 +92,8 @@
             <key>key</key>              <string>dataEnabled</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <false/>
-            <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
             <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
         </dict>
 
         <dict>
@@ -116,8 +115,8 @@
 			<key>key</key> 				<string>timeEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
-            <key>PostNotification</key> <string>com.insanj.circlet/Center</string>
             <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Center</string>
 		</dict>
 
         <dict>
@@ -139,8 +138,8 @@
 			<key>key</key> 				<string>batteryEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
-            <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
             <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
+            <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
 		</dict>
 
         <dict>

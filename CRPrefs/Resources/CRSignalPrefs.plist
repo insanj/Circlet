@@ -17,6 +17,7 @@
             <key>key</key>          <string>signalStyle</string>
             <key>label</key>        <string>Style</string>
             <key>cellClass</key>    <string>CRSegmentTableCell</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>validTitles</key> <array>
                 <string>Radial</string>
                 <string>Fill</string>
@@ -36,6 +37,7 @@
             <key>defaults</key>         <string>com.insanj.circlet</string>
             <key>label</key>            <string>Invert Style</string>
             <key>key</key>              <string>signalInvert</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <false/>
         </dict>
@@ -45,6 +47,7 @@
             <key>defaults</key>         <string>com.insanj.circlet</string>
             <key>label</key>            <string>Outline</string>
             <key>key</key>              <string>signalOutline</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <true/>
         </dict>
@@ -57,6 +60,7 @@
             <key>cell</key>                 <string>PSSliderCell</string>
             <key>cellClass</key>            <string>CRSliderTableCell</string>
             <key>defaults</key>             <string>com.insanj.circlet</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>id</key>                   <string>SignalSize</string>
             <key>key</key>                  <string>signalSize</string>
             <key>leftImage</key>            <string>tiny.png</string>
@@ -70,6 +74,7 @@
 			<key>defaults</key>    <string>com.insanj.circlet</string>
 			<key>detail</key> 	   <string>CRListItemsController</string>
 			<key>key</key> 	  	   <string>signalLightColor</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
 			<key>label</key> 	   <string>Light Color</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
@@ -80,6 +85,7 @@
 			<key>defaults</key>    <string>com.insanj.circlet</string>
 			<key>detail</key> 	   <string>CRListItemsController</string>
 			<key>key</key> 		   <string>signalDarkColor</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
 			<key>label</key> 	   <string>Dark Color</string>
             <key>titlesDataSource</key>  <string>darkColorTitles:</string>
             <key>valuesDataSource</key>  <string>darkColorValues:</string>

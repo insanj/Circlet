@@ -17,6 +17,7 @@
             <key>key</key>          <string>wifiStyle</string>
             <key>label</key>        <string>Style</string>
             <key>cellClass</key>    <string>CRSegmentTableCell</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>validTitles</key> <array>
                 <string>Radial</string>
                 <string>Fill</string>
@@ -36,6 +37,7 @@
             <key>defaults</key>         <string>com.insanj.circlet</string>
             <key>label</key>            <string>Invert Style</string>
             <key>key</key>              <string>wifiInvert</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <false/>
         </dict>
@@ -45,6 +47,7 @@
             <key>defaults</key>         <string>com.insanj.circlet</string>
             <key>label</key>            <string>Outline</string>
             <key>key</key>              <string>wifiOutline</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <true/>
         </dict>
@@ -63,6 +66,7 @@
             <key>key</key>                  <string>wifiSize</string>
             <key>leftImage</key>            <string>tiny.png</string>
             <key>rightImage</key>           <string>big.png</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>min</key>                  <real>3.0</real>
             <key>max</key>                  <real>10.0</real>
         </dict>
@@ -73,6 +77,7 @@
 			<key>detail</key> 		<string>CRListItemsController</string>
 			<key>key</key> 			<string>wifiLightColor</string>
 			<key>label</key> 		<string>Light Color</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
     	</dict>
@@ -83,6 +88,7 @@
 			<key>detail</key> 		<string>CRListItemsController</string>
 			<key>key</key> 			<string>wifiDarkColor</string>
 			<key>label</key> 		<string>Dark Color</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>titlesDataSource</key>  <string>darkColorTitles:</string>
             <key>valuesDataSource</key>  <string>darkColorValues:</string>
 		</dict>

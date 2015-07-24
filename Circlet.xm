@@ -60,7 +60,7 @@ static CGFloat circletRadiusFromPosition(CircletPosition posit) {
 		case CircletPositionWifi:
 			return [preferences floatForKey:@"wifiSize" default:CRDEFAULTRADIUS];
 		case CircletPositionData:
-			return [preferences floatForKey:@"dataSize" 
+			return [preferences floatForKey:@"dataSize" default:CRDEFAULTRADIUS];
 		case CircletPositionTimeMinute:
 		case CircletPositionTimeHour:
 			return [preferences floatForKey:@"timeSize" default:CRDEFAULTRADIUS] * 2.0;
@@ -464,7 +464,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 		dark = [UIColor whiteColor];
 	}
 
-	NSString *savedText = [preferences stringForKey:@"carrierText"];
+	NSString *savedText = [preferences objectForKey:@"carrierText"];
 	NSString *clipped = [savedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
 	CGFloat radius = CRDEFAULTRADIUS;
@@ -567,7 +567,7 @@ static CRAlertViewDelegate *circletAVDelegate;
 		imageColor = circletColorForPosition(white, CircletPositionBattery);
 	}
 
-	BOOL showOutline = [preferences boolForKey;@"batteryOutline" default:YES];
+	BOOL showOutline = [preferences boolForKey:@"batteryOutline" default:YES];
 
 	if (showOutline) {
 		if (lessenedThickness > 0.0) {

@@ -16,6 +16,7 @@
             <key>key</key>          <string>dataStyle</string>
             <key>label</key>        <string>Style</string>
             <key>cellClass</key>    <string>CRSegmentTableCell</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>validTitles</key> <array>
                 <string>Radial</string>
                 <string>Fill</string>
@@ -40,6 +41,7 @@
             <key>defaults</key>         <string>com.insanj.circlet</string>
             <key>label</key>            <string>Invert Style</string>
             <key>key</key>              <string>dataInvert</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <false/>
         </dict>
@@ -49,6 +51,7 @@
             <key>defaults</key>         <string>com.insanj.circlet</string>
             <key>label</key>            <string>Outline</string>
             <key>key</key>              <string>dataOutline</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <true/>
         </dict>
@@ -61,6 +64,7 @@
             <key>cell</key>                 <string>PSSliderCell</string>
             <key>cellClass</key>            <string>CRSliderTableCell</string>
             <key>defaults</key>             <string>com.insanj.circlet</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>id</key>                   <string>DataSize</string>
             <key>key</key>                  <string>dataSize</string>
             <key>leftImage</key>            <string>tiny.png</string>
@@ -79,6 +83,7 @@
 			<key>detail</key> 		<string>CRListItemsController</string>
 			<key>key</key> 			<string>dataLightColor</string>
 			<key>label</key> 		<string>Data Color</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
 		</dict>

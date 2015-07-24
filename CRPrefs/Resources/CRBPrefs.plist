@@ -17,6 +17,7 @@
 			<key>key</key> 				<string>signalEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<true/>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
 		</dict>
 
@@ -40,6 +41,7 @@
 			<key>key</key> 				<string>carrierEnabled</string>
 			<key>enabled</key> 			<true/>
 			<key>default</key> 			<false/>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>PostNotification</key> <string>com.insanj.circlet/Sides</string>
 		</dict>
 
@@ -52,6 +54,7 @@
 			<key>key</key> 				 <string>carrierText</string>
             <key>placeholder</key> 		 <string>ℒ, o, ⓥ, etc.</string>
             <key>noAutoCorrect</key> 	 <true/>
+                <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>PostNotification</key>  <string>com.insanj.circlet/Sides</string>
         </dict>
 

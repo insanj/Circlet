@@ -15,6 +15,7 @@
             <key>id</key>           <string>BatteryStyle</string>
             <key>key</key>          <string>batteryStyle</string>
             <key>label</key>        <string>Style</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>cellClass</key>    <string>CRSegmentTableCell</string>
             <key>validTitles</key> <array>
                 <string>Radial</string>
@@ -41,6 +42,7 @@
             <key>label</key>            <string>Invert Style</string>
             <key>key</key>              <string>batteryInvert</string>
             <key>enabled</key>          <true/>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>default</key>          <false/>
         </dict>
 
@@ -49,6 +51,7 @@
             <key>defaults</key>         <string>com.insanj.circlet</string>
             <key>label</key>            <string>Outline</string>
             <key>key</key>              <string>batteryOutline</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>enabled</key>          <true/>
             <key>default</key>          <true/>
         </dict>
@@ -65,6 +68,7 @@
             <key>key</key>                  <string>batterySize</string>
             <key>leftImage</key>            <string>tiny.png</string>
             <key>rightImage</key>           <string>big.png</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>min</key>                  <real>3.0</real>
             <key>max</key>                  <real>10.0</real>
         </dict>
@@ -79,6 +83,7 @@
 			<key>detail</key> 		<string>CRListItemsController</string>
 			<key>key</key> 			<string>batteryLightColor</string>
 			<key>label</key> 		<string>Color</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>titlesDataSource</key>  <string>lightColorTitles:</string>
             <key>valuesDataSource</key>  <string>lightColorValues:</string>
 		</dict>
@@ -89,6 +94,7 @@
             <key>detail</key> 	  	<string>CRListItemsController</string>
             <key>key</key> 		 	<string>chargingLightColor</string>
             <key>label</key> 	   	<string>Charging Color</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>titlesDataSource</key>  <string>chargingColorTitles:</string>
             <key>valuesDataSource</key>  <string>chargingColorTitles:</string>
 		</dict>
@@ -99,6 +105,7 @@
             <key>detail</key>       <string>CRListItemsController</string>
             <key>key</key>          <string>lowBatteryLightColor</string>
             <key>label</key>        <string>Low Power Color</string>
+            <key>PostNotification</key>  <string>com.insanj.circlet/ReloadPrefs</string>
             <key>titlesDataSource</key>  <string>lowPowerColorTitles:</string>
             <key>valuesDataSource</key>  <string>lowPowerColorValues:</string>
         </dict>

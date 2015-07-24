@@ -6,7 +6,7 @@
 	self = [super initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:reuseIdentifier specifier:specifier];
 
 	if (self) {
-		NSString *rawCredits = @"Circlet (1.3.2) was created by Julian Weiss with lots of love from Benno, A³Tweaks, and the entire Hashbang crew. Uses NKOColorPickerView and UIDiscreteSlider for finer settings control. Inspired by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects), make sure to follow me on Twitter. Full support for iOS 7, limited iOS 6. Enjoy!";
+		NSString *rawCredits = @"Circlet (1.4) was created by Julian Weiss with lots of love from Benno, A³Tweaks, and the entire Hashbang crew. Uses NKOColorPickerView and UIDiscreteSlider for finer settings control. Inspired by the awesome members of /r/jailbreak. To stay updated on Circlet (and many other projects), make sure to follow me on Twitter. Full support for iOS 7, limited iOS 6. Enjoy!";
 
 		if (IPAD) {
 			[self setTitle:rawCredits];
@@ -99,7 +99,7 @@
 
 @implementation CRSliderTableCell
 
-- (id)initWithStyle:(int)arg1 reuseIdentifier:(id)arg2 specifier:(id)arg3 {
+- (id)initWithStyle:(UITableViewCellStyle)arg1 reuseIdentifier:(NSString *)arg2 specifier:(PSSpecifier *)arg3 {
 	self = [super initWithStyle:arg1 reuseIdentifier:arg2 specifier:arg3];
 	
 	if (self) {		
@@ -122,7 +122,7 @@
 	UIDiscreteSlider *slider = (UIDiscreteSlider *) self.control;
 	slider.value = value;
 
-	CRLOG(@"Set prev-saved slider value as: %@", value);
+	CRLOG(@"Set prev-saved slider value as: %f", value);
 }
 
 - (void)saveSliderValue {
@@ -132,7 +132,7 @@
 	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
 	[preferences setFloat:value forKey:[[self specifier] propertyForKey:@"key"]];
 
-	CRLOG(@"Saved slider value as: %@", value);
+	CRLOG(@"Saved slider value as: %f", value);
 }
 
 @end

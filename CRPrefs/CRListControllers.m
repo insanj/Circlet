@@ -15,7 +15,9 @@
 	[super loadView];
 
 	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
-	if (![preferences integerForKey:@"signalStyle" default:0]) {
+	NSInteger style = [preferences integerForKey:@"signalStyle" default:-1];
+	
+	if (style == -1) {
 		PSSpecifier *signalStyleSpecifier = [self specifierForID:@"SignalStyle"];
 		[self setPreferenceValue:@(1) specifier:signalStyleSpecifier];
 		[self reloadSpecifier:signalStyleSpecifier];
@@ -39,7 +41,9 @@
 	[super loadView];
 
 	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
-	if (![preferences integerforKey:@"wifiStyle" default:0]) {
+	NSInteger style = [preferences integerForKey:@"wifiStyle" default:-1];
+
+	if (style == -1) {
 		PSSpecifier *wifiStyleSpecifier = [self specifierForID:@"WifiStyle"];
 		[self setPreferenceValue:@(1) specifier:wifiStyleSpecifier];
 		[self reloadSpecifier:wifiStyleSpecifier];
@@ -63,7 +67,9 @@
 	[super loadView];
 
 	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
-	if (![preferences integerForKey:@"dataStyle"]) {
+	NSInteger style = [preferences integerForKey:@"dataStyle" default:-1];
+
+	if (style == -1) {
 		PSSpecifier *dataStyleSpecifier = [self specifierForID:@"DataStyle"];
 		[self setPreferenceValue:@(1) specifier:dataStyleSpecifier];
 		[self reloadSpecifier:dataStyleSpecifier];
@@ -87,7 +93,9 @@
 	[super loadView];
 
 	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
-	if (![preferences integerForKey:@"timeStyle" default:0]) {
+	NSInteger style = [preferences integerForKey:@"timeStyle" default:-1];
+
+	if (style == -1) {
 		PSSpecifier *timeStyleSpecifier = [self specifierForID:@"TimeStyle"];
 		[self setPreferenceValue:@(1) specifier:timeStyleSpecifier];
 		[self reloadSpecifier:timeStyleSpecifier];
@@ -111,7 +119,9 @@
 	[super loadView];
 	
 	HBPreferences *preferences = [[HBPreferences alloc] initWithIdentifier:@"com.insanj.circlet"];
-	if (![preferences integerForKey:@"batteryStyle" default:0]) {
+	NSInteger style = [preferences integerForKey:@"batteryStyle" default:-1];
+
+	if (style == -1) {
 		PSSpecifier *batteryStyleSpecifier = [self specifierForID:@"BatteryStyle"];
 		[self setPreferenceValue:@(1) specifier:batteryStyleSpecifier];
 		[self reloadSpecifier:batteryStyleSpecifier];
